@@ -1,0 +1,316 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   INNOVADENT — Sistema de diseño
+   Astro + Tailwind v4 + GSAP
+   Ruta destino: src/styles/global.css
+   ========================================================================== */
+
+@theme {
+  /* ------------------------------------------------------------------
+     COLOR — tres colores, todo lo demás son tintes y sombras
+     Proporción 60-30-10: neutro domina, tinta estructura, verde dirige.
+
+     El verde #2AAE8A mide hue 169°. La tinta mide 168°. Un grado de
+     separación: armonía monocromática literal.
+
+     Regla crítica: el verde es SUPERFICIE, no tinta. Da 2.47:1 sobre el
+     fondo, así que nunca se usa como color de texto ni de enlace sobre
+     claro. El botón se llena de verde y el texto encima va en tinta
+     (6.18:1). Para enlaces sobre claro existe --color-verde-700.
+
+     El fondo tiene croma casi nulo: ni crema (comparte el sesgo amarillo
+     del diente) ni celeste (induce amarillo por contraste simultáneo).
+     Toda fotografía clínica se monta sobre --color-tinta-800.
+     ------------------------------------------------------------------ */
+
+  /* 1 · NEUTRO — 60% */
+  --color-fondo:      #F1F1EF;  /* L*95.1 C*1.0 */
+  --color-superficie: #F8F8F7;  /* fichas, formularios, tarjetas */
+  --color-franja:     #DFE0DD;  /* secciones alternas, hover suave */
+  --color-borde:      #C4C6C3;  /* líneas de ficha y campos */
+
+  /* 2 · TINTA — 30% (fijada por el cliente, no modificar) */
+  --color-tinta:     #171C1A;  /* 15.25:1 sobre fondo · 6.18:1 sobre verde */
+  --color-tinta-800: #1F2523;  /* superficie oscura: TODA foto clínica */
+  --color-tinta-700: #2B332F;  /* elevación dentro de zona oscura */
+  --color-grafito:   #4A524E;  /*  7.12:1 — texto secundario */
+  --color-neblina:   #7C837F;  /*  3.29:1 — solo ≥24px o decorativo */
+
+  /* 3 · VERDE #2AAE8A — 10% */
+  --color-verde:     #2AAE8A;  /* SUPERFICIE de acción. Texto encima: tinta.
+                                  5.58:1 sobre zona oscura, ahí sí va como tinta */
+  --color-verde-600: #219478;  /* hover del botón — tinta encima 4.58:1 */
+  --color-verde-800: #177357;  /* active */
+  --color-verde-700: #1A7C61;  /* TEXTO y enlaces sobre claro — 4.53:1 */
+  --color-verde-200: #7FD9BE;  /* enlaces y detalles sobre zona oscura — 9.33:1 */
+  --color-verde-100: #D6F3EA;  /* tinte suave, anillo de foco, ámbito Kids */
+
+  /* Estados: no añaden color, usan valores de la paleta */
+  --color-exito:  #1A7C61;
+  --color-alerta: #2B332F;
+
+  /* ------------------------------------------------------------------
+     TIPOGRAFÍA
+     Una sola superfamilia variable (Archivo, ejes wght + wdth).
+     Titulares en el ancho expandido, cuerpo en el ancho normal.
+     Dos personalidades, un solo archivo de fuente.
+     ------------------------------------------------------------------ */
+
+  --font-display: "Archivo Expanded", "Archivo", system-ui, sans-serif;
+  --font-sans:    "Archivo", system-ui, -apple-system, sans-serif;
+
+  /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
+     Los tamaños de cuerpo nunca bajan de 16px en móvil. */
+  --text-hero:    clamp(3rem, 9vw, 7.5rem);
+  --text-hero--line-height: 0.92;
+  --text-hero--letter-spacing: -0.03em;
+
+  --text-display: clamp(2.25rem, 5.5vw, 4rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.025em;
+
+  --text-titulo:  clamp(1.75rem, 3vw, 2.5rem);
+  --text-titulo--line-height: 1.1;
+  --text-titulo--letter-spacing: -0.02em;
+
+  --text-subtitulo: clamp(1.25rem, 2vw, 1.5rem);
+  --text-subtitulo--line-height: 1.25;
+  --text-subtitulo--letter-spacing: -0.01em;
+
+  --text-cuerpo-lg: 1.125rem;
+  --text-cuerpo-lg--line-height: 1.6;
+
+  --text-cuerpo: 1rem;
+  --text-cuerpo--line-height: 1.65;
+
+  --text-menor: 0.875rem;
+  --text-menor--line-height: 1.5;
+
+  --text-dato: 0.8125rem;
+  --text-dato--line-height: 1.4;
+  --text-dato--letter-spacing: 0.005em;
+
+  /* ------------------------------------------------------------------
+     LAYOUT
+     ------------------------------------------------------------------ */
+
+  --spacing-seccion:    clamp(5rem, 12vh, 10rem);
+  --spacing-seccion-sm: clamp(3rem, 7vh, 5rem);
+
+  --container-texto:  38rem;   /* ~68 caracteres, límite de lectura */
+  --container-ancho:  78rem;
+  --container-full:   96rem;
+
+  /* Radios jerárquicos: la estructura no se redondea, la fotografía sí. */
+  --radius-nada:   0;
+  --radius-accion: 2px;
+  --radius-campo:  3px;
+  --radius-foto:   12px;
+
+  /* ------------------------------------------------------------------
+     MOVIMIENTO
+     Curvas fuertes. Las de CSS por defecto son demasiado débiles.
+     Nunca ease-in en UI: arranca lento justo cuando el usuario mira.
+     ------------------------------------------------------------------ */
+
+  --ease-salida:  cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-ambos:   cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-cortina: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --duracion-toque:  140ms;  /* feedback de pulsación */
+  --duracion-ui:     200ms;  /* dropdowns, hover */
+  --duracion-panel:  320ms;  /* menú móvil, modal */
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  html {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Solo desktop lleva scroll suavizado (Lenis). En móvil, scroll nativo:
+     un paciente de 60 años buscando el teléfono no quiere inercia. */
+  @media (max-width: 1023px) {
+    html { scroll-behavior: auto; }
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  p, li { text-wrap: pretty; }
+
+  /* Toda cifra clínica (años, meses, número de caso, precios) se alinea
+     en columna. Esto es lo que reemplaza al monospace. */
+  .cifra,
+  table, time {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Foco visible y consistente en todo el sitio. */
+  :focus-visible {
+    outline: 2px solid var(--color-verde);
+    outline-offset: 3px;
+    border-radius: var(--radius-accion);
+  }
+
+  /* Reserva de espacio obligatoria: CLS por debajo de 0.1. */
+  img, video, iframe { display: block; max-width: 100%; height: auto; }
+}
+
+/* ==========================================================================
+   COMPONENTES BASE
+   ========================================================================== */
+
+@layer components {
+
+  /* --- Acción primaria: reservar cita ---------------------------------- */
+  .accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.5rem;
+    min-height: 48px;                 /* objetivo táctil */
+    border-radius: var(--radius-accion);
+    background-color: var(--color-verde);
+    color: var(--color-tinta);
+    font-size: var(--text-cuerpo);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    transition:
+      background-color var(--duracion-ui) var(--ease-salida),
+      transform var(--duracion-toque) var(--ease-salida);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .accion:hover { background-color: var(--color-verde-600); }
+  }
+
+  .accion:active {
+    background-color: var(--color-verde-800);
+    transform: scale(0.97);
+  }
+
+  .accion--secundaria {
+    background-color: transparent;
+    color: var(--color-tinta);
+    box-shadow: inset 0 0 0 1px var(--color-borde);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .accion--secundaria:hover {
+      background-color: var(--color-franja);
+      box-shadow: inset 0 0 0 1px var(--color-grafito);
+    }
+  }
+
+  /* --- Ficha clínica ---------------------------------------------------
+     Los datos de cada caso y cada tratamiento se presentan como historia
+     clínica: etiqueta a la izquierda, valor a la derecha, cifras
+     alineadas. Sin mayúsculas, sin monospace, sin em dashes.
+     -------------------------------------------------------------------- */
+  .ficha {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-menor);
+  }
+
+  .ficha th,
+  .ficha td {
+    padding: 0.75rem 0;
+    text-align: left;
+    vertical-align: baseline;
+    border-bottom: 1px solid var(--color-borde);
+  }
+
+  .ficha th {
+    width: 42%;
+    font-weight: 400;
+    color: var(--color-grafito);
+  }
+
+  .ficha td {
+    font-weight: 500;
+    color: var(--color-tinta);
+  }
+
+  .ficha tr:last-child th,
+  .ficha tr:last-child td { border-bottom: 0; }
+
+  /* --- Enlace de texto -------------------------------------------------
+     El verde puro no se usa nunca como texto sobre claro (2.47:1).
+     -------------------------------------------------------------------- */
+  .enlace {
+    color: var(--color-verde-700);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color var(--duracion-ui) var(--ease-salida);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .enlace:hover { color: var(--color-verde-800); }
+  }
+
+  /* Dentro de la zona oscura sí puede ir el verde, pero aclarado. */
+  .zona-oscura {
+    background-color: var(--color-tinta-800);
+    color: var(--color-superficie);
+  }
+
+  .zona-oscura .enlace { color: var(--color-verde-200); }
+
+  /* --- Fotografía clínica ---------------------------------------------- */
+  .foto {
+    border-radius: var(--radius-foto);
+    overflow: hidden;
+    background-color: var(--color-franja);
+  }
+
+  /* --- Ámbito Kids -----------------------------------------------------
+     No añade un cuarto color. Invierte la proporción: el verde sube del
+     10% al 30% y pasa a ser superficie, no solo acento.
+     -------------------------------------------------------------------- */
+  .kids {
+    background-color: var(--color-verde-100);
+  }
+
+  .kids .accion {
+    background-color: var(--color-tinta);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .kids .accion:hover { background-color: var(--color-tinta-700); }
+  }
+}
+
+/* ==========================================================================
+   MOVIMIENTO REDUCIDO
+   Menos movimiento, no cero. La opacidad se mantiene porque comunica.
+   Las animaciones de GSAP leen esta misma preferencia vía matchMedia.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .accion { transition: background-color 120ms linear !important; }
+  .accion:active { transform: none; }
+}

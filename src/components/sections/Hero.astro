@@ -1,0 +1,35 @@
+---
+import Boton from '../ui/Boton.astro';
+import { SITIO } from '../../config/site';
+---
+
+<section id="inicio" class="relative flex min-h-dvh flex-col justify-between overflow-hidden">
+  <div class="absolute inset-0 bg-tinta-800" aria-hidden="true"></div>
+
+  <p
+    class="relative mx-auto w-full max-w-ancho px-6 pt-24 text-dato text-superficie md:px-10 md:pt-28"
+  >
+    [PENDIENTE: fotografía o video del hero. Plano real en la clínica, especialista y
+    paciente, luz natural. Encuadre 16:9 en escritorio y 4:5 en móvil.]
+  </p>
+
+  <div class="relative mx-auto w-full max-w-ancho px-6 pb-12 md:px-10 md:pb-16">
+    <h1 class="max-w-[16ch] text-hero text-superficie">
+      Veinte años de odontología especializada en {SITIO.sede.ciudad}.
+    </h1>
+
+    <p class="mt-6 max-w-[44ch] text-cuerpo-lg text-superficie">
+      Atención cercana y comprometida con las personas, desde {SITIO.fundacion}.
+    </p>
+
+    <div class="mt-9">
+      <Boton href="#reserva">Reservar mi cita</Boton>
+    </div>
+
+    <div class="mt-12 flex items-center gap-4 text-menor text-superficie md:mt-16">
+      <span class="cifra">{SITIO.fundacion}</span>
+      <span class="h-px flex-1 bg-superficie" aria-hidden="true"></span>
+      <span class="cifra">{SITIO.aniversario}</span>
+    </div>
+  </div>
+</section>

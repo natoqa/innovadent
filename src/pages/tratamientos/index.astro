@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/layout/Nav.astro';
+import Pie from '../../components/layout/Pie.astro';
+import Seccion from '../../components/ui/Seccion.astro';
+import Boton from '../../components/ui/Boton.astro';
+import { SITIO } from '../../config/site';
+
+export const prerender = true;
+
+const tratamientos = (await getCollection('tratamientos')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+---
+
+<Base
+  titulo={`Tratamientos en ${SITIO.sede.ciudad}`}
+  descripcion="Las seis especialidades de Innovadent: ortodoncia, endodoncia, periodoncia e implantología, rehabilitación oral, cirugía bucal y maxilofacial, y odontopediatría."
+  ruta="/tratamientos"
+>
+  <Nav slot="encabezado" ruta="/tratamientos" />
+
+  <section class="pt-32 pb-seccion-sm md:pt-40">
+    <div class="mx-auto max-w-ancho px-6 md:px-10">
+      <h1 class="max-w-[14ch] text-display">Seis especialidades, un mismo criterio clínico.</h1>
+
+      <p class="mt-6 max-w-[46ch] text-cuerpo-lg text-grafito">
+        Cada caso empieza por una evaluación. Después se decide qué especialidad
+        interviene, en qué orden y por qué.
+      </p>
+    </div>
+  </section>
+
+  <Seccion ritmo="corto">
+    <div class="border-t border-borde">
+      {
+        tratamientos.map((tratamiento) => (
+          <a
+            href={`/tratamientos/${tratamiento.id}`}
+            class="grid gap-x-10 gap-y-3 border-b border-borde py-8 transition-transform duration-200 ease-salida hover:translate-x-2 md:grid-cols-12"
+          >
+            <span class="text-titulo md:col-span-6">{tratamiento.data.nombre}</span>
+
+            <span class="max-w-[42ch] text-menor text-grafito md:col-span-5 md:col-start-8">
+              {tratamiento.data.resumen}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </Seccion>
+
+  <Seccion tono="oscuro" ritmo="corto">
+    <div class="grid gap-x-16 gap-y-8 md:grid-cols-12 md:items-end">
+      <p class="text-subtitulo md:col-span-6">
+        Si no sabes qué especialidad necesitas, empieza por una evaluación.
+      </p>
+
+      <div class="md:col-span-4 md:col-start-9">
+        <Boton href="/#reserva">Reservar mi cita</Boton>
+      </div>
+    </div>
+  </Seccion>
+  <Pie slot="pie" />
+</Base>

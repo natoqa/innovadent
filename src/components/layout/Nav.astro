@@ -1,0 +1,345 @@
+---
+import { getCollection } from 'astro:content';
+import Boton from '../ui/Boton.astro';
+import { SITIO } from '../../config/site';
+
+interface Props {
+  /** En la home la barra flota sobre la foto del hero hasta que se hace scroll. */
+  sobreHero?: boolean;
+  /** Ruta actual, para marcar el enlace activo. */
+  ruta?: string;
+}
+
+const { sobreHero = false, ruta = Astro.url.pathname } = Astro.props;
+
+const tratamientos = (await getCollection('tratamientos')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+
+const enlaces = [
+  { texto: 'Especialistas', href: '/especialistas' },
+  { texto: 'Casos clínicos', href: '/casos' },
+  { texto: 'Innovadent Kids', href: '/kids' },
+  { texto: 'Contacto', href: '/contacto' },
+];
+
+const esActivo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
+const enTratamientos = esActivo('/tratamientos');
+
+const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-700';
+---
+
+<header
+  id="barra"
+  data-sobre-hero={sobreHero ? '' : undefined}
+  class:list={[
+    'fixed inset-x-0 top-0 z-50 border-b transition-colors duration-200 ease-salida',
+    sobreHero
+      ? 'border-transparent text-superficie data-[solida]:border-borde data-[solida]:bg-fondo data-[solida]:text-tinta'
+      : 'border-borde bg-fondo text-tinta',
+  ]}
+>
+  <div
+    id="barra-interior"
+    class="mx-auto flex max-w-ancho items-center gap-6 px-6 py-3 md:px-10 md:py-4"
+  >
+    <a href="/" class="mr-auto text-subtitulo">{SITIO.nombre}</a>
+
+    <nav aria-label="Principal" class="hidden items-center gap-7 text-menor lg:flex">
+      <div id="grupo-tratamientos" class="relative">
+        <button
+          id="abrir-tratamientos"
+          type="button"
+          aria-expanded="false"
+          aria-controls="submenu-tratamientos"
+          class:list={[
+            'flex items-center gap-2 underline-offset-8 hover:underline',
+            enTratamientos && `underline decoration-2 ${subrayadoActivo}`,
+          ]}
+        >
+          Tratamientos
+          <svg
+            width="10"
+            height="6"
+            viewBox="0 0 10 6"
+            fill="none"
+            aria-hidden="true"
+            class="transition-transform duration-200 ease-salida"
+            data-punta
+          >
+            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2"></path>
+          </svg>
+        </button>
+
+        <div
+          id="submenu-tratamientos"
+          hidden
+          class="absolute left-0 top-full z-10 mt-4 w-80 border border-borde bg-superficie p-2 text-tinta"
+        >
+          <a href="/tratamientos" class="block px-3 py-2 hover:bg-franja">
+            Ver todos los tratamientos
+          </a>
+
+          <div class="my-1 border-t border-borde"></div>
+
+          {
+            tratamientos.map((tratamiento) => (
+              <a
+                href={`/tratamientos/${tratamiento.id}`}
+                aria-current={esActivo(`/tratamientos/${tratamiento.id}`) ? 'page' : undefined}
+                class:list={[
+                  'block px-3 py-2 hover:bg-franja',
+                  esActivo(`/tratamientos/${tratamiento.id}`) &&
+                    'underline decoration-2 decoration-verde-700 underline-offset-4',
+                ]}
+              >
+                {tratamiento.data.nombre}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      {
+        enlaces.map((enlace) => (
+          <a
+            href={enlace.href}
+            aria-current={esActivo(enlace.href) ? 'page' : undefined}
+            class:list={[
+              'underline-offset-8 hover:underline',
+              esActivo(enlace.href) && `underline decoration-2 ${subrayadoActivo}`,
+            ]}
+          >
+            {enlace.texto}
+          </a>
+        ))
+      }
+    </nav>
+
+    <Boton href="/#reserva" class="hidden sm:inline-flex">Reservar mi cita</Boton>
+
+    <button
+      id="abrir-menu"
+      type="button"
+      aria-expanded="false"
+      aria-controls="menu-movil"
+      class="flex h-12 w-12 flex-col items-center justify-center gap-2 lg:hidden"
+    >
+      <span class="sr-only">Abrir menú</span>
+      <span class="block h-px w-6 bg-current" aria-hidden="true"></span>
+      <span class="block h-px w-6 bg-current" aria-hidden="true"></span>
+    </button>
+  </div>
+</header>
+
+<div
+  id="menu-movil"
+  inert
+  class="pointer-events-none fixed inset-0 z-60 flex -translate-y-full flex-col overflow-y-auto bg-tinta-800 text-superficie opacity-0 transition-[transform,opacity] duration-[280ms] ease-cortina data-[abierto]:pointer-events-auto data-[abierto]:translate-y-0 data-[abierto]:opacity-100 motion-reduce:translate-y-0"
+>
+  <div class="mx-auto flex w-full max-w-ancho items-center justify-between px-6 py-3 md:px-10">
+    <span class="text-subtitulo">{SITIO.nombre}</span>
+
+    <button
+      id="cerrar-menu"
+      type="button"
+      class="flex h-12 w-12 items-center justify-center text-cuerpo-lg"
+    >
+      <span class="sr-only">Cerrar menú</span>
+      <span aria-hidden="true">✕</span>
+    </button>
+  </div>
+
+  <nav
+    aria-label="Principal, versión móvil"
+    class="mx-auto flex w-full max-w-ancho flex-1 flex-col justify-center px-6 md:px-10"
+  >
+    <div class="border-b border-neblina">
+      <button
+        id="abrir-tratamientos-movil"
+        type="button"
+        aria-expanded="false"
+        aria-controls="submenu-tratamientos-movil"
+        class="flex w-full items-center justify-between py-4 text-left text-titulo"
+      >
+        Tratamientos
+        <svg
+          width="14"
+          height="9"
+          viewBox="0 0 10 6"
+          fill="none"
+          aria-hidden="true"
+          class="transition-transform duration-200 ease-salida"
+          data-punta
+        >
+          <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2"></path>
+        </svg>
+      </button>
+
+      <div id="submenu-tratamientos-movil" hidden class="pb-4">
+        <a href="/tratamientos" class="block py-3 text-cuerpo">Ver todos los tratamientos</a>
+
+        {
+          tratamientos.map((tratamiento) => (
+            <a
+              href={`/tratamientos/${tratamiento.id}`}
+              aria-current={esActivo(`/tratamientos/${tratamiento.id}`) ? 'page' : undefined}
+              class="block py-3 text-cuerpo"
+            >
+              {tratamiento.data.nombre}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    {
+      enlaces.map((enlace) => (
+        <a
+          href={enlace.href}
+          aria-current={esActivo(enlace.href) ? 'page' : undefined}
+          class="border-b border-neblina py-4 text-titulo"
+        >
+          {enlace.texto}
+        </a>
+      ))
+    }
+
+    <div class="flex flex-wrap items-center gap-4 py-8">
+      <Boton href="/#reserva">Reservar mi cita</Boton>
+
+      {
+        SITIO.contacto.whatsapp && (
+          <a
+            href={`https://wa.me/${SITIO.contacto.whatsapp}`}
+            class="text-menor underline underline-offset-4"
+          >
+            WhatsApp <span class="cifra">{SITIO.contacto.whatsappTexto}</span>
+          </a>
+        )
+      }
+    </div>
+
+    <p class="pb-8 text-menor text-neblina">
+      {SITIO.sede.calle}, {SITIO.sede.distrito}<br />
+      {SITIO.sede.ciudad}
+    </p>
+  </nav>
+</div>
+
+<script>
+  const barra = document.getElementById('barra');
+  const interior = document.getElementById('barra-interior');
+  const menu = document.getElementById('menu-movil');
+  const abrir = document.getElementById('abrir-menu');
+  const cerrar = document.getElementById('cerrar-menu');
+  const contenido = document.getElementById('contenido');
+
+  // La barra se vuelve sólida al dejar atrás el hero. Sin hero, ya nace sólida.
+  if (barra?.hasAttribute('data-sobre-hero')) {
+    const revisar = () => {
+      const solida = window.scrollY > window.innerHeight * 0.85;
+      barra.toggleAttribute('data-solida', solida);
+    };
+
+    window.addEventListener('scroll', revisar, { passive: true });
+    revisar();
+  }
+
+  /**
+   * Desplegable: botón con aria-expanded y panel asociado. La punta gira con
+   * transform; el panel no anima su alto porque eso provoca layout.
+   */
+  const desplegable = (idBoton: string, idPanel: string) => {
+    const boton = document.getElementById(idBoton);
+    const panel = document.getElementById(idPanel);
+    if (!boton || !panel) return null;
+
+    const punta = boton.querySelector<SVGElement>('[data-punta]');
+
+    const mostrar = (abierto: boolean) => {
+      panel.hidden = !abierto;
+      boton.setAttribute('aria-expanded', String(abierto));
+      punta?.classList.toggle('rotate-180', abierto);
+    };
+
+    boton.addEventListener('click', () => {
+      mostrar(boton.getAttribute('aria-expanded') !== 'true');
+    });
+
+    return { boton, panel, mostrar };
+  };
+
+  const escritorio = desplegable('abrir-tratamientos', 'submenu-tratamientos');
+  const movil = desplegable('abrir-tratamientos-movil', 'submenu-tratamientos-movil');
+
+  // El desplegable de escritorio se cierra al salir de él, con clic fuera o con
+  // Escape. El de móvil vive dentro del panel y lo cierra el propio panel.
+  const grupo = document.getElementById('grupo-tratamientos');
+
+  if (escritorio && grupo) {
+    document.addEventListener('click', (evento) => {
+      if (!grupo.contains(evento.target as Node)) escritorio.mostrar(false);
+    });
+
+    grupo.addEventListener('focusout', (evento) => {
+      if (!grupo.contains(evento.relatedTarget as Node)) escritorio.mostrar(false);
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key !== 'Escape') return;
+      if (escritorio.boton.getAttribute('aria-expanded') !== 'true') return;
+
+      escritorio.mostrar(false);
+      escritorio.boton.focus();
+    });
+  }
+
+  if (menu && abrir && cerrar) {
+    // El foco no se atrapa a mano: se deja inerte todo lo que no es el menú.
+    const fuera = [contenido, interior].filter((el): el is HTMLElement => el !== null);
+
+    const soltar = () => {
+      menu.removeAttribute('data-abierto');
+      menu.setAttribute('inert', '');
+      fuera.forEach((el) => el.removeAttribute('inert'));
+      abrir.setAttribute('aria-expanded', 'false');
+      document.documentElement.style.overflow = '';
+      movil?.mostrar(false);
+    };
+
+    const abrirMenu = () => {
+      menu.toggleAttribute('data-abierto', true);
+      menu.removeAttribute('inert');
+      fuera.forEach((el) => el.setAttribute('inert', ''));
+      abrir.setAttribute('aria-expanded', 'true');
+      document.documentElement.style.overflow = 'hidden';
+      cerrar.focus();
+    };
+
+    const cerrarMenu = () => {
+      soltar();
+      abrir.focus();
+    };
+
+    abrir.addEventListener('click', abrirMenu);
+    cerrar.addEventListener('click', cerrarMenu);
+
+    // Al seguir un enlace el menú se cierra sin devolver el foco al disparador:
+    // el destino es otra página.
+    menu.querySelectorAll('a').forEach((enlace) => {
+      enlace.addEventListener('click', soltar);
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Escape' && menu.hasAttribute('data-abierto')) cerrarMenu();
+    });
+
+    // Si se pasa a escritorio con el menú abierto, se cierra para no dejar
+    // contenido inerte detrás de un panel que ya no se ve.
+    const anchoEscritorio = window.matchMedia('(min-width: 64rem)');
+    anchoEscritorio.addEventListener('change', (evento) => {
+      if (evento.matches && menu.hasAttribute('data-abierto')) cerrarMenu();
+    });
+  }
+</script>

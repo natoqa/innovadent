@@ -1,17 +1,36 @@
 ---
+import Base from '../layouts/Base.astro';
+import { SITIO } from '../config/site';
+import Nav from '../components/layout/Nav.astro';
+import Pie from '../components/layout/Pie.astro';
 
+import Hero from '../components/sections/Hero.astro';
+import Manifiesto from '../components/sections/Manifiesto.astro';
+import AreasClinicas from '../components/sections/AreasClinicas.astro';
+import CasosClinicos from '../components/sections/CasosClinicos.astro';
+import Especialistas from '../components/sections/Especialistas.astro';
+import Tecnologia from '../components/sections/Tecnologia.astro';
+import LineaDeTiempo from '../components/sections/LineaDeTiempo.astro';
+import Testimonios from '../components/sections/Testimonios.astro';
+import Kids from '../components/sections/Kids.astro';
+import SedeYContacto from '../components/sections/SedeYContacto.astro';
+import Reserva from '../components/sections/Reserva.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base titulo={SITIO.nombre} ruta="/">
+  <Nav slot="encabezado" sobreHero />
+
+  <Hero />
+  <Manifiesto />
+  <AreasClinicas />
+  <CasosClinicos />
+  <Especialistas />
+  <Tecnologia />
+  <LineaDeTiempo />
+  <Testimonios />
+  <Kids />
+  <SedeYContacto />
+  <Reserva />
+
+  <Pie slot="pie" />
+</Base>

@@ -1,0 +1,24 @@
+---
+import { getCollection, render } from 'astro:content';
+import Tratamiento from '../../layouts/Tratamiento.astro';
+
+// Las seis landings se generan en el build: son contenido fijo y así no pagan
+// renderizado por petición.
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const tratamientos = await getCollection('tratamientos');
+
+  return tratamientos.map((tratamiento) => ({
+    params: { slug: tratamiento.id },
+    props: { tratamiento },
+  }));
+}
+
+const { tratamiento } = Astro.props;
+const { Content } = await render(tratamiento);
+---
+
+<Tratamiento tratamiento={tratamiento}>
+  <Content />
+</Tratamiento>

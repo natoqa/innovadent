@@ -1,0 +1,95 @@
+---
+import Seccion from '../ui/Seccion.astro';
+import { SITIO } from '../../config/site';
+
+const anios = SITIO.aniversario - SITIO.fundacion;
+
+// Las dos fotos comparten encuadre: el contraste está en lo que cambió en veinte
+// años, no en el punto de vista de la cámara.
+const fotos = [
+  {
+    proporcion: 'aspect-[4/5]',
+    desplazada: false,
+    gris: true,
+    marcador: '[PENDIENTE: archivo histórico. Primeras instalaciones o equipo fundador.]',
+    pie: '[PENDIENTE: pie y año de la foto histórica]',
+  },
+  {
+    proporcion: 'aspect-[3/4]',
+    desplazada: true,
+    gris: false,
+    marcador: '[PENDIENTE: sala clínica actual, mismo encuadre que la histórica.]',
+    pie: '[PENDIENTE: pie y año de la foto actual]',
+  },
+];
+
+// Solo cifras verificables: las dos primeras salen del propio proyecto y el premio
+// está documentado en la colección de hitos.
+const cifras = [
+  { dato: String(anios), nota: 'Años de ejercicio continuo en Trujillo' },
+  { dato: '6', nota: 'Especialidades bajo un mismo criterio clínico' },
+  { dato: '2011', nota: 'Premio Presidente a la MYPE' },
+  { dato: '—', nota: '[PENDIENTE: pacientes atendidos, dato de la clínica]' },
+];
+---
+
+<Seccion id="manifiesto" ritmo="corto">
+  <div class="grid gap-x-10 gap-y-8 md:grid-cols-12">
+    <h2 class="text-display md:col-span-7">Calidad y ética en cada tratamiento.</h2>
+
+    <div class="md:col-span-4 md:col-start-9 md:self-end">
+      <p class="text-cuerpo">
+        Una buena odontología no se trata solamente de hacer un buen trabajo clínico.
+        Se trata de indicar lo que el paciente realmente necesita, explicar con
+        transparencia sus alternativas y cuidar su salud como si fuera la nuestra.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-10 max-w-texto">
+    <p class="text-cuerpo-lg">
+      Innovadent nació en {SITIO.fundacion} con un propósito claro: brindar a la comunidad
+      trujillana una atención odontológica especializada, cercana y comprometida con las
+      personas.
+    </p>
+
+    <p class="mt-5 text-cuerpo">
+      Desde los primeros años apostamos por la atención odontopediátrica y, con el
+      tiempo, fuimos incorporando nuevas especialidades, profesionales y tecnología para
+      responder a las necesidades de cada paciente. {anios} años después seguimos
+      evolucionando con la misma esencia con la que comenzamos.
+    </p>
+  </div>
+
+  <div class="mt-16 grid gap-6 md:grid-cols-2 md:items-end">
+    {
+      fotos.map((foto) => (
+        <figure class:list={[foto.desplazada && 'md:mb-16']}>
+          <div class:list={['foto bg-tinta-800', foto.proporcion, foto.gris && 'grayscale']}>
+            <div class="flex h-full items-center justify-center p-6">
+              <span class="text-center text-dato text-superficie">{foto.marcador}</span>
+            </div>
+          </div>
+
+          <figcaption class="mt-3 text-menor text-grafito">{foto.pie}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="mt-16 grid grid-cols-2 border-t border-borde md:grid-cols-4">
+    {
+      cifras.map((cifra, i) => (
+        <div
+          class:list={[
+            'border-b border-borde py-7 pr-6 md:border-b-0',
+            i < cifras.length - 1 && 'md:border-r',
+          ]}
+        >
+          <span class="cifra block text-titulo">{cifra.dato}</span>
+          <span class="mt-2 block text-menor text-grafito">{cifra.nota}</span>
+        </div>
+      ))
+    }
+  </div>
+</Seccion>

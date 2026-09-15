@@ -1,0 +1,70 @@
+---
+/** Envuelve `.campo-etiqueta`, `.campo-control` y `.campo-error` de global.css. */
+type Tipo = 'text' | 'tel' | 'email' | 'textarea';
+
+interface Props {
+  nombre: string;
+  etiqueta: string;
+  tipo?: Tipo;
+  requerido?: boolean;
+  /** Indicación breve bajo la etiqueta: formato esperado, por ejemplo. */
+  ayuda?: string;
+  /** Mensaje de error del servidor. Dice qué pasó y cómo arreglarlo. */
+  error?: string;
+  valor?: string;
+  autocomplete?: string;
+  filas?: number;
+}
+
+const {
+  nombre,
+  etiqueta,
+  tipo = 'text',
+  requerido = false,
+  ayuda,
+  error,
+  valor,
+  autocomplete,
+  filas = 4,
+} = Astro.props;
+
+const idAyuda = ayuda ? `${nombre}-ayuda` : undefined;
+const idError = error ? `${nombre}-error` : undefined;
+const descrito = [idAyuda, idError].filter(Boolean).join(' ') || undefined;
+---
+
+<div>
+  <label class="campo-etiqueta" for={nombre}>{etiqueta}</label>
+
+  {ayuda && <p class="text-dato text-grafito mb-1.5" id={idAyuda}>{ayuda}</p>}
+
+  {
+    tipo === 'textarea' ? (
+      <textarea
+        class="campo-control"
+        id={nombre}
+        name={nombre}
+        rows={filas}
+        required={requerido}
+        autocomplete={autocomplete}
+        aria-describedby={descrito}
+        aria-invalid={error ? 'true' : undefined}
+        set:text={valor}
+      />
+    ) : (
+      <input
+        class="campo-control"
+        id={nombre}
+        name={nombre}
+        type={tipo}
+        value={valor}
+        required={requerido}
+        autocomplete={autocomplete}
+        aria-describedby={descrito}
+        aria-invalid={error ? 'true' : undefined}
+      />
+    )
+  }
+
+  {error && <p class="campo-error" id={idError}>{error}</p>}
+</div>

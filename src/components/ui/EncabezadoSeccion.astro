@@ -1,0 +1,40 @@
+---
+/**
+ * Encabezado de sección del mockup: titular a la izquierda y entradilla a la
+ * derecha, alineados por la base. Se repite en áreas, casos, especialistas,
+ * línea de tiempo y testimonios.
+ */
+interface Props {
+  titulo: string;
+  entradilla?: string;
+  /** Medida del titular en caracteres. Un titular no usa la medida del cuerpo. */
+  medida?: '12ch' | '14ch' | '16ch';
+  /** Dentro de una sección oscura el texto secundario no puede ir en grafito. */
+  sobreOscuro?: boolean;
+}
+
+const { titulo, entradilla, medida = '14ch', sobreOscuro = false } = Astro.props;
+
+const medidas = {
+  '12ch': 'max-w-[12ch]',
+  '14ch': 'max-w-[14ch]',
+  '16ch': 'max-w-[16ch]',
+} as const;
+---
+
+<div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+  <h2 class:list={['text-display', medidas[medida]]}>{titulo}</h2>
+
+  {
+    entradilla && (
+      <p
+        class:list={[
+          'max-w-[38ch] text-cuerpo-lg',
+          sobreOscuro ? 'text-superficie' : 'text-grafito',
+        ]}
+      >
+        {entradilla}
+      </p>
+    )
+  }
+</div>

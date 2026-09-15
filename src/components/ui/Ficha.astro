@@ -1,0 +1,30 @@
+---
+/** Datos en formato historia clínica. Envuelve `.ficha` de global.css. */
+export interface Fila {
+  etiqueta: string;
+  valor: string;
+}
+
+interface Props {
+  filas: Fila[];
+  /** Título accesible de la tabla. No se muestra si `visible` es false. */
+  titulo?: string;
+  tituloVisible?: boolean;
+}
+
+const { filas, titulo, tituloVisible = false } = Astro.props;
+---
+
+<table class="ficha">
+  {titulo && <caption class:list={[!tituloVisible && 'sr-only']}>{titulo}</caption>}
+  <tbody>
+    {
+      filas.map((fila) => (
+        <tr>
+          <th scope="row">{fila.etiqueta}</th>
+          <td>{fila.valor}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

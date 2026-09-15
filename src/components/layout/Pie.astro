@@ -1,0 +1,172 @@
+---
+import { getCollection } from 'astro:content';
+import { SITIO } from '../../config/site';
+
+const tratamientos = (await getCollection('tratamientos')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+
+const clinica = [
+  { texto: 'Especialistas', href: '/especialistas' },
+  { texto: 'Casos clínicos', href: '/casos' },
+  { texto: 'Innovadent Kids', href: '/kids' },
+  { texto: 'Contacto', href: '/contacto' },
+];
+
+/** Un dato marcador no se enlaza: se muestra tal cual para que cante. */
+const pendiente = (valor: string | null) => !valor || valor.startsWith('[PENDIENTE');
+
+const telefono = SITIO.contacto.telefono;
+const correo = SITIO.contacto.correo;
+const whatsapp = SITIO.contacto.whatsapp;
+
+const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [string, string][];
+---
+
+<footer class="border-t border-borde bg-franja">
+  <div class="mx-auto max-w-ancho px-6 py-seccion-sm md:px-10">
+    <div class="grid gap-x-10 gap-y-12 md:grid-cols-12">
+      <div class="md:col-span-4">
+        <p class="text-subtitulo">{SITIO.nombre}</p>
+
+        <p class="mt-4 max-w-[30ch] text-menor text-grafito">
+          {SITIO.sede.calle}<br />
+          {SITIO.sede.distrito}<br />
+          {SITIO.sede.ciudad}, {SITIO.sede.region}
+        </p>
+
+        <div class="mt-8 max-w-[22rem]">
+          <div class="flex items-center gap-4 text-menor text-grafito">
+            <span class="cifra">{SITIO.fundacion}</span>
+            <span class="h-px flex-1 bg-borde" aria-hidden="true"></span>
+            <span class="cifra">{SITIO.aniversario}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-3">
+        <h2 class="text-menor text-grafito">Tratamientos</h2>
+
+        <ul class="mt-4">
+          {
+            tratamientos.map((tratamiento) => (
+              <li class="py-1.5">
+                <a
+                  href={`/tratamientos/${tratamiento.id}`}
+                  class="text-menor underline-offset-4 hover:underline"
+                >
+                  {tratamiento.data.nombre}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="md:col-span-2">
+        <h2 class="text-menor text-grafito">Clínica</h2>
+
+        <ul class="mt-4">
+          {
+            clinica.map((enlace) => (
+              <li class="py-1.5">
+                <a href={enlace.href} class="text-menor underline-offset-4 hover:underline">
+                  {enlace.texto}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="md:col-span-3">
+        <h2 class="text-menor text-grafito">Contacto</h2>
+
+        <ul class="mt-4">
+          <li class="py-1.5 text-menor">
+            {
+              pendiente(telefono) ? (
+                <span class="text-grafito">{telefono}</span>
+              ) : (
+                <a href={`tel:${telefono.replace(/\s+/g, '')}`} class="underline-offset-4 hover:underline">
+                  {telefono}
+                </a>
+              )
+            }
+          </li>
+
+          <li class="py-1.5 text-menor">
+            {
+              whatsapp === null ? (
+                <span class="text-grafito">[PENDIENTE: WhatsApp]</span>
+              ) : (
+                <a href={`https://wa.me/${whatsapp}`} class="underline-offset-4 hover:underline">
+                  WhatsApp <span class="cifra">{SITIO.contacto.whatsappTexto}</span>
+                </a>
+              )
+            }
+          </li>
+
+          <li class="py-1.5 text-menor">
+            {
+              pendiente(correo) ? (
+                <span class="text-grafito">{correo}</span>
+              ) : (
+                <a href={`mailto:${correo}`} class="underline-offset-4 hover:underline">
+                  {correo}
+                </a>
+              )
+            }
+          </li>
+        </ul>
+
+        <h2 class="mt-8 text-menor text-grafito">Horarios</h2>
+
+        <ul class="mt-4">
+          {
+            SITIO.horarios.map((horario) => (
+              <li class="flex flex-wrap justify-between gap-x-4 py-1.5 text-menor">
+                <span>{horario.dias}</span>
+
+                {horario.apertura && horario.cierre && (
+                  <span class="cifra">
+                    {horario.apertura} a {horario.cierre}
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+
+        {
+          redes.length > 0 && (
+            <ul class="mt-8 flex flex-wrap gap-x-6">
+              {redes.map(([nombre, url]) => (
+                <li>
+                  <a href={url} class="text-menor underline-offset-4 hover:underline">
+                    {nombre}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </div>
+
+    <div
+      class="mt-16 flex flex-wrap items-center justify-between gap-x-10 gap-y-3 border-t border-borde pt-8 text-dato text-grafito"
+    >
+      <p>© {SITIO.aniversario} {SITIO.nombre}</p>
+
+      <ul class="flex flex-wrap gap-x-6">
+        <li>
+          <a href="/privacidad" class="underline-offset-4 hover:underline">Política de privacidad</a>
+        </li>
+        <li>
+          <a href="/contacto" class="underline-offset-4 hover:underline">Cómo llegar</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>

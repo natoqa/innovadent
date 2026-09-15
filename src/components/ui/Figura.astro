@@ -1,0 +1,34 @@
+---
+import { Picture } from 'astro:assets';
+
+interface Props {
+  imagen: ImageMetadata;
+  /** Describe el contenido clínico real. Nunca vacío en fotos de contenido. */
+  alt: string;
+  pie?: string;
+  /** Solo la imagen del hero. Desactiva lazy y sube la prioridad de carga. */
+  prioritaria?: boolean;
+  anchos?: number[];
+  sizes?: string;
+  class?: string;
+}
+
+const { imagen, alt, pie, prioritaria = false, anchos, sizes, class: clase } = Astro.props;
+---
+
+<figure class:list={[clase]}>
+  <div class="foto">
+    <Picture
+      src={imagen}
+      alt={alt}
+      formats={['avif', 'webp']}
+      widths={anchos}
+      sizes={sizes}
+      loading={prioritaria ? 'eager' : 'lazy'}
+      decoding={prioritaria ? 'sync' : 'async'}
+      fetchpriority={prioritaria ? 'high' : 'auto'}
+    />
+  </div>
+
+  {pie && <figcaption class="text-menor text-grafito mt-3">{pie}</figcaption>}
+</figure>

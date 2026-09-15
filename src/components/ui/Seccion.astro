@@ -1,0 +1,55 @@
+---
+/**
+ * Contenedor de sección: ritmo vertical y ancho de contenido.
+ * Las tres variantes de tono usan clases que ya existen en global.css.
+ */
+type Tono = 'claro' | 'franja' | 'oscuro' | 'kids';
+type Ritmo = 'amplio' | 'corto';
+type Ancho = 'contenido' | 'texto' | 'completo';
+
+interface Props {
+  id?: string;
+  tono?: Tono;
+  ritmo?: Ritmo;
+  ancho?: Ancho;
+  /** Etiqueta accesible cuando la sección no abre con un encabezado visible. */
+  etiquetaAccesible?: string;
+  class?: string;
+}
+
+const {
+  id,
+  tono = 'claro',
+  ritmo = 'amplio',
+  ancho = 'contenido',
+  etiquetaAccesible,
+  class: clase,
+} = Astro.props;
+
+const clasesTono = {
+  claro: undefined,
+  franja: 'bg-franja',
+  oscuro: 'zona-oscura',
+  kids: 'kids',
+} as const;
+
+const clasesAncho = {
+  contenido: 'max-w-ancho',
+  texto: 'max-w-texto',
+  completo: undefined,
+} as const;
+---
+
+<section
+  id={id}
+  aria-label={etiquetaAccesible}
+  class:list={[
+    ritmo === 'corto' ? 'py-seccion-sm' : 'py-seccion',
+    clasesTono[tono],
+    clase,
+  ]}
+>
+  <div class:list={['mx-auto px-6 md:px-10', clasesAncho[ancho]]}>
+    <slot />
+  </div>
+</section>

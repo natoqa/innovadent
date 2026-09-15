@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+
+const areas = (await getCollection('tratamientos')).sort((a, b) => a.data.orden - b.data.orden);
+---
+
+<Seccion id="areas-clinicas" tono="franja">
+  <EncabezadoSeccion
+    titulo="Seis especialidades, un mismo criterio clínico."
+    entradilla="Cada caso empieza por una evaluación. Después se decide qué especialidad interviene, en qué orden y por qué."
+  />
+
+  <div class="mt-12 grid gap-x-16 gap-y-10 md:mt-16 md:grid-cols-12">
+    <div class="border-t border-borde md:col-span-7">
+      {
+        areas.map((area) => (
+          <a
+            href={`/tratamientos/${area.id}`}
+            class="block border-b border-borde py-6 transition-transform duration-200 ease-salida hover:translate-x-2"
+          >
+            <span class="block text-titulo">{area.data.nombre}</span>
+            <span class="mt-2 block max-w-[38ch] text-menor text-grafito">
+              {area.data.resumen}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="md:col-span-5">
+      <div class="md:sticky md:top-16">
+        <div class="foto aspect-[3/4] bg-tinta-800">
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="text-center text-dato text-superficie">
+              [PENDIENTE: fotografía clínica representativa de las áreas. En fase 6 cambia
+              al pasar por cada fila.]
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Seccion>

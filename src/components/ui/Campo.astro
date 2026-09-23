@@ -1,6 +1,11 @@
 ---
 /** Envuelve `.campo-etiqueta`, `.campo-control` y `.campo-error` de global.css. */
-type Tipo = 'text' | 'tel' | 'email' | 'textarea';
+type Tipo = 'text' | 'tel' | 'email' | 'textarea' | 'select';
+
+interface Opcion {
+  valor: string;
+  etiqueta: string;
+}
 
 interface Props {
   nombre: string;
@@ -14,6 +19,10 @@ interface Props {
   valor?: string;
   autocomplete?: string;
   filas?: number;
+  /** Solo con tipo select. */
+  opciones?: readonly Opcion[];
+  /** Texto de la opción vacía inicial del select. */
+  indicacion?: string;
 }
 
 const {
@@ -26,6 +35,8 @@ const {
   valor,
   autocomplete,
   filas = 4,
+  opciones = [],
+  indicacion = 'Elige una opción',
 } = Astro.props;
 
 const idAyuda = ayuda ? `${nombre}-ayuda` : undefined;
@@ -33,7 +44,7 @@ const idError = error ? `${nombre}-error` : undefined;
 const descrito = [idAyuda, idError].filter(Boolean).join(' ') || undefined;
 ---
 
-<div>
+<div data-campo={nombre}>
   <label class="campo-etiqueta" for={nombre}>{etiqueta}</label>
 
   {ayuda && <p class="text-dato text-grafito mb-1.5" id={idAyuda}>{ayuda}</p>}
@@ -51,6 +62,24 @@ const descrito = [idAyuda, idError].filter(Boolean).join(' ') || undefined;
         aria-invalid={error ? 'true' : undefined}
         set:text={valor}
       />
+    ) : tipo === 'select' ? (
+      <select
+        class="campo-control"
+        id={nombre}
+        name={nombre}
+        required={requerido}
+        aria-describedby={descrito}
+        aria-invalid={error ? 'true' : undefined}
+      >
+        <option value="" disabled selected={!valor}>
+          {indicacion}
+        </option>
+        {opciones.map((opcion) => (
+          <option value={opcion.valor} selected={opcion.valor === valor}>
+            {opcion.etiqueta}
+          </option>
+        ))}
+      </select>
     ) : (
       <input
         class="campo-control"

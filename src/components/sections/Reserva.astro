@@ -1,8 +1,264 @@
 ---
 import Seccion from '../ui/Seccion.astro';
+import Campo from '../ui/Campo.astro';
+import Boton from '../ui/Boton.astro';
+import { SITIO } from '../../config/site';
+
+const { motivos, horarios: franjas } = SITIO.reserva;
+const { whatsapp, whatsappTexto } = SITIO.contacto;
+const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
 ---
 
 <Seccion id="reserva">
-  <h2>[PENDIENTE: titular del formulario de reserva]</h2>
-  <p>[PENDIENTE: Formulario contra /api/reserva con consentimiento explícito. Se construye en fase 5.]</p>
+  <div class="grid gap-x-16 gap-y-12 md:grid-cols-12">
+    <div class="md:col-span-5">
+      <h2 class="max-w-[12ch] text-display">Reserva tu cita.</h2>
+
+      <p class="mt-6 max-w-[38ch] text-cuerpo-lg text-grafito">
+        Déjanos tu nombre y un número. Te llamamos para confirmar el día y la hora.
+      </p>
+    </div>
+
+    <div class="md:col-span-7">
+      <div
+        id="reserva-exito"
+        tabindex="-1"
+        hidden
+        class="border border-borde bg-superficie p-6 md:p-10"
+      >
+        <h3 class="text-titulo">Reserva recibida.</h3>
+        <p class="mt-4 max-w-[44ch] text-cuerpo-lg">
+          Te llamaremos al número que nos dejaste, dentro del horario de atención, para
+          confirmar el día y la hora de tu cita.
+        </p>
+        {
+          enlaceWhatsapp && (
+            <p class="mt-4 max-w-[44ch] text-grafito">
+              Si necesitas cambiar algo antes,{' '}
+              <a class="enlace" href={enlaceWhatsapp} target="_blank" rel="noopener">
+                escríbenos por WhatsApp
+              </a>
+              .
+            </p>
+          )
+        }
+      </div>
+
+      <form
+        id="reserva-formulario"
+        method="post"
+        action="/api/reserva"
+        data-whatsapp-enlace={enlaceWhatsapp}
+        data-whatsapp-texto={whatsappTexto}
+        class="border border-borde bg-superficie p-6 md:p-10"
+      >
+        <div class="grid gap-6">
+          <Campo nombre="nombre" etiqueta="Nombre y apellido" requerido autocomplete="name" />
+
+          <Campo
+            nombre="telefono"
+            etiqueta="Celular o teléfono"
+            tipo="tel"
+            requerido
+            autocomplete="tel-national"
+            ayuda="Te llamamos a este número para confirmar la cita."
+          />
+
+          <Campo
+            nombre="motivo"
+            etiqueta="Motivo de la consulta"
+            tipo="select"
+            requerido
+            opciones={motivos}
+            indicacion="Elige el más cercano"
+          />
+
+          <fieldset data-campo="horario">
+            <legend class="campo-etiqueta">¿Cuándo te conviene más?</legend>
+            <div class="grid gap-2 sm:grid-cols-3">
+              {
+                franjas.map((franja) => (
+                  <label class="flex min-h-12 cursor-pointer items-center gap-3 rounded-campo border border-borde px-4 transition-colors duration-200 ease-salida has-checked:border-tinta">
+                    <input
+                      type="radio"
+                      name="horario"
+                      value={franja.valor}
+                      required
+                      class="size-5 accent-verde-700"
+                    />
+                    {franja.etiqueta}
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <div data-campo="consentimiento">
+            <label class="flex cursor-pointer items-start gap-3 text-menor">
+              <input
+                type="checkbox"
+                name="consentimiento"
+                value="si"
+                required
+                class="mt-0.5 size-5 shrink-0 accent-verde-700"
+              />
+              <span>
+                Autorizo a {SITIO.nombre} a usar estos datos para gestionar mi cita y a
+                registrarlos en su sistema de atención de pacientes, según la{' '}
+                <a class="enlace" href="/privacidad">política de privacidad</a>.
+              </span>
+            </label>
+          </div>
+
+          <!-- Trampa para bots. Fuera de pantalla y fuera del orden de tabulación. -->
+          <div class="absolute -left-[9999px]" aria-hidden="true">
+            <label for="sitio_web">No completar este campo</label>
+            <input id="sitio_web" name="sitio_web" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+        </div>
+
+        <div id="reserva-aviso" role="alert" class="max-w-[52ch] text-menor *:mt-8"></div>
+
+        <div class="mt-8">
+          <Boton type="submit" id="reserva-boton">Reservar mi cita</Boton>
+        </div>
+      </form>
+    </div>
+  </div>
 </Seccion>
+
+<template id="reserva-plantilla-limite">
+  <p>
+    Ya recibimos varias reservas desde esta conexión. Si necesitas otra,{' '}
+    <a class="enlace" target="_blank" rel="noopener" data-whatsapp>escríbenos por WhatsApp</a>.
+  </p>
+</template>
+
+<template id="reserva-plantilla-error">
+  <p>
+    No pudimos registrar tu reserva. Para no perder tu cita,{' '}
+    <a class="enlace" target="_blank" rel="noopener" data-whatsapp>escríbenos por WhatsApp</a>.
+  </p>
+</template>
+
+<script>
+  type Errores = Record<string, string>;
+  type Respuesta = { estado: 'enviada' | 'revisar' | 'limite' | 'error'; errores?: Errores };
+
+  const formulario = document.getElementById('reserva-formulario') as HTMLFormElement | null;
+  const exito = document.getElementById('reserva-exito');
+  const aviso = document.getElementById('reserva-aviso');
+  const boton = document.getElementById('reserva-boton') as HTMLButtonElement | null;
+
+  if (formulario && exito && aviso && boton) {
+    const textoBoton = boton.textContent?.trim() ?? '';
+    const { whatsappEnlace, whatsappTexto } = formulario.dataset;
+
+    // Con JavaScript los mensajes los pone el servidor, en el mismo tono
+    // para todos los navegadores. Sin él, quedan los de required nativo.
+    formulario.noValidate = true;
+
+    const controlesDe = (campo: string) =>
+      formulario.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        `[data-campo="${campo}"] :is(input, select, textarea)`,
+      );
+
+    const limpiarErrores = () => {
+      for (const mensaje of formulario.querySelectorAll('[data-error-de]')) mensaje.remove();
+      for (const control of formulario.querySelectorAll('[aria-invalid]')) {
+        control.removeAttribute('aria-invalid');
+        const ids = (control.getAttribute('aria-describedby') ?? '')
+          .split(' ')
+          .filter((id) => id && !id.endsWith('-error'));
+        if (ids.length) control.setAttribute('aria-describedby', ids.join(' '));
+        else control.removeAttribute('aria-describedby');
+      }
+      aviso.replaceChildren();
+    };
+
+    const mostrarErrores = (errores: Errores) => {
+      let primero: HTMLElement | null = null;
+
+      for (const control of formulario.querySelectorAll<HTMLElement>('[name]')) {
+        const campo = control.getAttribute('name');
+        if (!campo || !errores[campo] || control.hasAttribute('aria-invalid')) continue;
+
+        const contenedor = formulario.querySelector(`[data-campo="${campo}"]`);
+        if (!contenedor) continue;
+
+        const id = `${campo}-error`;
+        if (!contenedor.querySelector(`#${id}`)) {
+          const mensaje = document.createElement('p');
+          mensaje.className = 'campo-error';
+          mensaje.id = id;
+          mensaje.dataset.errorDe = campo;
+          mensaje.textContent = errores[campo];
+          contenedor.append(mensaje);
+        }
+
+        for (const afectado of controlesDe(campo)) {
+          afectado.setAttribute('aria-invalid', 'true');
+          const ids = (afectado.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean);
+          afectado.setAttribute('aria-describedby', [...ids, id].join(' '));
+        }
+
+        primero ??= control;
+      }
+
+      primero?.focus();
+    };
+
+    const mostrarAviso = (plantilla: 'limite' | 'error') => {
+      const molde = document.getElementById(`reserva-plantilla-${plantilla}`) as HTMLTemplateElement;
+      const contenido = molde.content.cloneNode(true) as DocumentFragment;
+      const enlace = contenido.querySelector<HTMLAnchorElement>('[data-whatsapp]');
+
+      if (enlace && whatsappEnlace) {
+        enlace.href = whatsappEnlace;
+        enlace.textContent = `escríbenos por WhatsApp al ${whatsappTexto}`;
+      }
+      aviso.replaceChildren(contenido);
+    };
+
+    const enviando = (activo: boolean) => {
+      boton.disabled = activo;
+      boton.textContent = activo ? 'Enviando tu reserva…' : textoBoton;
+    };
+
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      if (boton.disabled) return;
+
+      limpiarErrores();
+      enviando(true);
+
+      let respuesta: Respuesta;
+      try {
+        const peticion = await fetch(formulario.action, {
+          method: 'POST',
+          body: new FormData(formulario),
+          headers: { Accept: 'application/json' },
+        });
+        respuesta = await peticion.json();
+      } catch {
+        respuesta = { estado: 'error' };
+      }
+
+      enviando(false);
+
+      if (respuesta.estado === 'enviada') {
+        formulario.hidden = true;
+        exito.hidden = false;
+        exito.focus();
+        return;
+      }
+
+      if (respuesta.estado === 'revisar' && respuesta.errores) {
+        mostrarErrores(respuesta.errores);
+        return;
+      }
+
+      mostrarAviso(respuesta.estado === 'limite' ? 'limite' : 'error');
+    });
+  }
+</script>

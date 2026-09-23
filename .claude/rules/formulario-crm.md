@@ -33,9 +33,13 @@ Formulario → POST /api/reserva
 
 Nombre, teléfono, motivo de consulta, preferencia de horario.
 
-- Motivos: primera evaluación, estética dental, ortodoncia, implantes y rehabilitación, endodoncia, cirugía oral, odontopediatría, urgencia.
+- Motivos: primera evaluación, las seis especialidades reales de la clínica y urgencia.
 - Horario: mañana, tarde, indiferente.
 - Ambas listas salen de `src/config/site.ts`, no hardcodeadas en el componente.
+
+## Sin JavaScript
+
+El formulario se envía igual. `/api/reserva` responde con una redirección 303 a `/reserva/[estado]` (enviada, revisar, limite, error), páginas estáticas sin indexar. La home se prerenderiza, así que no puede leer parámetros de la URL.
 
 ## Consentimiento
 

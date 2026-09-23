@@ -37,7 +37,7 @@ El color lo ponen las fotografías clínicas; la interfaz se aparta. Toda fotogr
 - Secciones alternas y hover suave: `--color-franja`. Líneas de ficha y campos: `--color-borde`.
 - Texto principal `--color-tinta`, secundario `--color-grafito`. `--color-neblina` da 3.29:1: **solo a 24px o más, o decorativo**. Nunca en texto pequeño.
 - `--color-tinta-700` para elevación dentro de zona oscura.
-- Los estados no introducen color nuevo: `--color-exito` y `--color-alerta` salen de la paleta.
+- Los estados no introducen color nuevo: `--color-exito` sale de la paleta, y el error se comunica con texto, no con color.
 
 ### Prohibido
 
@@ -83,7 +83,7 @@ Toda cifra clínica (años, meses, número de caso, duración de tratamiento) us
 
 ## Layout
 
-- Ancho de contenido `--container-ancho`. `--container-full` solo para bloques a sangre. Texto corrido limitado a `--container-texto`.
+- Ancho de contenido `--container-ancho`. `--container-sangre` solo para bloques a sangre. Texto corrido limitado a `--container-texto`.
 - Alineación **izquierda** por defecto. El texto centrado se reserva para el hero.
 - Ritmo vertical con `--spacing-seccion` y `--spacing-seccion-sm`, alternando entre secciones. No usar el mismo valor en todas.
 - Objetivo táctil mínimo 48px, ya fijado en `.accion`.
@@ -143,7 +143,7 @@ En este orden, correspondiendo al documento de solicitud de contenido:
 
 ## Landings de tratamiento
 
-Seis páginas (estética dental, ortodoncia, implantes y rehabilitación oral, endodoncia, cirugía oral, odontopediatría), misma estructura en `layouts/Tratamiento.astro`, con 9 bloques:
+Seis páginas (ortodoncia y ortopedia maxilar, endodoncia, periodoncia e implantología, rehabilitación oral, cirugía bucal y maxilofacial, odontopediatría; carillas y diseño de sonrisa van dentro de rehabilitación oral), misma estructura en `layouts/Tratamiento.astro`, con 9 bloques:
 
 problema que resuelve · indicaciones · alternativas · proceso paso a paso · beneficios · especialista responsable · tecnología utilizada · casos clínicos relacionados · fotografía representativa
 

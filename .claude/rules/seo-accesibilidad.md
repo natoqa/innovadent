@@ -39,11 +39,11 @@ Presupuesto:
 
 ## Accesibilidad
 
-- Contraste mínimo AA (4.5:1 en texto normal). Verificar `--color-pizarra` sobre `--color-porcelana` antes de usarlo en texto pequeño.
-- Foco visible siempre: `outline` de 2px en `--color-jade` con `outline-offset: 2px`. Nunca `outline: none` sin sustituto.
+- Contraste mínimo AA (4.5:1 en texto normal). `--color-neblina` (3.29:1) solo a 24px o más o como decoración, nunca en texto pequeño.
+- Foco visible siempre: `outline` de 2px en `--color-verde` con `outline-offset: 3px`, ya fijado en `global.css`. Nunca `outline: none` sin sustituto.
 - Todo campo con `<label>` asociado. Nada de placeholders haciendo de etiqueta.
 - Navegación completa por teclado, incluido el menú móvil. El foco queda atrapado dentro del menú abierto y vuelve al disparador al cerrar.
-- Área táctil mínima de 44×44px.
+- Área táctil mínima de 44×44px. Los enlaces de texto sueltos usan `.objetivo-tactil`, que la aplica solo con puntero táctil.
 - `skip link` al contenido principal en el layout base.
 - El `alt` describe el contenido clínico real. Nunca vacío en fotos de contenido; vacío solo en decorativas.
 - El video del hero lleva control de pausa accesible.

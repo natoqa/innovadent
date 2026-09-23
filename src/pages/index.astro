@@ -8,23 +8,27 @@ import Hero from '../components/sections/Hero.astro';
 import Manifiesto from '../components/sections/Manifiesto.astro';
 import AreasClinicas from '../components/sections/AreasClinicas.astro';
 import CasosClinicos from '../components/sections/CasosClinicos.astro';
-import Especialistas from '../components/sections/Especialistas.astro';
 import Tecnologia from '../components/sections/Tecnologia.astro';
 import LineaDeTiempo from '../components/sections/LineaDeTiempo.astro';
 import Testimonios from '../components/sections/Testimonios.astro';
 import Kids from '../components/sections/Kids.astro';
 import SedeYContacto from '../components/sections/SedeYContacto.astro';
 import Reserva from '../components/sections/Reserva.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { esquemaClinica } from '../lib/seo';
+
+// Sin estado por petición: el formulario habla con /api/reserva desde el cliente.
+export const prerender = true;
 ---
 
 <Base titulo={SITIO.nombre} ruta="/">
+  <JsonLd slot="head" datos={esquemaClinica()} />
   <Nav slot="encabezado" sobreHero />
 
   <Hero />
   <Manifiesto />
   <AreasClinicas />
   <CasosClinicos />
-  <Especialistas />
   <Tecnologia />
   <LineaDeTiempo />
   <Testimonios />

@@ -16,14 +16,19 @@ const tratamientos = (await getCollection('tratamientos')).sort(
   (a, b) => a.data.orden - b.data.orden,
 );
 
+/** Va suelto porque en la barra abre el menú, antes del desplegable. */
+const inicio = { texto: 'Inicio', href: '/' };
+
 const enlaces = [
   { texto: 'Especialistas', href: '/especialistas' },
-  { texto: 'Casos clínicos', href: '/casos' },
-  { texto: 'Innovadent Kids', href: '/kids' },
+  // Casos y Kids no tienen página propia hasta que llegue su material: apuntan a su sección.
+  { texto: 'Casos clínicos', href: '/#casos-clinicos' },
+  { texto: 'Innovadent Kids', href: '/#kids' },
   { texto: 'Contacto', href: '/contacto' },
 ];
 
-const esActivo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
+const esActivo = (href: string) =>
+  href === '/' ? ruta === '/' : ruta === href || ruta.startsWith(`${href}/`);
 const enTratamientos = esActivo('/tratamientos');
 
 const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-700';
@@ -43,9 +48,20 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
     id="barra-interior"
     class="mx-auto flex max-w-ancho items-center gap-6 px-6 py-3 md:px-10 md:py-4"
   >
-    <a href="/" class="mr-auto text-subtitulo">{SITIO.nombre}</a>
+    <a href="/" class="objetivo-tactil mr-auto text-subtitulo">{SITIO.nombre}</a>
 
     <nav aria-label="Principal" class="hidden items-center gap-7 text-menor lg:flex">
+      <a
+        href={inicio.href}
+        aria-current={esActivo(inicio.href) ? 'page' : undefined}
+        class:list={[
+          'underline-offset-8 hover:underline',
+          esActivo(inicio.href) && `underline decoration-2 ${subrayadoActivo}`,
+        ]}
+      >
+        {inicio.texto}
+      </a>
+
       <div id="grupo-tratamientos" class="relative">
         <button
           id="abrir-tratamientos"
@@ -154,6 +170,14 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
     aria-label="Principal, versión móvil"
     class="mx-auto flex w-full max-w-ancho flex-1 flex-col justify-center px-6 md:px-10"
   >
+    <a
+      href={inicio.href}
+      aria-current={esActivo(inicio.href) ? 'page' : undefined}
+      class="border-b border-neblina py-4 text-titulo"
+    >
+      {inicio.texto}
+    </a>
+
     <div class="border-b border-neblina">
       <button
         id="abrir-tratamientos-movil"
@@ -326,7 +350,7 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
     cerrar.addEventListener('click', cerrarMenu);
 
     // Al seguir un enlace el menú se cierra sin devolver el foco al disparador:
-    // el destino es otra página.
+    // el destino es otra página o una sección de la home.
     menu.querySelectorAll('a').forEach((enlace) => {
       enlace.addEventListener('click', soltar);
     });

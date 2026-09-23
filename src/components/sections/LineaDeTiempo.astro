@@ -20,11 +20,17 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
     medida="12ch"
   />
 
-  <div class="mt-12 border-t border-borde md:mt-16">
+  <div id="hitos" class="relative mt-12 border-t border-borde md:mt-16">
+    <!-- En el margen, fuera de la columna de años. Sin JavaScript es una línea
+         fija; con él se llena según avanza la lectura. -->
+    <div class="absolute inset-y-0 -left-3 w-px bg-borde md:-left-5" aria-hidden="true">
+      <div id="hitos-progreso" class="absolute -left-px h-full w-[3px] origin-top bg-verde"></div>
+    </div>
+
     {
       fechados.map((hito) => (
         <article class="grid gap-x-10 gap-y-3 border-b border-borde py-8 md:grid-cols-12">
-          <p class="cifra text-display md:col-span-4">{hito.data.anio}</p>
+          <p class="anio cifra text-display md:col-span-4">{hito.data.anio}</p>
 
           <div class="md:col-span-7 md:col-start-6 md:self-center">
             <h3 class="text-subtitulo">{hito.data.titular}</h3>
@@ -52,3 +58,57 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
     )
   }
 </Seccion>
+
+<style>
+  /* El año que ya se leyó queda en tinta; los que faltan, en neblina. Solo se
+     activa con JavaScript: sin él todos los años se ven en tinta. */
+  .anio {
+    transition: color var(--duracion-ui) var(--ease-salida);
+  }
+
+  [data-seguimiento] .anio:not(.es-leido) {
+    color: var(--color-neblina);
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger } from '../../lib/motion/gsap';
+
+  const hitos = document.getElementById('hitos');
+  const progreso = document.getElementById('hitos-progreso');
+
+  if (hitos && progreso) {
+    gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      // Con movimiento reducido no hay seguimiento: la línea queda llena y
+      // todos los años en tinta, como sin JavaScript.
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        hitos.dataset.seguimiento = '';
+
+        // Lineal a propósito: la barra es el scroll mismo, no una animación
+        // con curva. Cualquier easing la despegaría del dedo.
+        gsap.fromTo(
+          progreso,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: 'none',
+            scrollTrigger: { trigger: hitos, start: 'top 70%', end: 'bottom 70%', scrub: true },
+          },
+        );
+
+        for (const anio of hitos.querySelectorAll('.anio')) {
+          ScrollTrigger.create({
+            trigger: anio,
+            start: 'top 70%',
+            onEnter: () => anio.classList.add('es-leido'),
+            onLeaveBack: () => anio.classList.remove('es-leido'),
+          });
+        }
+
+        return () => delete hitos.dataset.seguimiento;
+      });
+    }, hitos);
+  }
+</script>

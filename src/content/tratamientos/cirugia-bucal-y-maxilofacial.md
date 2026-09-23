@@ -54,6 +54,9 @@ equipo: >-
 
 cierre: Una cirugía bien planificada comienza mucho antes del procedimiento.
 
+especialistas:
+  - miriam-arestegui-campos
+
 seo:
   titulo: Cirugía bucal y maxilofacial en Trujillo
   descripcion: >-

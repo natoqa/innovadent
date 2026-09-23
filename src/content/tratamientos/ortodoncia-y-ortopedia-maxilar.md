@@ -56,6 +56,11 @@ equipo: >-
 
 cierre: En Innovadent no vemos solamente una sonrisa. Vemos al paciente de manera integral.
 
+especialistas:
+  - julio-cevallos-zumaran
+  - yerry-marquez-subero
+  - daivy-mostacero-abanto
+
 seo:
   titulo: Ortodoncia y ortopedia maxilar en Trujillo
   descripcion: >-

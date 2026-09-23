@@ -54,6 +54,9 @@ equipo: >-
 
 cierre: Un tratamiento pensado para recuperar mucho más que una sonrisa.
 
+especialistas:
+  - fiorella-saavedra-urteaga
+
 seo:
   titulo: Rehabilitación oral en Trujillo
   descripcion: >-

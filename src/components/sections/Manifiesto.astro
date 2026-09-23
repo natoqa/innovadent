@@ -3,6 +3,7 @@ import Seccion from '../ui/Seccion.astro';
 import { SITIO } from '../../config/site';
 
 const anios = SITIO.aniversario - SITIO.fundacion;
+const pacientes = new Intl.NumberFormat(SITIO.idioma).format(SITIO.pacientes);
 
 // Las dos fotos comparten encuadre: el contraste está en lo que cambió en veinte
 // años, no en el punto de vista de la cámara.
@@ -23,13 +24,14 @@ const fotos = [
   },
 ];
 
-// Solo cifras verificables: las dos primeras salen del propio proyecto y el premio
-// está documentado en la colección de hitos.
+// Solo cifras verificables: las dos primeras salen del propio proyecto, el premio
+// está documentado en la colección de hitos y el total de pacientes lo entregó la
+// clínica. Ninguna se estima.
 const cifras = [
   { dato: String(anios), nota: 'Años de ejercicio continuo en Trujillo' },
   { dato: '6', nota: 'Especialidades bajo un mismo criterio clínico' },
   { dato: '2011', nota: 'Premio Presidente a la MYPE' },
-  { dato: '—', nota: '[PENDIENTE: pacientes atendidos, dato de la clínica]' },
+  { dato: pacientes, nota: 'Pacientes atendidos' },
 ];
 ---
 

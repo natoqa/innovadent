@@ -1,0 +1,35 @@
+---
+/**
+ * Iconos del sitio. SVG inline, sin dependencias: cada glifo vive aquí.
+ * Siempre decorativo — el nombre accesible lo pone el elemento que lo contiene.
+ */
+type Nombre = 'pausa' | 'reproducir';
+
+interface Props {
+  nombre: Nombre;
+  tamano?: number;
+  class?: string;
+}
+
+const { nombre, tamano = 20, class: clase } = Astro.props;
+---
+
+<svg
+  width={tamano}
+  height={tamano}
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+  class:list={[clase]}
+>
+  {
+    nombre === 'pausa' && (
+      <>
+        <rect x="7" y="5" width="3.5" height="14" />
+        <rect x="13.5" y="5" width="3.5" height="14" />
+      </>
+    )
+  }
+  {nombre === 'reproducir' && <path d="M8 5.2v13.6L19 12z" />}
+</svg>

@@ -59,6 +59,9 @@ equipo: Innovadent cuenta con un especialista en endodoncia.
 
 cierre: Un diente natural tiene valor. Cuando es posible conservarlo, trabajamos para hacerlo.
 
+especialistas:
+  - julia-valencia-munoz
+
 seo:
   titulo: Endodoncia en Trujillo
   descripcion: >-

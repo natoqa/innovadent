@@ -57,6 +57,10 @@ equipo: >-
 
 cierre: Más que cuidar dientes, acompañamos su crecimiento.
 
+especialistas:
+  - carla-bermejo-herrera
+  - miriam-arestegui-campos
+
 seo:
   titulo: Odontopediatría en Trujillo
   descripcion: >-

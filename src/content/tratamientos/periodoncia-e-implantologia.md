@@ -55,6 +55,9 @@ equipo: >-
 
 cierre: Antes de colocar un implante, planificamos cada detalle.
 
+especialistas:
+  - karina-centurion-villar
+
 seo:
   titulo: Periodoncia e implantología en Trujillo
   descripcion: >-

@@ -1,8 +1,69 @@
 ---
+import { getCollection, getEntry } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
+import Boton from '../ui/Boton.astro';
+import Figura from '../ui/Figura.astro';
+
+// El texto es el que el cliente escribió para odontopediatría: Kids es su
+// ámbito de marca, no una especialidad distinta.
+const odontopediatria = await getEntry('tratamientos', 'odontopediatria');
+const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data.orden).slice(0, 3);
 ---
 
 <Seccion id="kids" tono="kids">
-  <h2>[PENDIENTE: titular de Innovadent Kids]</h2>
-  <p>[PENDIENTE: Ámbito Kids: el verde sube al 30% y pasa a ser superficie. No añade un cuarto color.]</p>
+  <div class="grid gap-x-16 gap-y-12 md:grid-cols-12">
+    <div class="md:col-span-5">
+      <p class="text-menor">Innovadent Kids</p>
+
+      {
+        odontopediatria ? (
+          <>
+            <h2 class="mt-4 max-w-[14ch] text-display">{odontopediatria.data.titular}</h2>
+            <p class="mt-6 max-w-[38ch] text-cuerpo-lg">{odontopediatria.data.resumen}</p>
+
+            <ul class="mt-8 border-t border-verde-700/30">
+              {odontopediatria.data.atendemos.map((motivo) => (
+                <li class="border-b border-verde-700/30 py-3 text-cuerpo">{motivo}</li>
+              ))}
+            </ul>
+
+            <div class="mt-10 flex flex-wrap items-center gap-3">
+              <Boton href="/#reserva">Reservar mi cita</Boton>
+              <Boton href={`/tratamientos/${odontopediatria.id}`} variante="secundaria">
+                Ver odontopediatría
+              </Boton>
+            </div>
+          </>
+        ) : (
+          <h2 class="mt-4 text-display">[PENDIENTE: titular de Innovadent Kids]</h2>
+        )
+      }
+    </div>
+
+    <div class="md:col-span-6 md:col-start-7">
+      {
+        fotos.length > 0 ? (
+          <div class="grid grid-cols-2 gap-4">
+            {fotos.map((foto, i) => (
+              <Figura
+                imagen={foto.data.foto}
+                alt={foto.data.alt}
+                sizes={i === 0 ? '(min-width: 768px) 45vw, 100vw' : '(min-width: 768px) 22vw, 50vw'}
+                class={i === 0 ? 'col-span-2' : undefined}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="foto aspect-[4/5] bg-tinta-800">
+            <div class="flex h-full items-center justify-center p-6">
+              <span class="max-w-[34ch] text-center text-dato text-superficie">
+                [PENDIENTE: fotografías del ámbito Kids, con autorización firmada de los
+                padres. Cada una se añade en src/content/kids siguiendo _plantilla.md.]
+              </span>
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </div>
 </Seccion>

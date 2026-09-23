@@ -1,0 +1,105 @@
+---
+import { Picture } from 'astro:assets';
+
+/**
+ * Antes y después superpuestos con un corte que se arrastra. El control es un
+ * <input type="range"> nativo que cubre la foto: se maneja con el dedo, el
+ * ratón o las flechas del teclado, y el lector de pantalla anuncia el valor.
+ * Sin JavaScript queda fijo en la mitad, que ya muestra las dos fotos.
+ */
+interface Props {
+  antes: ImageMetadata;
+  despues: ImageMetadata;
+  altAntes: string;
+  altDespues: string;
+  /** Qué se compara, para el nombre accesible del control. */
+  titulo: string;
+  sizes?: string;
+}
+
+const { antes, despues, altAntes, altDespues, titulo, sizes = '(min-width: 768px) 58vw, 100vw' } =
+  Astro.props;
+---
+
+<div class="comparador foto relative aspect-[4/3] bg-tinta-700" data-comparador>
+  <Picture
+    src={despues}
+    alt={altDespues}
+    formats={['avif', 'webp']}
+    sizes={sizes}
+    loading="lazy"
+    class="absolute inset-0 h-full w-full object-cover"
+  />
+
+  <div class="comparador-antes absolute inset-0">
+    <Picture
+      src={antes}
+      alt={altAntes}
+      formats={['avif', 'webp']}
+      sizes={sizes}
+      loading="lazy"
+      class="h-full w-full object-cover"
+    />
+  </div>
+
+  <div class="comparador-linea absolute inset-y-0 w-0.5 bg-superficie" aria-hidden="true"></div>
+
+  <span class="absolute top-3 left-3 bg-tinta-800 px-2 py-1 text-dato text-superficie" aria-hidden="true">
+    Antes
+  </span>
+  <span class="absolute top-3 right-3 bg-tinta-800 px-2 py-1 text-dato text-superficie" aria-hidden="true">
+    Después
+  </span>
+
+  <input
+    type="range"
+    min="0"
+    max="100"
+    value="50"
+    step="1"
+    aria-label={`Comparar antes y después: ${titulo}`}
+    aria-valuetext="Mitad antes, mitad después"
+    class="absolute inset-0 h-full w-full cursor-ew-resize touch-pan-y opacity-0"
+  />
+</div>
+
+<style>
+  .comparador {
+    --corte: 50%;
+  }
+
+  .comparador-antes {
+    clip-path: inset(0 calc(100% - var(--corte)) 0 0);
+  }
+
+  .comparador-linea {
+    left: var(--corte);
+    translate: -50% 0;
+  }
+
+  /* El control es invisible: el foco se dibuja en la foto entera. */
+  .comparador:has(input:focus-visible) {
+    outline: 2px solid var(--color-verde);
+    outline-offset: 3px;
+  }
+</style>
+
+<script>
+  const describir = (valor: number) =>
+    valor <= 0
+      ? 'Solo después'
+      : valor >= 100
+        ? 'Solo antes'
+        : `${valor} por ciento antes, ${100 - valor} por ciento después`;
+
+  for (const comparador of document.querySelectorAll<HTMLElement>('[data-comparador]')) {
+    const control = comparador.querySelector('input');
+    if (!control) continue;
+
+    control.addEventListener('input', () => {
+      const valor = Number(control.value);
+      comparador.style.setProperty('--corte', `${valor}%`);
+      control.setAttribute('aria-valuetext', describir(valor));
+    });
+  }
+</script>

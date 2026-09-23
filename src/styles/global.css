@@ -216,6 +216,22 @@
     }
   }
 
+  /* Sobre superficie oscura (hero, zona-oscura) la variante secundaria
+     invierte el borde y el texto a superficie. El verde no se toca: sigue
+     reservado a la acción primaria. */
+  .accion--sobre-oscuro {
+    background-color: transparent;
+    color: var(--color-superficie);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-superficie) 40%, transparent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .accion--sobre-oscuro:hover {
+      background-color: color-mix(in oklab, var(--color-superficie) 12%, transparent);
+      box-shadow: inset 0 0 0 1px var(--color-superficie);
+    }
+  }
+
   /* --- Campo de formulario ---------------------------------------------
      El error no se señala con color: se señala con el texto asociado por
      aria-describedby, con el borde de 2px y moviendo el foco al primer
@@ -316,6 +332,27 @@
 
   .zona-oscura .enlace { color: var(--color-verde-200); }
 
+  /* El grafito no se lee sobre tinta-800: etiqueta y valor van en superficie
+     y los separa el peso, no el color. */
+  .zona-oscura .ficha th,
+  .zona-oscura .ficha td {
+    color: var(--color-superficie);
+    border-color: var(--color-tinta-700);
+  }
+
+  /* --- Objetivo táctil -------------------------------------------------
+     Enlaces de texto sueltos (pie, miga, listas) llegan a 44px de alto en
+     pantallas táctiles. Con ratón conservan su medida: el diseño no se infla
+     para un puntero que no lo necesita.
+     -------------------------------------------------------------------- */
+  @media (pointer: coarse) {
+    .objetivo-tactil {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
   /* --- Fotografía clínica ---------------------------------------------- */
   .foto {
     border-radius: var(--radius-foto);
@@ -331,12 +368,15 @@
     background-color: var(--color-verde-100);
   }
 
-  .kids .accion {
+  /* Sobre el verde la acción primaria se invierte a tinta, con texto en
+     superficie. La secundaria no se toca: sigue siendo solo un borde. */
+  .kids .accion:not(.accion--secundaria) {
     background-color: var(--color-tinta);
+    color: var(--color-superficie);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .kids .accion:hover { background-color: var(--color-tinta-700); }
+    .kids .accion:not(.accion--secundaria):hover { background-color: var(--color-tinta-700); }
   }
   
   .campo-control:focus-visible { border-color: var(--color-verde-700); }

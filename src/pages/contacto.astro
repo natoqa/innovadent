@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/layout/Nav.astro';
+import Pie from '../components/layout/Pie.astro';
+import SedeYContacto from '../components/sections/SedeYContacto.astro';
+import Reserva from '../components/sections/Reserva.astro';
+import { SITIO } from '../config/site';
+
+export const prerender = true;
+---
+
+<Base
+  titulo={`Contacto y cómo llegar en ${SITIO.sede.ciudad}`}
+  descripcion={`Dirección, horario de atención y reserva de cita en ${SITIO.nombre}, ${SITIO.sede.calle}, ${SITIO.sede.ciudad}.`}
+  ruta="/contacto"
+>
+  <Nav slot="encabezado" ruta="/contacto" />
+
+  <section class="pt-32 pb-seccion-sm md:pt-40">
+    <div class="mx-auto max-w-ancho px-6 md:px-10">
+      <h1 class="max-w-[14ch] text-display">Contacto</h1>
+      <p class="mt-6 max-w-[42ch] text-cuerpo-lg text-grafito">
+        Dónde estamos, cuándo atendemos y cómo reservar tu cita.
+      </p>
+    </div>
+  </section>
+
+  <SedeYContacto />
+  <Reserva />
+
+  <Pie slot="pie" />
+</Base>

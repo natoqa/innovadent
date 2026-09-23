@@ -1,8 +1,60 @@
 ---
+import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+
+const categorias = [
+  { clave: 'diagnostico', nombre: 'Diagnóstico' },
+  { clave: 'planificacion', nombre: 'Planificación' },
+  { clave: 'tratamiento', nombre: 'Tratamiento' },
+  { clave: 'seguridad', nombre: 'Seguridad' },
+] as const;
+
+const equipos = (await getCollection('tecnologia')).sort((a, b) => a.data.orden - b.data.orden);
+
+const grupos = categorias
+  .map((categoria) => ({
+    ...categoria,
+    equipos: equipos.filter((equipo) => equipo.data.categoria === categoria.clave),
+  }))
+  .filter((grupo) => grupo.equipos.length > 0);
 ---
 
 <Seccion id="tecnologia">
-  <h2>[PENDIENTE: titular de tecnología]</h2>
-  <p>[PENDIENTE: Equipamiento contado por el beneficio para el paciente, no por la especificación técnica.]</p>
+  {
+    grupos.length > 0 ? (
+      <>
+        <EncabezadoSeccion
+          titulo="Con qué trabajamos."
+          entradilla="Contado por lo que cambia para ti durante la consulta, no por la ficha técnica."
+        />
+
+        <div class="mt-12 border-t border-borde md:mt-16">
+          {grupos.map((grupo) => (
+            <div class="grid gap-x-10 gap-y-4 border-b border-borde py-8 md:grid-cols-12">
+              <h3 class="text-titulo md:col-span-4">{grupo.nombre}</h3>
+
+              <ul class="grid gap-6 md:col-span-7 md:col-start-6">
+                {grupo.equipos.map((equipo) => (
+                  <li>
+                    <p class="text-cuerpo-lg">{equipo.data.beneficio}</p>
+                    <p class="mt-1 text-menor text-grafito">{equipo.data.equipo}</p>
+                    <p class="text-menor text-grafito">{equipo.data.marca}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </>
+    ) : (
+      <>
+        <h2 class="text-display">[PENDIENTE: titular de tecnología]</h2>
+        <p class="mt-6 max-w-texto">
+          [PENDIENTE: equipos con marca y beneficio para el paciente. Cada equipo se añade
+          como un archivo en src/content/tecnologia siguiendo _plantilla.md.]
+        </p>
+      </>
+    )
+  }
 </Seccion>

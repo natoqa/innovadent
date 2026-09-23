@@ -1,0 +1,44 @@
+---
+import { getEntry, type CollectionEntry } from 'astro:content';
+import Comparador from '../ui/Comparador.astro';
+import Ficha from '../ui/Ficha.astro';
+
+interface Props {
+  caso: CollectionEntry<'casos'>;
+  /** En la landing el tratamiento ya está en el titular de la página. */
+  mostrarTratamiento?: boolean;
+}
+
+const { caso, mostrarTratamiento = true } = Astro.props;
+const c = caso.data;
+
+const tratamiento = await getEntry(c.tratamiento);
+const especialista = await getEntry(c.especialista);
+
+const filas = [
+  ...(mostrarTratamiento && tratamiento
+    ? [{ etiqueta: 'Tratamiento', valor: tratamiento.data.nombre }]
+    : []),
+  ...(especialista ? [{ etiqueta: 'Especialista', valor: especialista.data.nombre }] : []),
+  { etiqueta: 'Duración', valor: c.duracion },
+];
+---
+
+<article class="grid gap-x-16 gap-y-8 md:grid-cols-12 md:items-center">
+  <div class="md:col-span-7">
+    <Comparador
+      antes={c.antes}
+      despues={c.despues}
+      altAntes={c.altAntes}
+      altDespues={c.altDespues}
+      titulo={c.titulo}
+    />
+  </div>
+
+  <div class="md:col-span-5">
+    <h3 class="text-subtitulo">{c.titulo}</h3>
+    <div class="mt-6">
+      <Ficha filas={filas} titulo={`Datos del caso: ${c.titulo}`} />
+    </div>
+  </div>
+</article>

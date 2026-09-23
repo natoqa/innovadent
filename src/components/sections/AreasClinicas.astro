@@ -1,9 +1,14 @@
 ---
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
 
 const areas = (await getCollection('tratamientos')).sort((a, b) => a.data.orden - b.data.orden);
+
+// Solo las áreas con foto entran en el panel. Una fila sin foto deja visible
+// la última que se mostró, en vez de vaciar el panel.
+const conFoto = areas.filter((area) => area.data.foto && area.data.altFoto);
 ---
 
 <Seccion id="areas-clinicas" tono="franja">
@@ -13,11 +18,12 @@ const areas = (await getCollection('tratamientos')).sort((a, b) => a.data.orden 
   />
 
   <div class="mt-12 grid gap-x-16 gap-y-10 md:mt-16 md:grid-cols-12">
-    <div class="border-t border-borde md:col-span-7">
+    <div class="border-t border-borde md:col-span-7" data-areas>
       {
         areas.map((area) => (
           <a
             href={`/tratamientos/${area.id}`}
+            data-area={area.id}
             class="block border-b border-borde py-6 transition-transform duration-200 ease-salida hover:translate-x-2"
           >
             <span class="block text-titulo">{area.data.nombre}</span>
@@ -31,15 +37,73 @@ const areas = (await getCollection('tratamientos')).sort((a, b) => a.data.orden 
 
     <div class="md:col-span-5">
       <div class="md:sticky md:top-16">
-        <div class="foto aspect-[3/4] bg-tinta-800">
-          <div class="flex h-full items-center justify-center p-6">
-            <span class="text-center text-dato text-superficie">
-              [PENDIENTE: fotografía clínica representativa de las áreas. En fase 6 cambia
-              al pasar por cada fila.]
-            </span>
-          </div>
-        </div>
+        {
+          conFoto.length > 0 ? (
+            <div class="foto relative aspect-[3/4] bg-tinta-800" data-panel-areas>
+              {conFoto.map((area, i) => (
+                <Picture
+                  src={area.data.foto!}
+                  alt={area.data.altFoto!}
+                  formats={['avif', 'webp']}
+                  sizes="(min-width: 768px) 40vw, 100vw"
+                  loading="lazy"
+                  data-foto-area={area.id}
+                  data-activa={i === 0 ? '' : undefined}
+                  class="foto-area absolute inset-0 h-full w-full object-cover"
+                />
+              ))}
+            </div>
+          ) : (
+            <div class="foto aspect-[3/4] bg-tinta-800">
+              <div class="flex h-full items-center justify-center p-6">
+                <span class="text-center text-dato text-superficie">
+                  [PENDIENTE: una fotografía por especialidad, en el campo foto de cada
+                  tratamiento. El panel cambia al pasar por cada fila.]
+                </span>
+              </div>
+            </div>
+          )
+        }
       </div>
     </div>
   </div>
 </Seccion>
+
+<style>
+  /* Cambio de foto por transición CSS, no GSAP: es respuesta a hover y foco,
+     y una transición se reencamina suave si el puntero cruza varias filas. */
+  .foto-area {
+    opacity: 0;
+    transition: opacity 280ms var(--ease-salida);
+  }
+
+  .foto-area[data-activa] {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const lista = document.querySelector<HTMLElement>('[data-areas]');
+  const panel = document.querySelector<HTMLElement>('[data-panel-areas]');
+
+  if (lista && panel) {
+    const mostrar = (id: string | undefined) => {
+      const foto = id && panel.querySelector(`[data-foto-area="${id}"]`);
+      if (!foto) return;
+      panel.querySelector('[data-activa]')?.removeAttribute('data-activa');
+      foto.setAttribute('data-activa', '');
+    };
+
+    for (const fila of lista.querySelectorAll<HTMLElement>('[data-area]')) {
+      fila.addEventListener('focus', () => mostrar(fila.dataset.area));
+    }
+
+    // El hover solo con puntero fino: en táctil se dispara al tocar, justo
+    // cuando la fila ya está navegando a su landing.
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      for (const fila of lista.querySelectorAll<HTMLElement>('[data-area]')) {
+        fila.addEventListener('pointerenter', () => mostrar(fila.dataset.area));
+      }
+    }
+  }
+</script>

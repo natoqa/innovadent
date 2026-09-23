@@ -1,8 +1,37 @@
 ---
+import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import CasoClinico from '../treatment/CasoClinico.astro';
+
+// Tres casos bastan para mostrar criterio; el resto vive en cada landing.
+const casos = (await getCollection('casos')).sort((a, b) => a.data.orden - b.data.orden).slice(0, 3);
 ---
 
 <Seccion id="casos-clinicos" tono="oscuro">
-  <h2>[PENDIENTE: titular de casos clínicos]</h2>
-  <p>[PENDIENTE: Antes y después. Solo se renderizan los casos con consentimiento informado firmado.]</p>
+  {
+    casos.length > 0 ? (
+      <>
+        <EncabezadoSeccion
+          titulo="Casos de la clínica."
+          entradilla="Pacientes que autorizaron por escrito mostrar su tratamiento. Arrastra sobre cada foto para comparar."
+          sobreOscuro
+        />
+
+        <div class="mt-12 grid gap-16 md:mt-16 md:gap-24">
+          {casos.map((caso) => (
+            <CasoClinico caso={caso} />
+          ))}
+        </div>
+      </>
+    ) : (
+      <>
+        <h2 class="text-display">[PENDIENTE: titular de casos clínicos]</h2>
+        <p class="mt-6 max-w-texto text-superficie">
+          [PENDIENTE: casos con consentimiento informado firmado. Cada caso se añade como un
+          archivo en src/content/casos siguiendo _plantilla.md.]
+        </p>
+      </>
+    )
+  }
 </Seccion>

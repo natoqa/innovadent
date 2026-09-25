@@ -50,6 +50,8 @@ El color lo ponen las fotografías clínicas; la interfaz se aparta. Toda fotogr
 
 Una sola superfamilia variable: **Archivo**, ejes wght y wdth. Titulares en ancho expandido (`--font-display`), cuerpo en ancho normal (`--font-sans`).
 
+**Única excepción: el logotipo.** El nombre va en Jost 200 (`--font-logo`), como en el mockup aprobado, y vive solo en `src/components/ui/Logo.astro`. Jost no se usa en ningún otro texto.
+
 ### Escala
 
 Fluida con `clamp()`. Los titulares llevan tracking negativo por diseño; el cuerpo no lo lleva.

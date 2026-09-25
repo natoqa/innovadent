@@ -1,14 +1,24 @@
 ---
 import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
+import type { ComponentProps } from 'astro/types';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import Icon from '../ui/Icon.astro';
+
+type NombreIcono = ComponentProps<typeof Icon>['nombre'];
 
 const areas = (await getCollection('tratamientos')).sort((a, b) => a.data.orden - b.data.orden);
+const paso = 360 / areas.length;
 
-// Solo las áreas con foto entran en el panel. Una fila sin foto deja visible
-// la última que se mostró, en vez de vaciar el panel.
-const conFoto = areas.filter((area) => area.data.foto && area.data.altFoto);
+const iconos: Record<string, NombreIcono> = {
+  'ortodoncia-y-ortopedia-maxilar': 'ortodoncia',
+  endodoncia: 'endodoncia',
+  'periodoncia-e-implantologia': 'implante',
+  'rehabilitacion-oral': 'corona',
+  'cirugia-bucal-y-maxilofacial': 'cirugia',
+  odontopediatria: 'diente-infantil',
+};
 ---
 
 <Seccion id="areas-clinicas" tono="franja">
@@ -17,93 +27,624 @@ const conFoto = areas.filter((area) => area.data.foto && area.data.altFoto);
     entradilla="Cada caso empieza por una evaluación. Después se decide qué especialidad interviene, en qué orden y por qué."
   />
 
-  <div class="mt-12 grid gap-x-16 gap-y-10 md:mt-16 md:grid-cols-12">
-    <div class="border-t border-borde md:col-span-7" data-areas>
-      {
-        areas.map((area) => (
-          <a
-            href={`/tratamientos/${area.id}`}
-            data-area={area.id}
-            class="block border-b border-borde py-6 transition-transform duration-200 ease-salida hover:translate-x-2"
-          >
-            <span class="block text-titulo">{area.data.nombre}</span>
-            <span class="mt-2 block max-w-[38ch] text-menor text-grafito">
-              {area.data.resumen}
-            </span>
-          </a>
-        ))
-      }
+  <div class="mt-12 md:mt-16" data-areas>
+    <!-- Lista: móvil, tablet, sin JavaScript y con movimiento reducido. -->
+    <div class="modo-lista grid gap-x-16 gap-y-10 md:grid-cols-12">
+      <div class="border-t border-borde md:col-span-7">
+        {
+          areas.map((area) => (
+            <a
+              href={`/tratamientos/${area.id}`}
+              data-area={area.id}
+              class="areas-fila block border-b border-borde py-6"
+            >
+              <span class="block text-titulo">{area.data.nombre}</span>
+              <span class="mt-2 block max-w-[38ch] text-menor text-grafito">
+                {area.data.resumen}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      <div class="md:col-span-5">
+        <div class="foto relative aspect-[3/4] bg-tinta-800 md:sticky md:top-16">
+          {
+            areas.map((area, i) => (
+              <div
+                class="foto-lista absolute inset-0"
+                data-foto-lista={area.id}
+                data-activa={i === 0 ? '' : undefined}
+              >
+                {area.data.foto && area.data.altFoto ? (
+                  <Picture
+                    src={area.data.foto}
+                    alt={area.data.altFoto}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="jpg"
+                    widths={[480, 720, 960, 1280]}
+                    sizes="(min-width: 768px) 40vw, 100vw"
+                    loading="lazy"
+                    class="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div
+                    class="flex h-full flex-col justify-end gap-3 p-6 text-superficie"
+                    aria-hidden="true"
+                  >
+                    <span class="text-subtitulo">{area.data.nombre}</span>
+                    <span class="text-dato">
+                      [PENDIENTE: fotografía de esta especialidad, en el campo foto del
+                      tratamiento.]
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))
+          }
+        </div>
+      </div>
     </div>
 
-    <div class="md:col-span-5">
-      <div class="md:sticky md:top-16">
+    <!-- Órbita: desde 1024px con movimiento permitido. La sección queda fija y
+         el anillo gira con el scroll, llevando cada especialidad al fiel. -->
+    <div class="orbita">
+      <div class="orbita-textos">
         {
-          conFoto.length > 0 ? (
-            <div class="foto relative aspect-[3/4] bg-tinta-800" data-panel-areas>
-              {conFoto.map((area, i) => (
-                <Picture
-                  src={area.data.foto!}
-                  alt={area.data.altFoto!}
-                  formats={['avif', 'webp']}
-                  sizes="(min-width: 768px) 40vw, 100vw"
-                  loading="lazy"
-                  data-foto-area={area.id}
-                  data-activa={i === 0 ? '' : undefined}
-                  class="foto-area absolute inset-0 h-full w-full object-cover"
-                />
-              ))}
+          areas.map((area, i) => (
+            <div class="orbita-texto" data-texto={area.id} inert={i > 0}>
+              <h3 class="text-titulo">{area.data.nombre}</h3>
+              <p class="mt-5 max-w-[38ch] text-cuerpo-lg text-grafito">{area.data.resumen}</p>
+              <a href={`/tratamientos/${area.id}`} class="accion accion--secundaria mt-8">
+                Conocer la especialidad
+              </a>
             </div>
-          ) : (
-            <div class="foto aspect-[3/4] bg-tinta-800">
-              <div class="flex h-full items-center justify-center p-6">
-                <span class="text-center text-dato text-superficie">
-                  [PENDIENTE: una fotografía por especialidad, en el campo foto de cada
-                  tratamiento. El panel cambia al pasar por cada fila.]
-                </span>
-              </div>
-            </div>
-          )
+          ))
         }
+      </div>
+
+      <div class="orbita-anillo">
+        <span class="orbita-fiel" aria-hidden="true"></span>
+
+        <svg class="orbita-trazo" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="orbita-pista" cx="50" cy="50" r="49.5"></circle>
+          <circle
+            class="orbita-arco"
+            cx="50"
+            cy="50"
+            r="49.5"
+            pathLength="1"
+            transform="rotate(-90 50 50)"></circle>
+        </svg>
+
+        <!-- Láminas sin lazy: el círculo las recorta y el navegador las cree
+             invisibles hasta que ya están entrando, así llegaban tarde. -->
+        <div class="orbita-circulo">
+          {
+            areas.map((area) => (
+              <div class="lamina" data-lamina={area.id}>
+                <div class="lamina-contenido">
+                  {area.data.foto && area.data.altFoto ? (
+                    <Picture
+                      src={area.data.foto}
+                      alt={area.data.altFoto}
+                      formats={['avif', 'webp']}
+                      fallbackFormat="jpg"
+                      widths={[400, 600, 800]}
+                      sizes="(min-width: 64rem) 24rem, 1px"
+                      loading="eager"
+                      fetchpriority="low"
+                      class="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      class="flex h-full flex-col items-center justify-center gap-3 p-[18%] text-center text-superficie"
+                      aria-hidden="true"
+                    >
+                      <span class="text-subtitulo">{area.data.nombre}</span>
+                      <span class="text-dato">[PENDIENTE: fotografía]</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="orbita-grupo">
+          {
+            areas.map((area, i) => (
+              <button
+                type="button"
+                class="orbita-nodo"
+                style={`--angulo: ${180 + i * paso}deg`}
+                data-nodo={area.id}
+                aria-label={`Ver ${area.data.nombre}`}
+                aria-current={i === 0 ? 'true' : undefined}
+              >
+                <span class="orbita-punto" />
+                <span class="orbita-insignia">
+                  <Icon nombre={iconos[area.id] ?? 'corona'} tamano={36} />
+                </span>
+              </button>
+            ))
+          }
+        </div>
       </div>
     </div>
   </div>
 </Seccion>
 
 <style>
-  /* Cambio de foto por transición CSS, no GSAP: es respuesta a hover y foco,
-     y una transición se reencamina suave si el puntero cruza varias filas. */
-  .foto-area {
+  /* --- Lista -------------------------------------------------------------- */
+
+  /* Cambio de foto por transición CSS: responde a hover y foco, y se
+     reencamina suave si el puntero cruza varias filas. */
+  .foto-lista {
     opacity: 0;
     transition: opacity 280ms var(--ease-salida);
   }
 
-  .foto-area[data-activa] {
+  .foto-lista[data-activa] {
     opacity: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .areas-fila {
+      transition: transform var(--duracion-ui) var(--ease-salida);
+    }
+
+    .areas-fila:hover {
+      transform: translateX(0.5rem);
+    }
+  }
+
+  /* --- Órbita ------------------------------------------------------------- */
+
+  .orbita {
+    display: none;
+  }
+
+  [data-rueda] {
+    position: relative;
+    height: calc(100svh - var(--alto-barra, 5rem));
+  }
+
+  /* La sección siguiente sube sobre la órbita y la cubre justo cuando se
+     suelta el pin: sin el padding inferior no queda una franja entre ambas. */
+  :global(#areas-clinicas:has([data-rueda])) {
+    padding-bottom: 0;
+  }
+
+  [data-rueda] .modo-lista {
+    display: none;
+  }
+
+  [data-rueda] .orbita {
+    --anillo: min(64svh, 34rem, 40vw);
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    align-items: center;
+    gap: clamp(3rem, 8vw, 8rem);
+    height: 100%;
+    will-change: transform, opacity;
+  }
+
+  .orbita-textos {
+    display: grid;
+  }
+
+  /* Los seis textos ocupan la misma celda. El script los desplaza con el
+     scroll: el que sale sube y se apaga, el que llega sube desde abajo. */
+  .orbita-texto {
+    grid-area: 1 / 1;
+    will-change: transform, opacity;
+  }
+
+  .orbita-anillo {
+    position: relative;
+    width: var(--anillo);
+    aspect-ratio: 1;
+  }
+
+  /* Une el texto con la especialidad que está en el fiel, a las nueve. */
+  .orbita-fiel {
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: clamp(3rem, 8vw, 8rem);
+    height: 1px;
+    background-color: var(--color-tinta);
+  }
+
+  .orbita-trazo {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+  }
+
+  /* Grosores en unidades del viewBox: non-scaling-stroke rompe pathLength en
+     Chrome y el arco se dibuja a tramos. */
+  .orbita-pista,
+  .orbita-arco {
+    fill: none;
+  }
+
+  .orbita-pista {
+    stroke: var(--color-borde);
+    stroke-width: 0.2;
+  }
+
+  .orbita-arco {
+    stroke: var(--color-verde-700);
+    stroke-width: 0.4;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .orbita-circulo {
+    position: absolute;
+    inset: 16%;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--color-tinta-800);
+  }
+
+  /* Cortina: el marco sube y el contenido baja lo mismo, así la foto no se
+     desliza, se revela. */
+  .lamina {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    will-change: transform;
+  }
+
+  .lamina-contenido {
+    height: 100%;
+    background-color: var(--color-tinta-800);
+    will-change: transform, opacity;
+  }
+
+  .orbita-grupo {
+    position: absolute;
+    inset: 0;
+    will-change: rotate;
+  }
+
+  /* Cada nodo se ubica en su ángulo sobre el anillo; el grupo entero gira.
+     El botón mide 48px aunque el punto visible sea pequeño. */
+  .orbita-nodo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin: -1.5rem 0 0 -1.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: rotate(var(--angulo)) translateX(calc(var(--anillo) / 2));
+  }
+
+  .orbita-punto {
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 1px solid var(--color-grafito);
+    border-radius: 50%;
+    background-color: var(--color-franja);
+  }
+
+  /* La insignia crece desde el punto al acercarse al fiel. El script la
+     contrarrota para que el icono quede siempre derecho. */
+  .orbita-insignia {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    margin: -2.75rem 0 0 -2.75rem;
+    border: 1px solid var(--color-verde-700);
+    border-radius: 50%;
+    background-color: var(--color-verde);
+    color: var(--color-tinta);
+    opacity: 0;
+    scale: 0.16;
+    will-change: scale, rotate, opacity;
   }
 </style>
 
 <script>
-  const lista = document.querySelector<HTMLElement>('[data-areas]');
-  const panel = document.querySelector<HTMLElement>('[data-panel-areas]');
+  import { gsap, ScrollTrigger, SplitText } from '../../lib/motion/gsap';
+  import { EASE_GSAP } from '../../lib/motion/easings';
 
-  if (lista && panel) {
-    const mostrar = (id: string | undefined) => {
-      const foto = id && panel.querySelector(`[data-foto-area="${id}"]`);
-      if (!foto) return;
-      panel.querySelector('[data-activa]')?.removeAttribute('data-activa');
-      foto.setAttribute('data-activa', '');
+  const areas = document.querySelector<HTMLElement>('[data-areas]');
+
+  if (areas) {
+    /* --- Lista ------------------------------------------------------------ */
+
+    const filas = [...areas.querySelectorAll<HTMLElement>('[data-area]')];
+    const fotosLista = [...areas.querySelectorAll<HTMLElement>('[data-foto-lista]')];
+    let fotoActiva = 0;
+
+    const mostrarEnLista = (i: number) => {
+      if (i === fotoActiva) return;
+      fotosLista[fotoActiva]?.removeAttribute('data-activa');
+      fotosLista[i]?.setAttribute('data-activa', '');
+      fotoActiva = i;
     };
 
-    for (const fila of lista.querySelectorAll<HTMLElement>('[data-area]')) {
-      fila.addEventListener('focus', () => mostrar(fila.dataset.area));
-    }
+    filas.forEach((fila, i) => {
+      fila.addEventListener('focus', () => mostrarEnLista(i));
+    });
 
     // El hover solo con puntero fino: en táctil se dispara al tocar, justo
     // cuando la fila ya está navegando a su landing.
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      for (const fila of lista.querySelectorAll<HTMLElement>('[data-area]')) {
-        fila.addEventListener('pointerenter', () => mostrar(fila.dataset.area));
-      }
+      filas.forEach((fila, i) => {
+        fila.addEventListener('pointerenter', () => mostrarEnLista(i));
+      });
+    }
+
+    /* --- Órbita ----------------------------------------------------------- */
+
+    const orbita = areas.querySelector<HTMLElement>('.orbita');
+    const textos = [...areas.querySelectorAll<HTMLElement>('[data-texto]')];
+    const contenidos = [...areas.querySelectorAll<HTMLElement>('[data-lamina] > *')];
+    const nodos = [...areas.querySelectorAll<HTMLButtonElement>('[data-nodo]')];
+    const insignias = [...areas.querySelectorAll<HTMLElement>('.orbita-insignia')];
+    const grupo = areas.querySelector<HTMLElement>('.orbita-grupo');
+    const arco = areas.querySelector<SVGCircleElement>('.orbita-arco');
+    const barra = document.getElementById('barra');
+    const ultimo = textos.length - 1;
+    const paso = 360 / textos.length;
+
+    // Astro deja <script> entre secciones: se salta hasta la siguiente real.
+    let siguiente = areas.closest('section')?.nextElementSibling;
+    while (siguiente && siguiente.tagName !== 'SECTION') siguiente = siguiente.nextElementSibling;
+    const titular = siguiente?.querySelector<HTMLElement>('h2');
+    const entradilla = titular?.parentElement?.querySelector<HTMLElement>('p');
+
+    // Pantallas de scroll por especialidad, y de reposo tras la última:
+    // el impulso del último giro se queda en la rueda y hace falta otro
+    // scroll para pasar a la sección siguiente.
+    const TRAMO = 0.8;
+    const REPOSO = 0.7;
+    const RECORRIDO = ultimo * TRAMO + REPOSO;
+
+    let activa = 0;
+    let rueda: ScrollTrigger | undefined;
+
+    const activar = (i: number) => {
+      if (i === activa) return;
+      textos[activa]?.setAttribute('inert', '');
+      textos[i]?.removeAttribute('inert');
+      nodos[activa]?.removeAttribute('aria-current');
+      nodos[i]?.setAttribute('aria-current', 'true');
+      activa = i;
+    };
+
+    const irA = (i: number) => {
+      if (!rueda) return;
+      const destino = rueda.start + ((i * TRAMO) / RECORRIDO) * (rueda.end - rueda.start);
+      window.scrollTo({ top: destino, behavior: 'smooth' });
+    };
+
+    nodos.forEach((nodo, i) => nodo.addEventListener('click', () => irA(i)));
+
+    if (orbita && grupo && arco && siguiente instanceof HTMLElement) {
+      const cubierta = siguiente;
+
+      gsap.context(() => {
+        const mm = gsap.matchMedia();
+
+        mm.add('(min-width: 64rem) and (prefers-reduced-motion: no-preference)', () => {
+          const altoBarra = () => barra?.offsetHeight ?? 0;
+          const giroPx = () => RECORRIDO * window.innerHeight;
+          const limitar = gsap.utils.clamp(0, 1);
+
+          // La sección siguiente se monta sobre la órbita: con el margen
+          // negativo sube mientras la órbita sigue fija, y la cubre justo
+          // cuando se suelta el pin. Sin pantalla vacía entre ambas.
+          const medir = () => {
+            areas.style.setProperty('--alto-barra', `${altoBarra()}px`);
+            cubierta.style.marginTop = `-${areas.offsetHeight}px`;
+          };
+
+          // El modo órbita cambia la altura: se activa antes de crear los
+          // ScrollTrigger para que midan con la altura final.
+          areas.dataset.rueda = '';
+          cubierta.style.position = 'relative';
+          cubierta.style.zIndex = '1';
+          cubierta.style.paddingTop = 'var(--spacing-seccion-sm)';
+          medir();
+          ScrollTrigger.addEventListener('refreshInit', medir);
+
+          const pintar = (p: number) => {
+            const giro = -p * paso;
+            grupo.style.rotate = `${giro}deg`;
+            arco.style.strokeDashoffset = String(1 - p / ultimo);
+
+            insignias.forEach((insignia, i) => {
+              const cercania = limitar(1 - Math.abs(i - p));
+              insignia.style.opacity = String(cercania);
+              // Parte del tamaño del punto (0.875rem de 5.5rem) para que se note crecer.
+              insignia.style.scale = String(0.16 + cercania * 0.84);
+              insignia.style.rotate = `${-(180 + i * paso + giro)}deg`;
+            });
+
+            textos.forEach((texto, i) => {
+              const distancia = i - p;
+              texto.style.transform = `translateY(${distancia * 3}rem)`;
+              texto.style.opacity = String(limitar(1 - Math.abs(distancia) * 1.6));
+            });
+
+            contenidos.forEach((contenido, i) => {
+              const entrada = i === 0 ? 1 : limitar(p - (i - 1));
+              const salida = limitar(p - i);
+              const oculta = 1 - entrada;
+              (contenido.parentElement as HTMLElement).style.transform =
+                `translateY(${oculta * 100}%)`;
+              contenido.style.transform =
+                `translateY(${-oculta * 100 - salida * 12}%) scale(${1 + oculta * 0.12})`;
+              contenido.style.opacity = String(1 - salida * 0.4);
+            });
+
+            activar(Math.round(p));
+          };
+
+          const estado = { p: 0 };
+          pintar(0);
+
+          // El pin dura el giro, el reposo y la altura de la órbita: ese último
+          // tramo es lo que la sección siguiente tarda en cubrirla.
+          ScrollTrigger.create({
+            trigger: areas,
+            start: () => `top ${altoBarra()}px`,
+            end: () => `+=${giroPx() + areas.offsetHeight}`,
+            pin: true,
+          });
+
+          // Durante el giro el snap asienta el anillo sobre una especialidad.
+          // En el reposo vuelve a la última, salvo que el scroll ya haya
+          // recorrido la mayor parte: entonces sigue hacia la sección siguiente.
+          const GIRO = ultimo * TRAMO;
+          const asentar = (progreso: number) => {
+            const t = progreso * RECORRIDO;
+            if (t <= GIRO) return (Math.round(t / TRAMO) * TRAMO) / RECORRIDO;
+            return t < GIRO + REPOSO * 0.7 ? GIRO / RECORRIDO : 1;
+          };
+
+          // Lineal a propósito: el giro es el scroll mismo. El reposo es una
+          // pausa vacía al final de la línea de tiempo.
+          const giro = gsap.timeline({
+            scrollTrigger: {
+              trigger: areas,
+              start: () => `top ${altoBarra()}px`,
+              end: () => `+=${giroPx()}`,
+              scrub: 0.6,
+              snap: {
+                snapTo: asentar,
+                duration: { min: 0.25, max: 0.6 },
+                delay: 0.08,
+                ease: EASE_GSAP.ambas,
+              },
+              invalidateOnRefresh: true,
+            },
+          });
+
+          giro
+            .to(estado, {
+              p: ultimo,
+              duration: GIRO,
+              ease: 'none',
+              onUpdate: () => pintar(estado.p),
+            })
+            .to({}, { duration: REPOSO });
+
+          rueda = giro.scrollTrigger;
+
+          /* --- Salida: la sección siguiente sube y luego se fija ----------- */
+
+          // La órbita retrocede mientras la tapan: se aleja y se apaga.
+          gsap.to(orbita, {
+            scale: 0.94,
+            opacity: 0.4,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: cubierta,
+              start: 'top bottom',
+              end: () => `top ${altoBarra()}px`,
+              scrub: 0.6,
+            },
+          });
+
+          // Al llegar arriba, el contenido de la sección siguiente queda fijo
+          // mientras su texto entra. El fondo de la sección sigue en el flujo
+          // y cubre la órbita que ya se soltó.
+          const interior = cubierta.firstElementChild;
+
+          if (interior instanceof HTMLElement) {
+            const LECTURA = 0.9;
+            const lectura = () => LECTURA * window.innerHeight;
+            const margenArriba = () => altoBarra() + parseFloat(getComputedStyle(cubierta).paddingTop);
+
+            // Una sola línea de tiempo, atada al pin: GSAP desplaza los
+            // ScrollTrigger que usan un elemento fijado y empiezan después que
+            // su pin, así que cada tramo va dentro de esta y no en uno propio.
+            // Duración 1 = todo el pin; el último tramo deja el texto quieto
+            // antes de soltar.
+            const entrada = gsap.timeline({
+              scrollTrigger: {
+                trigger: interior,
+                start: () => `top ${margenArriba()}px`,
+                end: () => `+=${lectura()}`,
+                pin: true,
+                scrub: 0.6,
+              },
+            });
+
+            entrada.to({}, { duration: 1 }, 0);
+
+            if (titular) {
+              SplitText.create(titular, {
+                type: 'lines',
+                mask: 'lines',
+                autoSplit: true,
+                onSplit: (partido) => {
+                  // Con line-height ajustado la máscara cortaría tildes y
+                  // descendentes: el relleno las deja dentro.
+                  gsap.set(partido.masks, { paddingBlock: '0.15em', marginBlock: '-0.15em' });
+
+                  // Se devuelve para que SplitText la retire al volver a partir.
+                  const lineas = gsap.from(partido.lines, {
+                    yPercent: 110,
+                    duration: 0.3,
+                    stagger: 0.1,
+                    ease: EASE_GSAP.suave,
+                  });
+                  entrada.add(lineas, 0);
+                  return lineas;
+                },
+              });
+            }
+
+            if (entradilla) {
+              entrada.from(
+                entradilla,
+                { opacity: 0, y: 24, duration: 0.35, ease: EASE_GSAP.suave },
+                0.3,
+              );
+            }
+          }
+
+          return () => {
+            rueda = undefined;
+            ScrollTrigger.removeEventListener('refreshInit', medir);
+            delete areas.dataset.rueda;
+            areas.style.removeProperty('--alto-barra');
+            for (const propiedad of ['margin-top', 'position', 'z-index', 'padding-top']) {
+              cubierta.style.removeProperty(propiedad);
+            }
+            grupo.style.removeProperty('rotate');
+            arco.style.removeProperty('stroke-dashoffset');
+            for (const insignia of insignias) {
+              insignia.style.removeProperty('opacity');
+              insignia.style.removeProperty('scale');
+              insignia.style.removeProperty('rotate');
+            }
+            for (const el of [...textos, ...contenidos]) {
+              el.style.removeProperty('transform');
+              el.style.removeProperty('opacity');
+            }
+            for (const contenido of contenidos) {
+              (contenido.parentElement as HTMLElement).style.removeProperty('transform');
+            }
+          };
+        });
+      }, areas);
     }
   }
 </script>

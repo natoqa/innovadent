@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Boton from '../ui/Boton.astro';
+import Logo from '../ui/Logo.astro';
 import { SITIO } from '../../config/site';
 
 interface Props {
@@ -48,9 +49,9 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
     id="barra-interior"
     class="mx-auto flex max-w-ancho items-center gap-6 px-6 py-3 md:px-10 md:py-4"
   >
-    <a href="/" class="objetivo-tactil mr-auto text-subtitulo">{SITIO.nombre}</a>
+    <Logo href="/" class="objetivo-tactil mr-auto" />
 
-    <nav aria-label="Principal" class="hidden items-center gap-7 text-menor lg:flex">
+    <nav aria-label="Principal" class="hidden items-center gap-7 whitespace-nowrap text-menor xl:flex">
       <a
         href={inicio.href}
         aria-current={esActivo(inicio.href) ? 'page' : undefined}
@@ -132,14 +133,14 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
       }
     </nav>
 
-    <Boton href="/#reserva" class="hidden sm:inline-flex">Reservar mi cita</Boton>
+    <Boton href="/#reserva" class="hidden whitespace-nowrap sm:inline-flex">Reservar mi cita</Boton>
 
     <button
       id="abrir-menu"
       type="button"
       aria-expanded="false"
       aria-controls="menu-movil"
-      class="flex h-12 w-12 flex-col items-center justify-center gap-2 lg:hidden"
+      class="flex h-12 w-12 flex-col items-center justify-center gap-2 xl:hidden"
     >
       <span class="sr-only">Abrir menú</span>
       <span class="block h-px w-6 bg-current" aria-hidden="true"></span>
@@ -154,7 +155,7 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
   class="pointer-events-none fixed inset-0 z-60 flex -translate-y-full flex-col overflow-y-auto bg-tinta-800 text-superficie opacity-0 transition-[transform,opacity] duration-[280ms] ease-cortina data-[abierto]:pointer-events-auto data-[abierto]:translate-y-0 data-[abierto]:opacity-100 motion-reduce:translate-y-0"
 >
   <div class="mx-auto flex w-full max-w-ancho items-center justify-between px-6 py-3 md:px-10">
-    <span class="text-subtitulo">{SITIO.nombre}</span>
+    <Logo />
 
     <button
       id="cerrar-menu"
@@ -361,7 +362,7 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
 
     // Si se pasa a escritorio con el menú abierto, se cierra para no dejar
     // contenido inerte detrás de un panel que ya no se ve.
-    const anchoEscritorio = window.matchMedia('(min-width: 64rem)');
+    const anchoEscritorio = window.matchMedia('(min-width: 80rem)');
     anchoEscritorio.addEventListener('change', (evento) => {
       if (evento.matches && menu.hasAttribute('data-abierto')) cerrarMenu();
     });

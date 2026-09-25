@@ -37,11 +37,18 @@ export interface Sede {
   longitud: number | null;
   /** Enlace a la ficha de Google Maps. */
   mapa: string | null;
+  /**
+   * URL de inserción de Street View frente a la fachada, tal como la da
+   * Google en "Compartir > Insertar un mapa". Solo el valor de src.
+   */
+  vistaCalle: string | null;
   estacionamiento: boolean | null;
 }
 
 export const SITIO = {
   nombre: 'Innovadent',
+  /** Línea bajo el logotipo. */
+  bajada: 'Centro odontológico integral',
   descripcion: '[PENDIENTE: descripción de una línea para meta description]',
   idioma: 'es-PE',
   locale: 'es_PE',
@@ -78,9 +85,13 @@ export const SITIO = {
     region: 'La Libertad',
     pais: 'Perú',
     codigoPostal: null,
-    latitud: null,
-    longitud: null,
+    // Posición de la cámara de Street View frente a la fachada, entregada por
+    // la clínica el 22-09-2026. Es la calle, no el interior del local.
+    latitud: -8.116867021853317,
+    longitud: -79.03130160450394,
     mapa: null,
+    vistaCalle:
+      'https://www.google.com/maps/embed?pb=!3m2!1ses!2spe!4v1790124364562!5m2!1ses!2spe!6m8!1m7!1siFFAwkB_w14oIH2031Tozg!2m2!1d-8.116867021853317!2d-79.03130160450394!3f80.31016311233914!4f3.778219078890558!5f0.7820865974627469',
     estacionamiento: true,
   } satisfies Sede,
 
@@ -120,7 +131,7 @@ export const SITIO = {
     horarios: [
       { valor: 'manana', etiqueta: 'Mañana' },
       { valor: 'tarde', etiqueta: 'Tarde' },
-      { valor: 'indiferente', etiqueta: 'Me da igual' },
+      { valor: 'indiferente', etiqueta: 'Sin preferencia' },
     ],
   },
 

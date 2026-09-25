@@ -75,7 +75,7 @@ const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
 
           <fieldset data-campo="horario">
             <legend class="campo-etiqueta">¿Cuándo te conviene más?</legend>
-            <div class="grid gap-2 sm:grid-cols-3">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">
               {
                 franjas.map((franja) => (
                   <label class="flex min-h-12 cursor-pointer items-center gap-3 rounded-campo border border-borde px-4 transition-colors duration-200 ease-salida has-checked:border-tinta">

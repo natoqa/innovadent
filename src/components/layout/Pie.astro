@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import Logo from '../ui/Logo.astro';
 import { SITIO } from '../../config/site';
 
 const tratamientos = (await getCollection('tratamientos')).sort(
@@ -28,7 +29,7 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
   <div class="mx-auto max-w-ancho px-6 py-seccion-sm md:px-10">
     <div class="grid gap-x-10 gap-y-12 md:grid-cols-12">
       <div class="md:col-span-4">
-        <p class="text-subtitulo">{SITIO.nombre}</p>
+        <Logo />
 
         <p class="mt-4 max-w-[30ch] text-menor text-grafito">
           {SITIO.sede.calle}<br />

@@ -115,13 +115,22 @@ const tratamientos = defineCollection({
 
 const hitos = defineCollection({
   loader: glob({ base: './src/content/hitos', pattern: '**/*.md' }),
-  schema: z.object({
-    anio: z.number().int().min(2006).max(2026).nullable(),
-    titular: z.string(),
-    descripcion: z.string(),
-    /** false mientras el cliente no confirme la fecha o el nombre exacto. */
-    verificado: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z
+      .object({
+        anio: z.number().int().min(2006).max(2026).nullable(),
+        titular: z.string(),
+        descripcion: z.string(),
+        /** false mientras el cliente no confirme la fecha o el nombre exacto. */
+        verificado: z.boolean().default(false),
+        /** Foto de archivo del hito, si la clínica la tiene. Se muestra en gris. */
+        foto: image().optional(),
+        altFoto: z.string().min(10).optional(),
+      })
+      .refine((hito) => !hito.foto || Boolean(hito.altFoto), {
+        message: 'Una foto necesita altFoto que describa lo que se ve.',
+        path: ['altFoto'],
+      }),
 });
 
 /**

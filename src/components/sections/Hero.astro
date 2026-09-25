@@ -13,7 +13,6 @@ const FUENTE_VIDEO = '/video/VideoHero.mp4';
  */
 const FIN_UTIL = 21;
 
-const pacientes = new Intl.NumberFormat(SITIO.idioma).format(SITIO.pacientes);
 const whatsapp = SITIO.contacto.whatsapp;
 ---
 
@@ -77,11 +76,7 @@ const whatsapp = SITIO.contacto.whatsapp;
       }
     </div>
 
-    <p data-entrada class="cifra mt-12 text-menor text-superficie md:mt-16">
-      {pacientes} pacientes atendidos
-    </p>
-
-    <div data-entrada class="mt-4 flex items-center gap-4 text-menor text-superficie">
+    <div data-entrada class="mt-12 md:mt-16 flex items-center gap-4 text-menor text-superficie">
       <span class="cifra">{SITIO.fundacion}</span>
       <span class="h-px flex-1 bg-superficie" aria-hidden="true"></span>
       <span class="cifra">{SITIO.aniversario}</span>

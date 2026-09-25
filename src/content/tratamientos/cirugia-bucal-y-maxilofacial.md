@@ -62,6 +62,11 @@ seo:
   descripcion: >-
     Terceras molares retenidas, dientes incluidos y otros procedimientos
     quirúrgicos, con estudios radiográficos y tomográficos según el caso.
+
+# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
+# la clínica antes de publicar.
+foto: ../../assets/especialidades/Cirugíabucalymaxilofacial.jpg
+altFoto: Equipo quirúrgico con campos estériles y separador bucal realiza un procedimiento en la boca de un paciente recostado.
 ---
 
 Los estudios previos y la preparación del paciente forman parte del procedimiento

@@ -11,7 +11,8 @@ GSAP está aquí para **un momento orquestado**, no para decorar cada sección.
 
 ## Reglas duras
 
-- **Un solo momento coreografiado en todo el sitio: la entrada del hero.** Todo lo demás es discreto.
+- **Dos momentos coreografiados en todo el sitio: la entrada del hero y la rueda de áreas clínicas.** Todo lo demás es discreto. La rueda es excepción aprobada por el cliente: solo desde 1024px, sin ella en móvil, tablet ni con movimiento reducido. Incluye su salida: Casos clínicos sube sobre la rueda y su titular entra por líneas al ritmo de esa subida. No es un tercer momento ni un permiso para animar la entrada de otras secciones. No abrir un tercero.
+- **Excepción aprobada por el cliente: la entrada del comparador antes/después.** El cuadro espera oculto; al entrar en pantalla aparece (opacidad y escala desde 0.96) y, una sola vez, la línea recorre de "solo antes" a la mitad. El barrido es demostrativo (enseña el resultado y que se puede arrastrar). Se detiene ante cualquier gesto. Con movimiento reducido solo queda el fundido de opacidad. No sirve de precedente para animar la entrada de otros elementos.
 - **Prohibido el fade-and-slide-up genérico en cada sección al hacer scroll.** Es la firma visual de una página generada por IA.
 - **Prohibido animar cada tarjeta al entrar en viewport.**
 - Las micro-interacciones (hover, foco, `:active`) se hacen con **transiciones CSS**, nunca con GSAP.

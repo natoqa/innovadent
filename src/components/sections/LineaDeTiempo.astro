@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import Figura from '../ui/Figura.astro';
 import { SITIO } from '../../config/site';
 
 // Los hitos sin año confirmado van al final, en su propio bloque: no se les
@@ -20,25 +21,44 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
     medida="12ch"
   />
 
-  <div id="hitos" class="relative mt-12 border-t border-borde md:mt-16">
-    <!-- En el margen, fuera de la columna de años. Sin JavaScript es una línea
-         fija; con él se llena según avanza la lectura. -->
-    <div class="absolute inset-y-0 -left-3 w-px bg-borde md:-left-5" aria-hidden="true">
-      <div id="hitos-progreso" class="absolute -left-px h-full w-[3px] origin-top bg-verde"></div>
-    </div>
+  <!-- La línea corre por el centro en escritorio y por el borde izquierdo en
+       móvil. Sin JavaScript es una línea fija; con él se llena según se lee. -->
+  <div id="hitos" class="relative mt-12 md:mt-16">
+    <span class="absolute inset-y-0 left-2 w-px bg-borde md:left-1/2" aria-hidden="true"></span>
+    <span
+      id="hitos-progreso"
+      class="absolute inset-y-0 left-2 w-px origin-top bg-tinta md:left-1/2"
+      aria-hidden="true"></span>
 
-    {
-      fechados.map((hito) => (
-        <article class="grid gap-x-10 gap-y-3 border-b border-borde py-8 md:grid-cols-12">
-          <p class="anio cifra text-display md:col-span-4">{hito.data.anio}</p>
+    <ol class="relative">
+      {
+        fechados.map((hito, i) => (
+          <li class="grid items-center gap-x-[clamp(2rem,6vw,5.5rem)] gap-y-3 py-[clamp(1.75rem,5vh,3.5rem)] pl-9 md:grid-cols-2 md:pl-0">
+            <p
+              class:list={[
+                'anio cifra font-light text-anio',
+                i % 2 === 0 && 'md:text-right',
+              ]}
+            >
+              {hito.data.anio}
+            </p>
 
-          <div class="md:col-span-7 md:col-start-6 md:self-center">
-            <h3 class="text-subtitulo">{hito.data.titular}</h3>
-            <p class="mt-2 max-w-[42ch] text-menor text-grafito">{hito.data.descripcion}</p>
-          </div>
-        </article>
-      ))
-    }
+            <div>
+              <h3 class="text-subtitulo">{hito.data.titular}</h3>
+              <p class="mt-2 max-w-[38ch] text-menor text-grafito">{hito.data.descripcion}</p>
+              {hito.data.foto && hito.data.altFoto && (
+                <Figura
+                  imagen={hito.data.foto}
+                  alt={hito.data.altFoto}
+                  sizes="(min-width: 768px) 40vw, 90vw"
+                  class="mt-4 max-w-md grayscale"
+                />
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
   </div>
 
   {
@@ -63,6 +83,7 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
   /* El año que ya se leyó queda en tinta; los que faltan, en neblina. Solo se
      activa con JavaScript: sin él todos los años se ven en tinta. */
   .anio {
+    font-stretch: 112%;
     transition: color var(--duracion-ui) var(--ease-salida);
   }
 
@@ -86,7 +107,7 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         hitos.dataset.seguimiento = '';
 
-        // Lineal a propósito: la barra es el scroll mismo, no una animación
+        // Lineal a propósito: la línea es el scroll mismo, no una animación
         // con curva. Cualquier easing la despegaría del dedo.
         gsap.fromTo(
           progreso,
@@ -94,14 +115,14 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
           {
             scaleY: 1,
             ease: 'none',
-            scrollTrigger: { trigger: hitos, start: 'top 70%', end: 'bottom 70%', scrub: true },
+            scrollTrigger: { trigger: hitos, start: 'top 60%', end: 'bottom 60%', scrub: true },
           },
         );
 
         for (const anio of hitos.querySelectorAll('.anio')) {
           ScrollTrigger.create({
             trigger: anio,
-            start: 'top 70%',
+            start: 'top 60%',
             onEnter: () => anio.classList.add('es-leido'),
             onLeaveBack: () => anio.classList.remove('es-leido'),
           });

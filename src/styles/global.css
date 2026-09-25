@@ -4,6 +4,9 @@
    y wdth (62–125%). Sustituye a las fuentes en public/fonts. */
 @import "@fontsource-variable/archivo/wdth.css";
 
+/* Jost solo para el logotipo, en su único peso: 200, alfabeto latino. */
+@import "@fontsource/jost/latin-200.css";
+
 /* ==========================================================================
    INNOVADENT — Sistema de diseño
    Astro + Tailwind v4 + GSAP
@@ -65,6 +68,8 @@
      Los titulares lo aplican con font-stretch en la capa base. */
   --font-display: "Archivo Variable", system-ui, sans-serif;
   --font-sans:    "Archivo Variable", system-ui, -apple-system, sans-serif;
+  /* Excepción a la familia única: es el logotipo, no texto de interfaz. */
+  --font-logo:    "Jost", "Archivo Variable", system-ui, sans-serif;
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
@@ -75,6 +80,12 @@
   --text-display: clamp(2.25rem, 5.5vw, 4rem);
   --text-display--line-height: 1.02;
   --text-display--letter-spacing: -0.025em;
+
+  /* Años de la línea de tiempo: mayores que un titular de sección, en peso
+     ligero, para que la fecha se lea antes que el texto. */
+  --text-anio:    clamp(3rem, 7vw, 6rem);
+  --text-anio--line-height: 0.9;
+  --text-anio--letter-spacing: -0.02em;
 
   --text-titulo:  clamp(1.75rem, 3vw, 2.5rem);
   --text-titulo--line-height: 1.1;
@@ -148,6 +159,13 @@
     font-stretch: 112%;
     font-weight: 600;
     text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  /* En pantallas angostas una palabra como "Odontopediatría" no cabe entera
+     en el ancho expandido del titular: se divide con guion, no desborda. */
+  @media (max-width: 29.99rem) {
+    h1, h2, h3 { hyphens: auto; }
   }
 
   p, li { text-wrap: pretty; }

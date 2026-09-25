@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+
+// La home muestra los cuatro primeros según el `orden` de la colección.
+// Cambiar quién aparece aquí es cuestión de reordenar, no de tocar el componente.
+const principales = (await getCollection('especialistas'))
+  .sort((a, b) => a.data.orden - b.data.orden)
+  .slice(0, 4);
+---
+
+<Seccion id="especialistas" ritmo="corto">
+  <EncabezadoSeccion
+    titulo="El equipo es la parte de la clínica que no se puede comprar."
+    entradilla="Especialistas con formación específica en su área, trabajando sobre un mismo plan de tratamiento."
+    medida="16ch"
+  />
+
+  <ul class="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-4 md:gap-x-7">
+    {
+      principales.map((persona, i) => (
+        <li class:list={[i % 2 === 1 && 'mt-8 md:mt-14']}>
+          <article>
+            <div class="foto aspect-[3/4] bg-tinta-800">
+              {persona.data.retrato ? (
+                <Picture
+                  src={persona.data.retrato}
+                  alt={`Retrato de ${persona.data.nombre}.`}
+                  formats={['avif', 'webp']}
+                  widths={[320, 480, 640]}
+                  sizes="(min-width: 768px) 22vw, 45vw"
+                  loading="lazy"
+                  class="h-full w-full object-cover"
+                />
+              ) : (
+                <div class="flex h-full items-end p-4">
+                  <span class="text-dato text-superficie">[PENDIENTE: retrato]</span>
+                </div>
+              )}
+            </div>
+
+            <h3 class="mt-4 text-subtitulo">{persona.data.nombre}</h3>
+            <p class="mt-1 text-menor text-grafito">{persona.data.especialidad}</p>
+            <p class="mt-1 text-dato text-grafito">
+              Colegiatura <span class="cifra">{persona.data.colegiatura}</span>
+            </p>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="mt-12 text-menor">
+    <a class="enlace" href="/especialistas">Conoce a nuestros especialistas</a>
+  </p>
+</Seccion>

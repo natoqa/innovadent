@@ -20,10 +20,10 @@ const grupos = categorias
   .filter((grupo) => grupo.equipos.length > 0);
 ---
 
-<Seccion id="tecnologia">
-  {
-    grupos.length > 0 ? (
-      <>
+{/* Sin equipos cargados la sección no se dibuja. */}
+{
+  grupos.length > 0 && (
+    <Seccion id="tecnologia">
         <EncabezadoSeccion
           titulo="Con qué trabajamos."
           entradilla="Contado por lo que cambia para ti durante la consulta, no por la ficha técnica."
@@ -46,15 +46,6 @@ const grupos = categorias
             </div>
           ))}
         </div>
-      </>
-    ) : (
-      <>
-        <h2 class="text-display">[PENDIENTE: titular de tecnología]</h2>
-        <p class="mt-6 max-w-texto">
-          [PENDIENTE: equipos con marca y beneficio para el paciente. Cada equipo se añade
-          como un archivo en src/content/tecnologia siguiendo _plantilla.md.]
-        </p>
-      </>
-    )
-  }
-</Seccion>
+    </Seccion>
+  )
+}

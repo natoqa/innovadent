@@ -12,22 +12,17 @@ const casos = (await getCollection('casos')).sort((a, b) => a.data.orden - b.dat
 const [destacado, ...resto] = casos;
 const otros = resto.slice(0, 3);
 
-const PENDIENTE = '[PENDIENTE]';
 const AUTORIZACION = 'Consentimiento informado firmado';
 
+// Sin caso publicado no hay ficha: se muestra solo el comparador de muestra.
 const ficha = destacado
   ? [
-      { etiqueta: 'Tratamiento', valor: (await getEntry(destacado.data.tratamiento))?.data.nombre ?? PENDIENTE },
-      { etiqueta: 'Especialista', valor: (await getEntry(destacado.data.especialista))?.data.nombre ?? PENDIENTE },
+      { etiqueta: 'Tratamiento', valor: (await getEntry(destacado.data.tratamiento))?.data.nombre ?? '' },
+      { etiqueta: 'Especialista', valor: (await getEntry(destacado.data.especialista))?.data.nombre ?? '' },
       { etiqueta: 'Duración', valor: destacado.data.duracion },
       { etiqueta: 'Autorización', valor: AUTORIZACION },
-    ]
-  : [
-      { etiqueta: 'Tratamiento', valor: PENDIENTE },
-      { etiqueta: 'Especialista', valor: PENDIENTE },
-      { etiqueta: 'Duración', valor: PENDIENTE },
-      { etiqueta: 'Autorización', valor: AUTORIZACION },
-    ];
+    ].filter((fila) => fila.valor)
+  : [];
 
 const nombresOtros = await Promise.all(
   otros.map(async (caso) => (await getEntry(caso.data.tratamiento))?.data.nombre ?? caso.data.titulo),
@@ -59,11 +54,11 @@ const aspecto = 'aspect-[4/5] md:aspect-video';
         <Comparador
           titulo="caso pendiente"
           aspecto={aspecto}
-          marcador="[PENDIENTE: primer caso con consentimiento informado firmado, fotos antes y después con el mismo encuadre y la misma luz.]"
         />
       )
     }
 
+    {ficha.length > 0 && (
     <dl class="mt-6 grid grid-cols-1 gap-5 border-t border-tinta-700 pt-5 min-[400px]:grid-cols-2 md:grid-cols-4">
       {
         ficha.map((fila) => (
@@ -74,6 +69,7 @@ const aspecto = 'aspect-[4/5] md:aspect-video';
         ))
       }
     </dl>
+    )}
   </div>
 
   {
@@ -89,16 +85,6 @@ const aspecto = 'aspect-[4/5] md:aspect-video';
           />
         ))}
       </div>
-    ) : (
-      !destacado && (
-        <div class="mt-12 grid gap-4 min-[480px]:grid-cols-2 md:mt-16 md:grid-cols-3 md:gap-6">
-          {['Caso 02', 'Caso 03', 'Caso 04'].map((caso) => (
-            <div class="foto flex aspect-[4/5] items-end bg-tinta-700 p-5">
-              <span class="text-dato">[PENDIENTE: {caso}, con consentimiento firmado.]</span>
-            </div>
-          ))}
-        </div>
-      )
-    )
+    ) : null
   }
 </Seccion>

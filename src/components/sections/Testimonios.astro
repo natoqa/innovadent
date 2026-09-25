@@ -8,6 +8,9 @@ const testimonios = (await getCollection('testimonios')).sort(
   (a, b) => a.data.orden - b.data.orden,
 );
 
+// Sin testimonios ni valoración la sección no se dibuja: aparece sola cuando
+// llega el primer testimonio autorizado.
+
 // La valoración se muestra solo si está copiada de la ficha real, completa.
 const { ficha, valoracion, resenas } = SITIO.google;
 const google =
@@ -20,9 +23,11 @@ const google =
     : null;
 ---
 
+{
+  (testimonios.length > 0 || google) && (
 <Seccion id="testimonios" tono="oscuro" ritmo="corto">
   {
-    testimonios.length > 0 ? (
+    testimonios.length > 0 && (
       <>
         <EncabezadoSeccion
           titulo="Lo que cuentan los pacientes."
@@ -53,14 +58,6 @@ const google =
           ))}
         </div>
       </>
-    ) : (
-      <>
-        <h2 class="text-display">[PENDIENTE: titular de testimonios]</h2>
-        <p class="mt-6 max-w-texto">
-          [PENDIENTE: testimonios autorizados en texto o video. Cada uno se añade como un
-          archivo en src/content/testimonios siguiendo _plantilla.md.]
-        </p>
-      </>
     )
   }
 
@@ -74,3 +71,5 @@ const google =
     )
   }
 </Seccion>
+  )
+}

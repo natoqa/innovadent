@@ -15,7 +15,7 @@ const clinica = [
   { texto: 'Contacto', href: '/contacto' },
 ];
 
-/** Un dato marcador no se enlaza: se muestra tal cual para que cante. */
+/** Un dato marcador no se muestra: la fila aparece cuando llega el dato real. */
 const pendiente = (valor: string | null) => !valor || valor.startsWith('[PENDIENTE');
 
 const telefono = SITIO.contacto.telefono;
@@ -85,41 +85,35 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
         <h2 class="text-menor text-grafito">Contacto</h2>
 
         <ul class="mt-4">
-          <li class="pointer-coarse:py-0 py-1.5 text-menor">
-            {
-              pendiente(telefono) ? (
-                <span class="text-grafito">{telefono}</span>
-              ) : (
+          {
+            !pendiente(telefono) && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
                 <a href={`tel:${telefono.replace(/\s+/g, '')}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   {telefono}
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
 
-          <li class="pointer-coarse:py-0 py-1.5 text-menor">
-            {
-              whatsapp === null ? (
-                <span class="text-grafito">[PENDIENTE: WhatsApp]</span>
-              ) : (
+          {
+            whatsapp !== null && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
                 <a href={`https://wa.me/${whatsapp}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   WhatsApp <span class="cifra">{SITIO.contacto.whatsappTexto}</span>
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
 
-          <li class="pointer-coarse:py-0 py-1.5 text-menor">
-            {
-              pendiente(correo) ? (
-                <span class="text-grafito">{correo}</span>
-              ) : (
+          {
+            !pendiente(correo) && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
                 <a href={`mailto:${correo}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   {correo}
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
         </ul>
 
         <h2 class="mt-8 text-menor text-grafito">Horarios</h2>

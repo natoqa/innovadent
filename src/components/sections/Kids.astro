@@ -7,6 +7,7 @@ import Figura from '../ui/Figura.astro';
 // El texto es el que el cliente escribió para odontopediatría: Kids es su
 // ámbito de marca, no una especialidad distinta.
 const odontopediatria = await getEntry('tratamientos', 'odontopediatria');
+// Sin fotos propias de Kids se usa la de odontopediatría.
 const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data.orden).slice(0, 3);
 ---
 
@@ -34,9 +35,7 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
               </Boton>
             </div>
           </>
-        ) : (
-          <h2 class="mt-4 text-display">[PENDIENTE: titular de Innovadent Kids]</h2>
-        )
+        ) : null
       }
     </div>
 
@@ -54,14 +53,14 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
             ))}
           </div>
         ) : (
-          <div class="foto aspect-[4/5] bg-tinta-800">
-            <div class="flex h-full items-center justify-center p-6">
-              <span class="max-w-[34ch] text-center text-dato text-superficie">
-                [PENDIENTE: fotografías del ámbito Kids, con autorización firmada de los
-                padres. Cada una se añade en src/content/kids siguiendo _plantilla.md.]
-              </span>
-            </div>
-          </div>
+          odontopediatria?.data.foto &&
+          odontopediatria.data.altFoto && (
+            <Figura
+              imagen={odontopediatria.data.foto}
+              alt={odontopediatria.data.altFoto}
+              sizes="(min-width: 768px) 45vw, 100vw"
+            />
+          )
         )
       }
     </div>

@@ -183,25 +183,19 @@ const casos = (
     )
   }
 
-  {/* 8 · Casos clínicos relacionados */}
-  <Seccion ritmo="corto">
-    <h2 class="text-titulo">Casos clínicos</h2>
-
-    {
-      casos.length > 0 ? (
+  {/* 8 · Casos clínicos relacionados. Sin casos publicados no se dibuja. */}
+  {
+    casos.length > 0 && (
+      <Seccion ritmo="corto">
+        <h2 class="text-titulo">Casos clínicos</h2>
         <div class="mt-10 grid gap-16">
           {casos.map((caso) => (
             <CasoClinico caso={caso} mostrarTratamiento={false} />
           ))}
         </div>
-      ) : (
-        <p class="mt-5 max-w-texto border border-borde p-6 text-menor text-grafito">
-          [PENDIENTE: casos de {t.nombre.toLowerCase()}. Un caso solo se publica con el
-          consentimiento informado firmado del paciente; sin ese campo, el build falla.]
-        </p>
-      )
-    }
-  </Seccion>
+      </Seccion>
+    )
+  }
 
   {/* 9 · Fotografía representativa */}
   <Seccion tono="oscuro">
@@ -214,16 +208,7 @@ const casos = (
             sizes="(min-width: 768px) 58vw, 100vw"
             class="md:col-span-7"
           />
-        ) : (
-          <div class="foto aspect-[3/2] bg-tinta-700 md:col-span-7">
-            <div class="flex h-full items-center justify-center p-6">
-              <span class="text-center text-dato text-superficie">
-                [PENDIENTE: fotografía representativa de {t.nombre.toLowerCase()}, tomada en
-                la clínica.]
-              </span>
-            </div>
-          </div>
-        )
+        ) : null
       }
 
       <div class="md:col-span-4 md:col-start-9">

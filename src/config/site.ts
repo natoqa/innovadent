@@ -2,8 +2,8 @@
  * Datos de la clínica. Fuente única: ningún teléfono, dirección ni horario
  * se escribe dentro de un componente.
  *
- * Los marcadores [PENDIENTE: …] son deliberadamente visibles. Se sustituyen
- * cuando el cliente entregue el dato; no se rellenan por aproximación.
+ * Los marcadores [PENDIENTE: …] no se muestran en el sitio: el dato se omite
+ * hasta que el cliente lo entregue. No se rellenan por aproximación.
  */
 
 export type DiaSchema =
@@ -49,7 +49,8 @@ export const SITIO = {
   nombre: 'Innovadent',
   /** Línea bajo el logotipo. */
   bajada: 'Centro odontológico integral',
-  descripcion: '[PENDIENTE: descripción de una línea para meta description]',
+  descripcion:
+    'Centro odontológico en Trujillo desde 2006. Ortodoncia, endodoncia, periodoncia e implantología, rehabilitación oral, cirugía bucal y odontopediatría.',
   idioma: 'es-PE',
   locale: 'es_PE',
 

@@ -14,7 +14,8 @@ atendemos:
   - Dientes incluidos.
   - Odontomas.
   - Mucoceles.
-  - "[PENDIENTE: confirmar el término. El documento del cliente dice \"tuminos retenidos\" y se transcribió provisionalmente como \"tumores retenidos\".]"
+  # PENDIENTE: confirmar el término. El documento del cliente dice "tuminos
+  # retenidos"; se transcribió provisionalmente como "tumores retenidos".
   - Apicectomías.
 
 indicaciones: >-

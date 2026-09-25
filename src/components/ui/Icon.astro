@@ -1,0 +1,109 @@
+---
+/**
+ * Iconos del sitio. SVG inline, sin dependencias: cada glifo vive aquí.
+ * Siempre decorativo — el nombre accesible lo pone el elemento que lo contiene.
+ *
+ * Los de control (pausa, reproducir) son rellenos; los de especialidad son de
+ * trazo, para que a tamaño pequeño se lean como dibujo técnico y no como mancha.
+ */
+type Relleno = 'pausa' | 'reproducir';
+type Trazo =
+  | 'ortodoncia'
+  | 'endodoncia'
+  | 'implante'
+  | 'corona'
+  | 'cirugia'
+  | 'diente-infantil';
+type Nombre = Relleno | Trazo;
+
+interface Props {
+  nombre: Nombre;
+  tamano?: number;
+  class?: string;
+}
+
+const { nombre, tamano = 20, class: clase } = Astro.props;
+
+const deTrazo = !['pausa', 'reproducir'].includes(nombre);
+
+const diente =
+  'M7.5 3C5 3 3.5 5 3.5 7.3c0 2 .8 3.4 1.4 5.2.5 1.6.7 3.4 1 5.2.2 1.3.7 3.3 2 3.3 1.5 0 1.6-2.6 2-4.2.3-1.1.8-1.8 2.1-1.8s1.8.7 2.1 1.8c.4 1.6.5 4.2 2 4.2 1.3 0 1.8-2 2-3.3.3-1.8.5-3.6 1-5.2.6-1.8 1.4-3.2 1.4-5.2C20.5 5 19 3 16.5 3c-1.9 0-2.6 1-4.5 1s-2.6-1-4.5-1z';
+---
+
+<svg
+  width={tamano}
+  height={tamano}
+  viewBox="0 0 24 24"
+  fill={deTrazo ? 'none' : 'currentColor'}
+  stroke={deTrazo ? 'currentColor' : undefined}
+  stroke-width={deTrazo ? 1.5 : undefined}
+  stroke-linecap={deTrazo ? 'round' : undefined}
+  stroke-linejoin={deTrazo ? 'round' : undefined}
+  aria-hidden="true"
+  focusable="false"
+  class:list={[clase]}
+>
+  {
+    nombre === 'pausa' && (
+      <>
+        <rect x="7" y="5" width="3.5" height="14" />
+        <rect x="13.5" y="5" width="3.5" height="14" />
+      </>
+    )
+  }
+  {nombre === 'reproducir' && <path d="M8 5.2v13.6L19 12z" />}
+
+  {
+    nombre === 'ortodoncia' && (
+      <>
+        <path d="M2.5 12h19" />
+        <rect x="4" y="8.5" width="4" height="7" rx="1" />
+        <rect x="10" y="8.5" width="4" height="7" rx="1" />
+        <rect x="16" y="8.5" width="4" height="7" rx="1" />
+      </>
+    )
+  }
+  {
+    nombre === 'endodoncia' && (
+      <>
+        <path d={diente} />
+        <path d="M10.4 8.5 9.6 16M13.6 8.5l.8 7.5" />
+      </>
+    )
+  }
+  {
+    nombre === 'implante' && (
+      <>
+        <path d="M8 3h8l-.8 4.5H8.8z" />
+        <path d="M4 9.5h16" />
+        <path d="M9.6 11.5h4.8l-.6 8.5-1.8 1.5-1.8-1.5z" />
+        <path d="M9.8 14.5h4.4M10 17.5h4" />
+      </>
+    )
+  }
+  {
+    nombre === 'corona' && (
+      <>
+        <path d={diente} />
+        <path d="M4.3 10h15.4" />
+      </>
+    )
+  }
+  {
+    nombre === 'cirugia' && (
+      <>
+        <path d="M3 21l8-8" />
+        <path d="M11 13 19.5 4.5c1.3 1.3 1.3 3.4 0 4.7L13.5 15.5z" />
+      </>
+    )
+  }
+  {
+    nombre === 'diente-infantil' && (
+      <>
+        <path d={diente} />
+        <path d="M9.5 11c1.4 1.3 3.6 1.3 5 0" />
+        <path d="M9.5 7.8h.01M14.5 7.8h.01" stroke-width="2.2" />
+      </>
+    )
+  }
+</svg>

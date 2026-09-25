@@ -4,6 +4,9 @@
    y wdth (62–125%). Sustituye a las fuentes en public/fonts. */
 @import "@fontsource-variable/archivo/wdth.css";
 
+/* Jost solo para el logotipo, en su único peso: 200, alfabeto latino. */
+@import "@fontsource/jost/latin-200.css";
+
 /* ==========================================================================
    INNOVADENT — Sistema de diseño
    Astro + Tailwind v4 + GSAP
@@ -65,6 +68,8 @@
      Los titulares lo aplican con font-stretch en la capa base. */
   --font-display: "Archivo Variable", system-ui, sans-serif;
   --font-sans:    "Archivo Variable", system-ui, -apple-system, sans-serif;
+  /* Excepción a la familia única: es el logotipo, no texto de interfaz. */
+  --font-logo:    "Jost", "Archivo Variable", system-ui, sans-serif;
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
@@ -75,6 +80,12 @@
   --text-display: clamp(2.25rem, 5.5vw, 4rem);
   --text-display--line-height: 1.02;
   --text-display--letter-spacing: -0.025em;
+
+  /* Años de la línea de tiempo: mayores que un titular de sección, en peso
+     ligero, para que la fecha se lea antes que el texto. */
+  --text-anio:    clamp(3rem, 7vw, 6rem);
+  --text-anio--line-height: 0.9;
+  --text-anio--letter-spacing: -0.02em;
 
   --text-titulo:  clamp(1.75rem, 3vw, 2.5rem);
   --text-titulo--line-height: 1.1;
@@ -148,6 +159,13 @@
     font-stretch: 112%;
     font-weight: 600;
     text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  /* En pantallas angostas una palabra como "Odontopediatría" no cabe entera
+     en el ancho expandido del titular: se divide con guion, no desborda. */
+  @media (max-width: 29.99rem) {
+    h1, h2, h3 { hyphens: auto; }
   }
 
   p, li { text-wrap: pretty; }
@@ -213,6 +231,22 @@
     .accion--secundaria:hover {
       background-color: var(--color-franja);
       box-shadow: inset 0 0 0 1px var(--color-grafito);
+    }
+  }
+
+  /* Sobre superficie oscura (hero, zona-oscura) la variante secundaria
+     invierte el borde y el texto a superficie. El verde no se toca: sigue
+     reservado a la acción primaria. */
+  .accion--sobre-oscuro {
+    background-color: transparent;
+    color: var(--color-superficie);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-superficie) 40%, transparent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .accion--sobre-oscuro:hover {
+      background-color: color-mix(in oklab, var(--color-superficie) 12%, transparent);
+      box-shadow: inset 0 0 0 1px var(--color-superficie);
     }
   }
 
@@ -316,6 +350,27 @@
 
   .zona-oscura .enlace { color: var(--color-verde-200); }
 
+  /* El grafito no se lee sobre tinta-800: etiqueta y valor van en superficie
+     y los separa el peso, no el color. */
+  .zona-oscura .ficha th,
+  .zona-oscura .ficha td {
+    color: var(--color-superficie);
+    border-color: var(--color-tinta-700);
+  }
+
+  /* --- Objetivo táctil -------------------------------------------------
+     Enlaces de texto sueltos (pie, miga, listas) llegan a 44px de alto en
+     pantallas táctiles. Con ratón conservan su medida: el diseño no se infla
+     para un puntero que no lo necesita.
+     -------------------------------------------------------------------- */
+  @media (pointer: coarse) {
+    .objetivo-tactil {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
   /* --- Fotografía clínica ---------------------------------------------- */
   .foto {
     border-radius: var(--radius-foto);
@@ -331,12 +386,15 @@
     background-color: var(--color-verde-100);
   }
 
-  .kids .accion {
+  /* Sobre el verde la acción primaria se invierte a tinta, con texto en
+     superficie. La secundaria no se toca: sigue siendo solo un borde. */
+  .kids .accion:not(.accion--secundaria) {
     background-color: var(--color-tinta);
+    color: var(--color-superficie);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .kids .accion:hover { background-color: var(--color-tinta-700); }
+    .kids .accion:not(.accion--secundaria):hover { background-color: var(--color-tinta-700); }
   }
   
   .campo-control:focus-visible { border-color: var(--color-verde-700); }

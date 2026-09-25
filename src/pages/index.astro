@@ -15,9 +15,15 @@ import Testimonios from '../components/sections/Testimonios.astro';
 import Kids from '../components/sections/Kids.astro';
 import SedeYContacto from '../components/sections/SedeYContacto.astro';
 import Reserva from '../components/sections/Reserva.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { esquemaClinica } from '../lib/seo';
+
+// Sin estado por petición: el formulario habla con /api/reserva desde el cliente.
+export const prerender = true;
 ---
 
 <Base titulo={SITIO.nombre} ruta="/">
+  <JsonLd slot="head" datos={esquemaClinica()} />
   <Nav slot="encabezado" sobreHero />
 
   <Hero />

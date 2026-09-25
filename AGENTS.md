@@ -23,10 +23,9 @@ De ahí la decisión de fondo: el sitio transmite **competencia clínica y calma
 | Deploy | Vercel con `@astrojs/vercel` y `output: "server"` |
 
 ```bash
-pnpm dev          # servidor local
-pnpm build        # build de producción
-pnpm preview      # previsualizar el build
-pnpm astro check  # verificación de tipos
+npm run dev      # servidor local
+npm run build    # build de producción
+npx astro check  # verificación de tipos
 ```
 
 ### Reglas de stack

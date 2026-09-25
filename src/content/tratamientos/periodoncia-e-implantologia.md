@@ -55,11 +55,19 @@ equipo: >-
 
 cierre: Antes de colocar un implante, planificamos cada detalle.
 
+especialistas:
+  - karina-centurion-villar
+
 seo:
   titulo: Periodoncia e implantología en Trujillo
   descripcion: >-
     Tratamiento de encías y tejidos de soporte, y reposición de piezas perdidas
     mediante implantes con planificación digital y guías quirúrgicas.
+
+# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
+# la clínica antes de publicar.
+foto: ../../assets/especialidades/PeriodonciaeImplantología.webp
+altFoto: Colocación de implantes dentales con una guía quirúrgica transparente, con la tomografía del maxilar en la pantalla del fondo.
 ---
 
 La planificación previa permite anticipar el procedimiento y ajustar el tratamiento a

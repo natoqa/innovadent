@@ -1,0 +1,62 @@
+---
+import { SITIO } from '../../config/site';
+
+/**
+ * Logotipo: el nombre en Jost 200 y la bajada debajo en Archivo, las dos
+ * líneas con el mismo ancho. Toma el color del contexto, así sirve igual sobre
+ * el hero, la barra sólida o el pie.
+ */
+interface Props {
+  /** Con href es enlace; sin él, texto. */
+  href?: string;
+  class?: string;
+}
+
+const { href, class: clase } = Astro.props;
+const Etiqueta = href ? 'a' : 'span';
+
+// Cada carácter es una pieza que se reparte a lo ancho del nombre: así la
+// bajada termina justo donde termina INNOVADENT, sin ajustar el espaciado a ojo.
+// Los espacios van como no separables para que cuenten como hueco entre palabras.
+const letras = [...SITIO.bajada].map((letra) => (letra === ' ' ? ' ' : letra));
+---
+
+<Etiqueta href={href} class:list={['logo', clase]}>
+  <span class="logo-nombre">{SITIO.nombre}</span>
+  <span class="sr-only">, {SITIO.bajada}</span>
+  <span class="logo-bajada" aria-hidden="true">
+    {letras.map((letra) => <span>{letra}</span>)}
+  </span>
+</Etiqueta>
+
+<style>
+  /* Sin capa, a propósito: pisa la alineación centrada de .objetivo-tactil. */
+  .logo {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* El ancho del bloque lo marca el nombre. El margen negativo quita el
+     espaciado que queda tras la última letra, para medir solo lo visible. */
+  .logo-nombre {
+    font-family: var(--font-logo);
+    font-weight: 200;
+    font-size: 1.75rem;
+    letter-spacing: 0.055em;
+    margin-right: -0.055em;
+    text-transform: uppercase;
+  }
+
+  .logo-bajada {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 0.5625rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: color-mix(in oklab, currentColor 65%, transparent);
+  }
+</style>

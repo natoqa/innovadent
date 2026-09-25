@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/layout/Nav.astro';
+import Pie from '../../components/layout/Pie.astro';
+import Seccion from '../../components/ui/Seccion.astro';
+import Boton from '../../components/ui/Boton.astro';
+import { SITIO } from '../../config/site';
+import type { Estado } from '../api/reserva';
+
+/**
+ * Resultado de /api/reserva para quien envía el formulario sin JavaScript.
+ * Con JavaScript estos mensajes aparecen dentro del propio formulario.
+ */
+export const prerender = true;
+
+interface Resultado {
+  titulo: string;
+  texto: string;
+  /** Si el paciente tiene que volver al formulario o ya terminó. */
+  volver: boolean;
+  /** Si el mensaje ofrece WhatsApp como salida. */
+  whatsapp: boolean;
+}
+
+export function getStaticPaths() {
+  // Astro saca esta función del frontmatter: los textos tienen que vivir dentro.
+  const RESULTADOS: Record<Estado, Resultado> = {
+    enviada: {
+      titulo: 'Reserva recibida.',
+      texto:
+        'Te llamaremos al número que nos dejaste, dentro del horario de atención, para confirmar el día y la hora de tu cita.',
+      volver: false,
+      whatsapp: true,
+    },
+    revisar: {
+      titulo: 'Faltan datos en la reserva.',
+      texto:
+        'Falta algún dato o no es válido. Vuelve al formulario, revisa nombre, teléfono, motivo, horario y la autorización, y envíalo de nuevo.',
+      volver: true,
+      whatsapp: false,
+    },
+    limite: {
+      titulo: 'Ya recibimos varias reservas.',
+      texto: 'Llegaron varias reservas desde esta conexión en pocos minutos. Si necesitas otra, escríbenos por WhatsApp.',
+      volver: false,
+      whatsapp: true,
+    },
+    error: {
+      titulo: 'No pudimos registrar tu reserva.',
+      texto: 'Para no perder tu cita, escríbenos por WhatsApp y te atendemos por ahí.',
+      volver: true,
+      whatsapp: true,
+    },
+  };
+
+  return Object.entries(RESULTADOS).map(([estado, resultado]) => ({
+    params: { estado },
+    props: { resultado },
+  }));
+}
+
+const { resultado } = Astro.props;
+const { whatsapp, whatsappTexto } = SITIO.contacto;
+---
+
+<Base titulo={resultado.titulo.replace(/\.$/, '')} noIndexar>
+  <Nav slot="encabezado" />
+
+  <Seccion ancho="texto" class="pt-40">
+    <h1 class="text-display">{resultado.titulo}</h1>
+    <p class="mt-6 text-cuerpo-lg">{resultado.texto}</p>
+
+    <div class="mt-10 flex flex-wrap items-center gap-3">
+      {
+        resultado.whatsapp && whatsapp && (
+          <Boton href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener">
+            Escribir por WhatsApp al {whatsappTexto}
+          </Boton>
+        )
+      }
+      {
+        resultado.volver ? (
+          <Boton href="/#reserva" variante="secundaria">
+            Volver al formulario
+          </Boton>
+        ) : (
+          <Boton href="/" variante="secundaria">
+            Volver al inicio
+          </Boton>
+        )
+      }
+    </div>
+  </Seccion>
+
+  <Pie slot="pie" />
+</Base>

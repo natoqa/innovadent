@@ -1,8 +1,75 @@
 ---
+import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import { SITIO } from '../../config/site';
+
+const testimonios = (await getCollection('testimonios')).sort(
+  (a, b) => a.data.orden - b.data.orden,
+);
+
+// Sin testimonios ni valoración la sección no se dibuja: aparece sola cuando
+// llega el primer testimonio autorizado.
+
+// La valoración se muestra solo si está copiada de la ficha real, completa.
+const { ficha, valoracion, resenas } = SITIO.google;
+const google =
+  ficha && valoracion !== null && resenas !== null
+    ? {
+        ficha,
+        valoracion: new Intl.NumberFormat(SITIO.idioma, { maximumFractionDigits: 1 }).format(valoracion),
+        resenas: new Intl.NumberFormat(SITIO.idioma).format(resenas),
+      }
+    : null;
 ---
 
+{
+  (testimonios.length > 0 || google) && (
 <Seccion id="testimonios" tono="oscuro" ritmo="corto">
-  <h2>[PENDIENTE: titular de testimonios]</h2>
-  <p>[PENDIENTE: Testimonios en video y texto, con nombre o iniciales y autorización, más la valoración real de Google.]</p>
+  {
+    testimonios.length > 0 && (
+      <>
+        <EncabezadoSeccion
+          titulo="Lo que cuentan los pacientes."
+          entradilla="Con su nombre o sus iniciales, y con su autorización para publicarlo."
+          sobreOscuro
+        />
+
+        <div class="mt-12 grid gap-x-16 gap-y-12 md:mt-16 md:grid-cols-2">
+          {testimonios.map((testimonio) => (
+            <figure class="border-t border-tinta-700 pt-8">
+              {testimonio.data.video && (
+                <video
+                  src={testimonio.data.video}
+                  controls
+                  preload="none"
+                  playsinline
+                  class="foto mb-6 aspect-video w-full bg-tinta-700"
+                  aria-label={`Testimonio en video de ${testimonio.data.autor}`}
+                />
+              )}
+              {testimonio.data.texto && (
+                <blockquote class="text-subtitulo">
+                  <p>{testimonio.data.texto}</p>
+                </blockquote>
+              )}
+              <figcaption class="mt-4 text-menor">{testimonio.data.autor}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  {
+    google && (
+      <p class="cifra mt-12 text-cuerpo-lg">
+        <a class="enlace" href={google.ficha} target="_blank" rel="noopener">
+          {google.valoracion} de 5 en Google, con {google.resenas} reseñas
+        </a>
+      </p>
+    )
+  }
 </Seccion>
+  )
+}

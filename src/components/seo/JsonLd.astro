@@ -1,0 +1,11 @@
+---
+interface Props {
+  datos: Record<string, unknown>;
+}
+
+// JSON.stringify descarta los undefined, así que los datos pendientes no se
+// emiten. El escape de "<" impide cerrar el <script> desde el contenido.
+const json = JSON.stringify(Astro.props.datos).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

@@ -1,35 +1,283 @@
 ---
 import Boton from '../ui/Boton.astro';
+import Icon from '../ui/Icon.astro';
 import { SITIO } from '../../config/site';
+
+const FUENTE_VIDEO = '/video/VideoHero.mp4';
+
+/**
+ * El clip cierra con una placa blanca de logo a partir del segundo 21.4 y la
+ * sostiene hasta el final. Bajo el velo eso es un destello gris en cada vuelta
+ * del bucle, así que el bucle se corta antes. Cuando llegue un corte limpio,
+ * este número desaparece.
+ */
+const FIN_UTIL = 21;
+
+const whatsapp = SITIO.contacto.whatsapp;
 ---
 
-<section id="inicio" class="relative flex min-h-dvh flex-col justify-between overflow-hidden">
-  <div class="absolute inset-0 bg-tinta-800" aria-hidden="true"></div>
+<section id="inicio" class="relative flex min-h-dvh flex-col justify-end overflow-hidden">
+  <div id="hero-fondo" class="absolute inset-0 bg-tinta-800" aria-hidden="true">
+    <video
+      id="hero-video"
+      data-fuente={FUENTE_VIDEO}
+      data-fin={FIN_UTIL}
+      preload="none"
+      muted
+      loop
+      playsinline
+      disablepictureinpicture
+      class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 ease-salida data-[lista]:opacity-100"
+    ></video>
 
-  <p
-    class="relative mx-auto w-full max-w-ancho px-6 pt-24 text-dato text-superficie md:px-10 md:pt-28"
+    <!-- Velo plano, no degradado. Calibrado midiendo el clip entero bajo la
+         zona del texto: al 60% el peor fotograma da 5.12:1, por encima del AA.
+         Al 55% cae justo a 4.50 y se queda sin margen. -->
+    <div class="absolute inset-0 bg-tinta-800/60"></div>
+  </div>
+
+  <!-- Sin presencia visual: el video no lleva controles en pantalla. Aparece
+       solo al llegar con el tabulador, como el enlace de saltar al contenido.
+       Es el mecanismo de pausa que exige WCAG 2.2.2 para un bucle automático. -->
+  <button
+    id="hero-control"
+    type="button"
+    hidden
+    data-estado="pausado"
+    class="control-video absolute top-24 right-6 z-10 md:top-28 md:right-10"
   >
-    [PENDIENTE: fotografía o video del hero. Plano real en la clínica, especialista y
-    paciente, luz natural. Encuadre 16:9 en escritorio y 4:5 en móvil.]
-  </p>
+    <span data-icono="pausa"><Icon nombre="pausa" tamano={14} /></span>
+    <span data-icono="reproducir"><Icon nombre="reproducir" tamano={14} /></span>
+    <span id="hero-control-texto">Reproducir video</span>
+  </button>
 
-  <div class="relative mx-auto w-full max-w-ancho px-6 pb-12 md:px-10 md:pb-16">
-    <h1 class="max-w-[16ch] text-hero text-superficie">
-      Veinte años de odontología especializada en {SITIO.sede.ciudad}.
+  <div class="relative mx-auto w-full max-w-ancho px-6 pt-32 pb-12 md:px-10 md:pb-16">
+    <h1 id="hero-titulo" class="max-w-[22ch] text-hero text-superficie">
+      Veinte años de odontología en {SITIO.sede.ciudad}.
     </h1>
 
-    <p class="mt-6 max-w-[44ch] text-cuerpo-lg text-superficie">
-      Atención cercana y comprometida con las personas, desde {SITIO.fundacion}.
+    <p data-entrada class="mt-6 max-w-[44ch] text-cuerpo-lg text-superficie">
+      Odontología especializada y atención cercana, desde {SITIO.fundacion}.
     </p>
 
-    <div class="mt-9">
+    <div data-entrada class="mt-9 flex flex-wrap items-center gap-3">
       <Boton href="#reserva">Reservar mi cita</Boton>
+      {
+        whatsapp && (
+          <Boton
+            href={`https://wa.me/${whatsapp}`}
+            variante="sobre-oscuro"
+            rel="noopener"
+            target="_blank"
+          >
+            Escribir por WhatsApp
+          </Boton>
+        )
+      }
     </div>
 
-    <div class="mt-12 flex items-center gap-4 text-menor text-superficie md:mt-16">
+    <div data-entrada class="mt-12 md:mt-16 flex items-center gap-4 text-menor text-superficie">
       <span class="cifra">{SITIO.fundacion}</span>
       <span class="h-px flex-1 bg-superficie" aria-hidden="true"></span>
       <span class="cifra">{SITIO.aniversario}</span>
     </div>
   </div>
 </section>
+
+<style>
+  .control-video {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius-accion);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-superficie) 35%, transparent);
+    background-color: color-mix(in oklab, var(--color-tinta-800) 70%, transparent);
+    color: var(--color-superficie);
+    font-size: var(--text-dato);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duracion-ui) var(--ease-salida);
+  }
+
+  /* Enfocable siempre: la opacidad lo oculta, no lo saca del orden de tabulación. */
+  .control-video:focus {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .control-video [data-icono] {
+    display: none;
+  }
+
+  .control-video[data-estado='pausado'] [data-icono='reproducir'],
+  .control-video[data-estado='reproduciendo'] [data-icono='pausa'] {
+    display: block;
+  }
+</style>
+
+<script>
+  import { gsap, SplitText } from '../../lib/motion/gsap';
+
+  /** Network Information API: solo Chromium la expone, de ahí el tipo opcional. */
+  type NavegadorConConexion = Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+
+  const seccion = document.getElementById('inicio');
+  const titulo = document.getElementById('hero-titulo');
+  const fondo = document.getElementById('hero-fondo');
+  const video = document.getElementById('hero-video') as HTMLVideoElement | null;
+  const control = document.getElementById('hero-control');
+  const texto = document.getElementById('hero-control-texto');
+
+  if (seccion && titulo && fondo && video && control && texto) {
+    /* --- Video ---------------------------------------------------------- */
+
+    const conexion = (navigator as NavegadorConConexion).connection;
+    const conexionLimitada =
+      Boolean(conexion?.saveData) || /(^|-)2g$/.test(conexion?.effectiveType ?? '');
+    const movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Con datos limitados el hero se queda en el fondo sólido: ni se descarga
+    // el video ni queda un control que no controla nada.
+    if (!conexionLimitada) {
+      const finUtil = Number(video.dataset.fin);
+      let pausadoPorElUsuario = movimientoReducido;
+      let fuenteCargada = false;
+
+      const cargarFuente = () => {
+        if (fuenteCargada) return;
+        video.src = video.dataset.fuente ?? '';
+        fuenteCargada = true;
+      };
+
+      const marcar = (reproduciendo: boolean) => {
+        control.dataset.estado = reproduciendo ? 'reproduciendo' : 'pausado';
+        texto.textContent = reproduciendo ? 'Pausar video' : 'Reproducir video';
+      };
+
+      const reproducir = () => {
+        cargarFuente();
+        video.play().catch(() => marcar(false));
+      };
+
+      video.muted = true;
+      control.hidden = false;
+
+      video.addEventListener('playing', () => {
+        video.dataset.lista = '';
+        marcar(true);
+      });
+
+      video.addEventListener('pause', () => marcar(false));
+
+      // El bucle se cierra antes de la placa final en vez de usar loop a secas.
+      video.addEventListener('timeupdate', () => {
+        if (video.currentTime >= finUtil) video.currentTime = 0;
+      });
+
+      control.addEventListener('click', () => {
+        if (video.paused) {
+          pausadoPorElUsuario = false;
+          reproducir();
+        } else {
+          pausadoPorElUsuario = true;
+          video.pause();
+        }
+      });
+
+      // Arranca al entrar en pantalla y se detiene al salir: nada se decodifica
+      // mientras el visitante lee el resto de la home. Con movimiento reducido
+      // no arranca solo, pero el control sigue disponible.
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          for (const entrada of entradas) {
+            if (entrada.isIntersecting) {
+              if (!pausadoPorElUsuario) reproducir();
+            } else if (!video.paused) {
+              video.pause();
+            }
+          }
+        },
+        { threshold: 0.1 },
+      );
+
+      observador.observe(seccion);
+    }
+
+    /* --- Entrada -------------------------------------------------------- */
+
+    // El único momento coreografiado del sitio. Se usa from() a propósito: el
+    // estado inicial lo fija GSAP, así que sin JS el hero se ve entero.
+    //
+    // La contrapartida de from() es que el contenido queda en opacidad 0 hasta
+    // que el reloj de GSAP corre, y ese reloj está parado mientras la pestaña
+    // esté en segundo plano. Abrir el sitio en una pestaña de fondo dejaría el
+    // hero en blanco, así que la entrada no empieza hasta que la página se ve.
+    const iniciarEntrada = () => gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          completo: '(prefers-reduced-motion: no-preference)',
+          reducido: '(prefers-reduced-motion: reduce)',
+        },
+        (contexto) => {
+          const reducido = Boolean(contexto.conditions?.reducido);
+          const secundarios = seccion.querySelectorAll('[data-entrada]');
+
+          // Con movimiento reducido se conserva la opacidad y se elimina todo
+          // desplazamiento. No es cero animación, es sin movimiento.
+          if (reducido) {
+            gsap.from([titulo, ...secundarios], { opacity: 0, duration: 0.4, stagger: 0.06 });
+            return;
+          }
+
+          gsap.from(fondo, { scale: 1.06, duration: 1.2 });
+
+          // El titular sube línea a línea desde detrás de una máscara. autoSplit
+          // vuelve a partir cuando carga Archivo o cambia el ancho, y GSAP
+          // traslada el progreso de la animación a las líneas nuevas.
+          SplitText.create(titulo, {
+            type: 'lines',
+            mask: 'lines',
+            autoSplit: true,
+            onSplit: (partido) => {
+              // Con line-height 0.92 la máscara cortaría tildes y descendentes.
+              // El relleno las deja dentro y el margen negativo lo compensa.
+              gsap.set(partido.masks, { paddingBlock: '0.15em', marginBlock: '-0.15em' });
+
+              return gsap.from(partido.lines, {
+                yPercent: 110,
+                duration: 0.8,
+                stagger: 0.08,
+                delay: 0.15,
+              });
+            },
+          });
+
+          // El resto entra discreto, cuando el titular ya está casi asentado.
+          gsap.from(secundarios, {
+            opacity: 0,
+            y: 16,
+            duration: 0.6,
+            stagger: 0.05,
+            delay: 0.4,
+          });
+        },
+      );
+    }, seccion);
+
+    if (document.visibilityState === 'visible') {
+      iniciarEntrada();
+    } else {
+      document.addEventListener('visibilitychange', function alHacerseVisible() {
+        if (document.visibilityState !== 'visible') return;
+        document.removeEventListener('visibilitychange', alHacerseVisible);
+        iniciarEntrada();
+      });
+    }
+  }
+</script>

@@ -54,11 +54,19 @@ equipo: >-
 
 cierre: Un tratamiento pensado para recuperar mucho más que una sonrisa.
 
+especialistas:
+  - fiorella-saavedra-urteaga
+
 seo:
   titulo: Rehabilitación oral en Trujillo
   descripcion: >-
     Coronas, puentes, carillas y prótesis sobre implantes para recuperar la función
     masticatoria y la estética de la sonrisa.
+
+# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
+# la clínica antes de publicar.
+foto: ../../assets/especialidades/RehabilitacionOral.jpg
+altFoto: Paciente en el sillón dental se mira en un espejo de mano mientras el odontólogo revisa su sonrisa.
 ---
 
 Las carillas y el diseño de sonrisa forman parte de la rehabilitación oral: se

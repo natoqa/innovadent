@@ -1,7 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 
-type Variante = 'primaria' | 'secundaria';
+type Variante = 'primaria' | 'secundaria' | 'sobre-oscuro';
 
 type Props =
   | ({ href: string; variante?: Variante } & Omit<HTMLAttributes<'a'>, 'href'>)
@@ -9,7 +9,12 @@ type Props =
 
 const { href, variante = 'primaria', class: clase, ...resto } = Astro.props;
 
-const clases = ['accion', variante === 'secundaria' && 'accion--secundaria', clase];
+const clases = [
+  'accion',
+  variante === 'secundaria' && 'accion--secundaria',
+  variante === 'sobre-oscuro' && 'accion--sobre-oscuro',
+  clase,
+];
 ---
 
 {
@@ -18,7 +23,7 @@ const clases = ['accion', variante === 'secundaria' && 'accion--secundaria', cla
       <slot />
     </a>
   ) : (
-    <button type="button" class:list={clases} {...resto}>
+    <button type="button" class:list={clases} {...(resto as HTMLAttributes<'button'>)}>
       <slot />
     </button>
   )

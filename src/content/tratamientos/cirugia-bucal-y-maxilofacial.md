@@ -14,7 +14,8 @@ atendemos:
   - Dientes incluidos.
   - Odontomas.
   - Mucoceles.
-  - "[PENDIENTE: confirmar el término. El documento del cliente dice \"tuminos retenidos\" y se transcribió provisionalmente como \"tumores retenidos\".]"
+  # PENDIENTE: confirmar el término. El documento del cliente dice "tuminos
+  # retenidos"; se transcribió provisionalmente como "tumores retenidos".
   - Apicectomías.
 
 indicaciones: >-
@@ -54,11 +55,19 @@ equipo: >-
 
 cierre: Una cirugía bien planificada comienza mucho antes del procedimiento.
 
+especialistas:
+  - miriam-arestegui-campos
+
 seo:
   titulo: Cirugía bucal y maxilofacial en Trujillo
   descripcion: >-
     Terceras molares retenidas, dientes incluidos y otros procedimientos
     quirúrgicos, con estudios radiográficos y tomográficos según el caso.
+
+# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
+# la clínica antes de publicar.
+foto: ../../assets/especialidades/Cirugíabucalymaxilofacial.jpg
+altFoto: Equipo quirúrgico con campos estériles y separador bucal realiza un procedimiento en la boca de un paciente recostado.
 ---
 
 Los estudios previos y la preparación del paciente forman parte del procedimiento

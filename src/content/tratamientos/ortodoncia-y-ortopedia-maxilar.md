@@ -56,11 +56,22 @@ equipo: >-
 
 cierre: En Innovadent no vemos solamente una sonrisa. Vemos al paciente de manera integral.
 
+especialistas:
+  - julio-cevallos-zumaran
+  - yerry-marquez-subero
+  - daivy-mostacero-abanto
+
 seo:
   titulo: Ortodoncia y ortopedia maxilar en Trujillo
   descripcion: >-
     Evaluación y tratamiento de maloclusiones en niños, jóvenes y adultos.
     Ortopedia maxilar, brackets y alineadores transparentes según cada caso.
+
+# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
+# la clínica antes de publicar. Si en la foto real aparece un menor, añadir
+# fotoConMenores: true y autorizacionPadres: true.
+foto: ../../assets/especialidades/OrtodonciayOrtopediaMaxilar.jpg
+altFoto: Ortodoncista con guantes y gafas de protección ajusta con una pinza los brackets de una paciente en el sillón dental.
 ---
 
 Las herramientas de diagnóstico permiten obtener información detallada para la

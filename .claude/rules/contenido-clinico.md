@@ -40,6 +40,6 @@ La categoría de `tecnologia` es una de: diagnóstico, planificación, tratamien
 
 El cliente entrega el material por partes. Mientras no llegue:
 
-- Usar texto marcador **evidentemente falso**: `[PENDIENTE: historia de la clínica]`.
+- Marcar lo que falta con `PENDIENTE` en el código, el contenido o un comentario (`# PENDIENTE: año del hito`). **El marcador no se muestra en la página**: el sitio se revisa con el cliente, así que el componente omite el dato, la fila o la sección hasta que llegue.
 - **Nunca inventar** credenciales, cifras de pacientes, años de experiencia, nombres de especialistas, valoraciones de Google ni testimonios. Un dato inventado que llegue a producción es un problema legal para el cliente.
 - Si falta un dato para completar un componente, dejar el marcador y decírmelo. No rellenar.

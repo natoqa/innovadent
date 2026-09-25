@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import Logo from '../ui/Logo.astro';
 import { SITIO } from '../../config/site';
 
 const tratamientos = (await getCollection('tratamientos')).sort(
@@ -8,12 +9,13 @@ const tratamientos = (await getCollection('tratamientos')).sort(
 
 const clinica = [
   { texto: 'Especialistas', href: '/especialistas' },
-  { texto: 'Casos clínicos', href: '/casos' },
-  { texto: 'Innovadent Kids', href: '/kids' },
+  // Casos y Kids no tienen página propia hasta que llegue su material: apuntan a su sección.
+  { texto: 'Casos clínicos', href: '/#casos-clinicos' },
+  { texto: 'Innovadent Kids', href: '/#kids' },
   { texto: 'Contacto', href: '/contacto' },
 ];
 
-/** Un dato marcador no se enlaza: se muestra tal cual para que cante. */
+/** Un dato marcador no se muestra: la fila aparece cuando llega el dato real. */
 const pendiente = (valor: string | null) => !valor || valor.startsWith('[PENDIENTE');
 
 const telefono = SITIO.contacto.telefono;
@@ -27,7 +29,7 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
   <div class="mx-auto max-w-ancho px-6 py-seccion-sm md:px-10">
     <div class="grid gap-x-10 gap-y-12 md:grid-cols-12">
       <div class="md:col-span-4">
-        <p class="text-subtitulo">{SITIO.nombre}</p>
+        <Logo />
 
         <p class="mt-4 max-w-[30ch] text-menor text-grafito">
           {SITIO.sede.calle}<br />
@@ -50,10 +52,10 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
         <ul class="mt-4">
           {
             tratamientos.map((tratamiento) => (
-              <li class="py-1.5">
+              <li class="pointer-coarse:py-0 py-1.5">
                 <a
                   href={`/tratamientos/${tratamiento.id}`}
-                  class="text-menor underline-offset-4 hover:underline"
+                  class="objetivo-tactil text-menor underline-offset-4 hover:underline"
                 >
                   {tratamiento.data.nombre}
                 </a>
@@ -69,8 +71,8 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
         <ul class="mt-4">
           {
             clinica.map((enlace) => (
-              <li class="py-1.5">
-                <a href={enlace.href} class="text-menor underline-offset-4 hover:underline">
+              <li class="pointer-coarse:py-0 py-1.5">
+                <a href={enlace.href} class="objetivo-tactil text-menor underline-offset-4 hover:underline">
                   {enlace.texto}
                 </a>
               </li>
@@ -83,41 +85,35 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
         <h2 class="text-menor text-grafito">Contacto</h2>
 
         <ul class="mt-4">
-          <li class="py-1.5 text-menor">
-            {
-              pendiente(telefono) ? (
-                <span class="text-grafito">{telefono}</span>
-              ) : (
-                <a href={`tel:${telefono.replace(/\s+/g, '')}`} class="underline-offset-4 hover:underline">
+          {
+            !pendiente(telefono) && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
+                <a href={`tel:${telefono.replace(/\s+/g, '')}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   {telefono}
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
 
-          <li class="py-1.5 text-menor">
-            {
-              whatsapp === null ? (
-                <span class="text-grafito">[PENDIENTE: WhatsApp]</span>
-              ) : (
-                <a href={`https://wa.me/${whatsapp}`} class="underline-offset-4 hover:underline">
+          {
+            whatsapp !== null && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
+                <a href={`https://wa.me/${whatsapp}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   WhatsApp <span class="cifra">{SITIO.contacto.whatsappTexto}</span>
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
 
-          <li class="py-1.5 text-menor">
-            {
-              pendiente(correo) ? (
-                <span class="text-grafito">{correo}</span>
-              ) : (
-                <a href={`mailto:${correo}`} class="underline-offset-4 hover:underline">
+          {
+            !pendiente(correo) && (
+              <li class="pointer-coarse:py-0 py-1.5 text-menor">
+                <a href={`mailto:${correo}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   {correo}
                 </a>
-              )
-            }
-          </li>
+              </li>
+            )
+          }
         </ul>
 
         <h2 class="mt-8 text-menor text-grafito">Horarios</h2>
@@ -143,7 +139,7 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
             <ul class="mt-8 flex flex-wrap gap-x-6">
               {redes.map(([nombre, url]) => (
                 <li>
-                  <a href={url} class="text-menor underline-offset-4 hover:underline">
+                  <a href={url} class="objetivo-tactil text-menor underline-offset-4 hover:underline">
                     {nombre}
                   </a>
                 </li>
@@ -161,10 +157,10 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
 
       <ul class="flex flex-wrap gap-x-6">
         <li>
-          <a href="/privacidad" class="underline-offset-4 hover:underline">Política de privacidad</a>
+          <a href="/privacidad" class="objetivo-tactil underline-offset-4 hover:underline">Política de privacidad</a>
         </li>
         <li>
-          <a href="/contacto" class="underline-offset-4 hover:underline">Cómo llegar</a>
+          <a href="/contacto" class="objetivo-tactil underline-offset-4 hover:underline">Cómo llegar</a>
         </li>
       </ul>
     </div>

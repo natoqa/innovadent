@@ -1,6 +1,9 @@
 ---
 import { SITIO } from '../config/site';
+import { urlAbsoluta } from '../lib/seo';
 import '../styles/global.css';
+// Mismo archivo que pide global.css: Vite lo emite una sola vez con el mismo hash.
+import fuenteArchivo from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
 
 interface Props {
   titulo: string;
@@ -13,7 +16,8 @@ interface Props {
 const { titulo, descripcion = SITIO.descripcion, ruta, noIndexar = false } = Astro.props;
 
 const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} — ${SITIO.nombre}`;
-const canonical = Astro.site ? new URL(ruta ?? Astro.url.pathname, Astro.site).href : null;
+// El dominio vive en site.ts, no en astro.config: una sola fuente de verdad.
+const canonical = urlAbsoluta(ruta ?? Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -22,6 +26,10 @@ const canonical = Astro.site ? new URL(ruta ?? Astro.url.pathname, Astro.site).h
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Un solo archivo variable cubre todos los pesos y anchos del alfabeto
+         latino. Se precarga para que el titular no espere a que llegue el CSS. -->
+    <link rel="preload" href={fuenteArchivo} as="font" type="font/woff2" crossorigin />
 
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />

@@ -1,8 +1,90 @@
 ---
+import { getCollection, getEntry } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
+import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import Comparador from '../ui/Comparador.astro';
+import Figura from '../ui/Figura.astro';
+
+const casos = (await getCollection('casos')).sort((a, b) => a.data.orden - b.data.orden);
+
+// Un caso grande con su ficha y hasta tres más en miniatura. El resto vive en
+// la landing de cada tratamiento.
+const [destacado, ...resto] = casos;
+const otros = resto.slice(0, 3);
+
+const AUTORIZACION = 'Consentimiento informado firmado';
+
+// Sin caso publicado no hay ficha: se muestra solo el comparador de muestra.
+const ficha = destacado
+  ? [
+      { etiqueta: 'Tratamiento', valor: (await getEntry(destacado.data.tratamiento))?.data.nombre ?? '' },
+      { etiqueta: 'Especialista', valor: (await getEntry(destacado.data.especialista))?.data.nombre ?? '' },
+      { etiqueta: 'Duración', valor: destacado.data.duracion },
+      { etiqueta: 'Autorización', valor: AUTORIZACION },
+    ].filter((fila) => fila.valor)
+  : [];
+
+const nombresOtros = await Promise.all(
+  otros.map(async (caso) => (await getEntry(caso.data.tratamiento))?.data.nombre ?? caso.data.titulo),
+);
+
+const aspecto = 'aspect-[4/5] md:aspect-video';
 ---
 
 <Seccion id="casos-clinicos" tono="oscuro">
-  <h2>[PENDIENTE: titular de casos clínicos]</h2>
-  <p>[PENDIENTE: Antes y después. Solo se renderizan los casos con consentimiento informado firmado.]</p>
+  <EncabezadoSeccion
+    titulo="Resultados que hablan por nosotros."
+    entradilla="Casos reales documentados por nuestro equipo, publicados con autorización del paciente. Cada resultado es individual y depende del diagnóstico."
+    sobreOscuro
+  />
+
+  <div class="mt-12 md:mt-16">
+    {
+      destacado ? (
+        <Comparador
+          antes={destacado.data.antes}
+          despues={destacado.data.despues}
+          altAntes={destacado.data.altAntes}
+          altDespues={destacado.data.altDespues}
+          titulo={destacado.data.titulo}
+          sizes="(min-width: 1248px) 1200px, 100vw"
+          aspecto={aspecto}
+        />
+      ) : (
+        <Comparador
+          titulo="caso pendiente"
+          aspecto={aspecto}
+        />
+      )
+    }
+
+    {ficha.length > 0 && (
+    <dl class="mt-6 grid grid-cols-1 gap-5 border-t border-tinta-700 pt-5 min-[400px]:grid-cols-2 md:grid-cols-4">
+      {
+        ficha.map((fila) => (
+          <div>
+            <dt class="text-dato text-superficie/70">{fila.etiqueta}</dt>
+            <dd class="mt-1.5 text-menor">{fila.valor}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    )}
+  </div>
+
+  {
+    otros.length > 0 ? (
+      <div class="mt-12 grid gap-4 min-[480px]:grid-cols-2 md:mt-16 md:grid-cols-3 md:gap-6">
+        {otros.map((caso, i) => (
+          <Figura
+            imagen={caso.data.despues}
+            alt={caso.data.altDespues}
+            pie={nombresOtros[i]}
+            sizes="(min-width: 768px) 30vw, (min-width: 480px) 50vw, 100vw"
+            class="[&_.foto]:aspect-[4/5] [&_figcaption]:text-superficie/70 [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+          />
+        ))}
+      </div>
+    ) : null
+  }
 </Seccion>

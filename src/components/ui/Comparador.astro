@@ -1,0 +1,251 @@
+---
+import { Picture } from 'astro:assets';
+
+/**
+ * Antes y después superpuestos con una línea que divide ambas fotos.
+ *
+ * - Con ratón, la línea sigue al cursor sin hacer clic, como en el mockup.
+ * - En táctil se arrastra con el dedo; el gesto vertical sigue desplazando.
+ * - Con teclado, las flechas. El lector de pantalla anuncia el valor.
+ *
+ * Todo pasa por un <input type="range"> nativo que cubre la foto. Sin
+ * JavaScript queda fijo en la mitad, que ya muestra las dos fotos.
+ *
+ * Espera oculto hasta entrar en pantalla: aparece y la línea barre una vez
+ * desde "solo antes" hasta la mitad. Cualquier gesto detiene el barrido. Con
+ * movimiento reducido solo aparece, sin escala ni barrido.
+ *
+ * Sin fotos se dibujan dos paneles de marcador: la interacción se puede
+ * probar antes de que llegue el primer caso.
+ */
+interface Props {
+  antes?: ImageMetadata;
+  despues?: ImageMetadata;
+  altAntes?: string;
+  altDespues?: string;
+  /** Qué se compara, para el nombre accesible del control. */
+  titulo: string;
+  sizes?: string;
+  /** Proporción del recuadro, como clases de Tailwind. */
+  aspecto?: string;
+  /** Texto del marcador cuando todavía no hay fotos. */
+  marcador?: string;
+}
+
+const {
+  antes,
+  despues,
+  altAntes = '',
+  altDespues = '',
+  titulo,
+  sizes = '(min-width: 768px) 58vw, 100vw',
+  aspecto = 'aspect-[4/3]',
+  marcador,
+} = Astro.props;
+
+const conFotos = Boolean(antes && despues);
+---
+
+<div class:list={['comparador foto relative bg-tinta-700', aspecto]} data-comparador>
+  {
+    conFotos ? (
+      <>
+        <Picture
+          src={despues!}
+          alt={altDespues}
+          formats={['avif', 'webp']}
+          sizes={sizes}
+          loading="lazy"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div class="comparador-antes absolute inset-0">
+          <Picture
+            src={antes!}
+            alt={altAntes}
+            formats={['avif', 'webp']}
+            sizes={sizes}
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </>
+    ) : (
+      <>
+        {/* Dos tonos de la paleta para que el corte se vea al moverlo. */}
+        <div class="absolute inset-0 flex items-center justify-center bg-tinta-800" aria-hidden="true">
+          <span class="text-titulo text-neblina">Después</span>
+        </div>
+        <div
+          class="comparador-antes absolute inset-0 flex items-center justify-center bg-tinta-700"
+          aria-hidden="true"
+        >
+          <span class="text-titulo text-neblina">Antes</span>
+        </div>
+        {marcador && (
+          <p class="pointer-events-none absolute inset-x-0 bottom-0 max-w-[52ch] p-5 text-dato text-superficie">
+            {marcador}
+          </p>
+        )}
+      </>
+    )
+  }
+
+  <div class="comparador-carril pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute inset-y-0 left-0 w-px -translate-x-1/2 bg-superficie">
+      <span
+        class="absolute top-1/2 left-1/2 size-11 -translate-1/2 rounded-full border border-superficie bg-tinta-800/40"
+      ></span>
+    </div>
+  </div>
+
+  <span class="absolute top-3 left-3 bg-tinta-800 px-2 py-1 text-dato text-superficie" aria-hidden="true">
+    Antes
+  </span>
+  <span class="absolute top-3 right-3 bg-tinta-800 px-2 py-1 text-dato text-superficie" aria-hidden="true">
+    Después
+  </span>
+
+  <input
+    type="range"
+    min="0"
+    max="100"
+    value="50"
+    step="1"
+    aria-label={`Comparar antes y después: ${titulo}`}
+    aria-valuetext="Mitad antes, mitad después"
+    class="absolute inset-0 h-full w-full cursor-ew-resize touch-pan-y opacity-0"
+  />
+</div>
+
+<style>
+  .comparador {
+    --corte: 50%;
+  }
+
+  .comparador-antes {
+    clip-path: inset(0 calc(100% - var(--corte)) 0 0);
+  }
+
+  /* El carril mide lo mismo que la foto: su translate en % es el corte, sin
+     tocar left y sin provocar layout mientras se anima. */
+  .comparador-carril {
+    translate: var(--corte) 0;
+  }
+
+  /* El control es invisible: el foco se dibuja en la foto entera. */
+  .comparador:has(input:focus-visible) {
+    outline: 2px solid var(--color-verde);
+    outline-offset: 3px;
+  }
+</style>
+
+<script>
+  import { gsap } from '../../lib/motion/gsap';
+  import { EASE_GSAP } from '../../lib/motion/easings';
+
+  const CORTE_INICIAL = 50;
+
+  const describir = (valor: number) =>
+    valor <= 0
+      ? 'Solo después'
+      : valor >= 100
+        ? 'Solo antes'
+        : `${valor} por ciento antes, ${100 - valor} por ciento después`;
+
+  for (const comparador of document.querySelectorAll<HTMLElement>('[data-comparador]')) {
+    const control = comparador.querySelector('input');
+    if (!control) continue;
+
+    const aplicar = (valor: number) => {
+      comparador.style.setProperty('--corte', `${valor}%`);
+      control.setAttribute('aria-valuetext', describir(valor));
+    };
+
+    // Barrido de entrada, una sola vez: la línea parte de "solo antes" y se
+    // detiene en la mitad. Muestra el cambio y enseña que se puede arrastrar.
+    // Con movimiento reducido no hay barrido y el corte queda en la mitad.
+    let barrido: gsap.core.Tween | undefined;
+    let usuarioActuo = false;
+    const detenerBarrido = () => {
+      usuarioActuo = true;
+      barrido?.kill();
+      barrido = undefined;
+    };
+
+    // El cuadro espera oculto hasta entrar en pantalla. Aparece desde 0.96 y,
+    // ya visible, la línea barre. Con movimiento reducido solo aparece.
+    gsap.matchMedia().add(
+      {
+        movimiento: '(prefers-reduced-motion: no-preference)',
+        reducido: '(prefers-reduced-motion: reduce)',
+      },
+      (contexto) => {
+        const { movimiento } = contexto.conditions as { movimiento: boolean };
+        const estado = { corte: movimiento ? 100 : CORTE_INICIAL };
+        const pintar = () => comparador.style.setProperty('--corte', `${estado.corte}%`);
+        pintar();
+        gsap.set(comparador, { autoAlpha: 0, scale: movimiento ? 0.96 : 1 });
+
+        const observador = new IntersectionObserver(
+          ([entrada]) => {
+            if (!entrada?.isIntersecting) return;
+            observador.disconnect();
+
+            gsap.to(comparador, {
+              autoAlpha: 1,
+              scale: 1,
+              duration: movimiento ? 0.8 : 0.4,
+              ease: EASE_GSAP.salida,
+              clearProps: 'opacity,visibility,transform',
+            });
+
+            if (!movimiento || usuarioActuo) return;
+            barrido = gsap.to(estado, {
+              corte: CORTE_INICIAL,
+              duration: 1.1,
+              delay: 0.35,
+              ease: EASE_GSAP.ambas,
+              onUpdate: pintar,
+              onComplete: () => {
+                barrido = undefined;
+                aplicar(CORTE_INICIAL);
+              },
+            });
+          },
+          { threshold: 0.25 },
+        );
+        observador.observe(comparador);
+
+        return () => {
+          observador.disconnect();
+          detenerBarrido();
+          aplicar(Number(control.value));
+        };
+      },
+    );
+
+    // Cualquier gesto del usuario manda sobre el barrido.
+    comparador.addEventListener('pointerdown', detenerBarrido);
+    control.addEventListener('keydown', detenerBarrido);
+
+    // Dedo, clic y teclado llegan por el propio control.
+    control.addEventListener('input', () => {
+      detenerBarrido();
+      aplicar(Number(control.value));
+    });
+
+    // Con ratón basta con pasar por encima: la línea sigue al cursor. Solo con
+    // ratón, porque en táctil el primer toque ya es un arrastre.
+    comparador.addEventListener('pointermove', (evento) => {
+      if (evento.pointerType !== 'mouse') return;
+      // Al hacer scroll con el cursor quieto, Chrome emite pointermove sin
+      // movimiento real. Eso no es un gesto y no debe cancelar el barrido.
+      if (evento.movementX === 0 && evento.movementY === 0) return;
+      detenerBarrido();
+      const caja = comparador.getBoundingClientRect();
+      const valor = Math.round(Math.min(Math.max((evento.clientX - caja.left) / caja.width, 0), 1) * 100);
+      control.value = String(valor);
+      aplicar(valor);
+    });
+  }
+</script>

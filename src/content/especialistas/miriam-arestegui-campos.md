@@ -4,4 +4,5 @@ nombre: Miriam Arestegui Campos
 titulo: Cirujano dentista
 especialidad: Cirugía oral y odontopediatría
 colegiatura: "24581"
+retrato: ../../assets/equipo/MiriamArestegui.jpg
 ---

@@ -26,6 +26,8 @@ const especialistas = defineCollection({
       orden: z.number().int().positive(),
       nombre: z.string(),
       titulo: z.string().default('Cirujano dentista'),
+      /** Función en la clínica cuando va más allá de la consulta, p. ej. la dirección. */
+      cargo: z.string().optional(),
       especialidad: z.string(),
       /** Número del Colegio Odontológico del Perú. Se guarda como texto: es un identificador, no una cifra que se opere. */
       colegiatura: z.string().regex(/^\d+$/),

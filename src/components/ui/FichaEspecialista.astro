@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Boton from './Boton.astro';
+
+/**
+ * Datos comprobables de un especialista y el siguiente paso. La usan el panel
+ * de escritorio y el acordeón móvil del directorio, para que ambos digan lo
+ * mismo.
+ */
+interface Props {
+  persona: CollectionEntry<'especialistas'>;
+  areas: CollectionEntry<'tratamientos'>[];
+}
+
+const { persona, areas } = Astro.props;
+---
+
+<div>
+  <table class="ficha">
+    <caption class="sr-only">Datos de {persona.data.nombre}</caption>
+    <tbody>
+      <tr>
+        <th scope="row">Título</th>
+        <td>{persona.data.titulo}</td>
+      </tr>
+      <tr>
+        <th scope="row">Colegiatura COP</th>
+        <td class="cifra">{persona.data.colegiatura}</td>
+      </tr>
+      {
+        persona.data.rne && (
+          <tr>
+            <th scope="row">RNE</th>
+            <td class="cifra">{persona.data.rne}</td>
+          </tr>
+        )
+      }
+    </tbody>
+  </table>
+
+  {
+    areas.length > 0 && (
+      <div class="mt-5">
+        <p class="text-dato text-grafito">Atiende en</p>
+        <ul class="mt-1 flex flex-wrap gap-x-5">
+          {areas.map((area) => (
+            <li>
+              <a class="objetivo-tactil enlace text-menor" href={`/tratamientos/${area.id}`}>
+                {area.data.nombre}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <Boton href="/#reserva" class="mt-6">Reservar mi cita</Boton>
+</div>

@@ -5,4 +5,5 @@ titulo: Cirujano dentista
 especialidad: Ortodoncia y ortopedia dentofacial
 colegiatura: "25894"
 rne: "2049"
+retrato: ../../assets/equipo/DaivyMostacero.jpg
 ---

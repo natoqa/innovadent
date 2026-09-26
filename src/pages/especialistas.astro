@@ -5,8 +5,8 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/layout/Nav.astro';
 import Pie from '../components/layout/Pie.astro';
 import Seccion from '../components/ui/Seccion.astro';
-import Ficha from '../components/ui/Ficha.astro';
 import Boton from '../components/ui/Boton.astro';
+import FichaEspecialista from '../components/ui/FichaEspecialista.astro';
 import { SITIO } from '../config/site';
 
 export const prerender = true;
@@ -50,12 +50,26 @@ const funcionDe = (persona: (typeof equipo)[number]) =>
 const areasDe = (slug: string) =>
   tratamientos.filter((t) => t.data.especialistas.some((ref) => ref.id === slug));
 
-const filasDe = (persona: (typeof especialistas)[number]) => [
-  { etiqueta: 'Título', valor: persona.data.titulo },
-  { etiqueta: 'Especialidad', valor: persona.data.especialidad },
-  { etiqueta: 'Colegiatura', valor: persona.data.colegiatura },
-  ...(persona.data.rne ? [{ etiqueta: 'RNE', valor: persona.data.rne }] : []),
+/**
+ * El paciente llega con una necesidad, no con un nombre: el filtro ofrece solo
+ * las especialidades que tienen al menos un profesional asignado.
+ */
+const filtros = tratamientos.filter((t) => t.data.especialistas.length > 0);
+
+// Cifras que salen de la propia colección: se pueden comprobar una por una.
+const conRne = especialistas.filter((p) => p.data.rne).length;
+const cifras = [
+  { valor: especialistas.length, texto: 'cirujanos dentistas colegiados' },
+  { valor: filtros.length, texto: 'especialidades en una misma sede' },
+  ...(conRne > 0 ? [{ valor: conRne, texto: 'con Registro Nacional de Especialista' }] : []),
 ];
+
+/** Nombre y primer apellido: "Karina Mercedes Centurión Villar" da KC. */
+const inicialesDe = (nombre: string) => {
+  const partes = nombre.split(/\s+/);
+  const apellido = partes.length >= 4 ? partes[2] : partes[1];
+  return `${partes[0]?.[0] ?? ''}${apellido?.[0] ?? ''}`;
+};
 ---
 
 <Base
@@ -65,74 +79,170 @@ const filasDe = (persona: (typeof especialistas)[number]) => [
 >
   <Nav slot="encabezado" ruta="/especialistas" />
 
-  <section class="pt-32 pb-seccion-sm md:pt-40">
-    <div class="mx-auto max-w-ancho px-6 md:px-10">
-      <h1 class="max-w-[16ch] text-display">
-        {especialistas.length} especialistas, con nombre y colegiatura.
-      </h1>
+  <section class="pt-32 md:pt-40">
+    <div class="mx-auto grid max-w-ancho gap-x-16 gap-y-10 px-6 md:grid-cols-12 md:items-end md:px-10">
+      <div class="md:col-span-7">
+        <h1 class="max-w-[16ch] text-display">Especialistas con nombre y colegiatura.</h1>
 
-      <p class="mt-6 max-w-[46ch] text-cuerpo-lg text-grafito">
-        Todo tratamiento lo realiza un cirujano dentista colegiado. Publicamos el número
-        de colegiatura de cada uno para que cualquier paciente pueda comprobarlo.
-      </p>
+        <p class="mt-6 max-w-[46ch] text-cuerpo-lg text-grafito">
+          Todo tratamiento lo realiza un cirujano dentista colegiado. Publicamos el número
+          de colegiatura de cada uno para que cualquier paciente pueda comprobarlo.
+        </p>
+      </div>
+
+      <dl class="grid grid-cols-3 gap-4 border-t border-borde pt-5 md:col-span-5">
+        {
+          cifras.map((cifra) => (
+            <div>
+              <dt class="sr-only">{cifra.texto}</dt>
+              <dd>
+                <span class="cifra block text-titulo">{cifra.valor}</span>
+                <span class="mt-1 block text-dato text-grafito">{cifra.texto}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </section>
 
   <Seccion ritmo="corto">
-    <div class="border-t border-borde">
-      {
-        especialistas.map((persona) => {
-          const areas = areasDe(persona.id);
+    <!-- Filtro por especialidad. Sin JavaScript no aparece y se ve todo el
+         equipo, que es el mismo contenido sin atajo. -->
+    <div class="filtro mb-10 md:mb-12" data-filtro hidden>
+      <p id="filtro-titulo" class="text-dato text-grafito">Ver especialistas en</p>
 
-          return (
-            <article class="grid gap-x-16 gap-y-8 border-b border-borde py-10 md:grid-cols-12 md:py-14">
-              <div class="foto aspect-[3/4] bg-tinta-800 md:col-span-4">
-                {persona.data.retrato ? (
-                  <Picture
-                    src={persona.data.retrato}
-                    alt={`Retrato de ${persona.data.nombre}.`}
-                    formats={['avif', 'webp']}
-                    widths={[480, 800, 1000]}
-                    sizes="(min-width: 768px) 30vw, 100vw"
-                    loading="lazy"
-                    class="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div class="flex h-full items-end p-4">
-                  </div>
-                )}
-              </div>
+      <div
+        class="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+        role="group"
+        aria-labelledby="filtro-titulo"
+      >
+        <button type="button" class="chip" data-area="" aria-pressed="true">Todo el equipo</button>
+        {
+          filtros.map((area) => (
+            <button type="button" class="chip" data-area={area.id} aria-pressed="false">
+              {area.data.nombre}
+            </button>
+          ))
+        }
+      </div>
 
-              <div class="md:col-span-7 md:col-start-6">
-                <h2 class="text-titulo">{persona.data.nombre}</h2>
-                <p class="mt-3 text-cuerpo-lg text-grafito">{persona.data.especialidad}</p>
-
-                <div class="mt-8 max-w-[34rem]">
-                  <Ficha filas={filasDe(persona)} titulo={`Datos de ${persona.data.nombre}`} />
-                </div>
-
-                {areas.length > 0 && (
-                  <div class="mt-8">
-                    <p class="text-dato text-grafito">Atiende en</p>
-
-                    <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-2">
-                      {areas.map((area) => (
-                        <li>
-                          <a class="objetivo-tactil enlace text-menor" href={`/tratamientos/${area.id}`}>
-                            {area.data.nombre}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </article>
-          );
-        })
-      }
+      <p class="sr-only" aria-live="polite" data-filtro-estado></p>
     </div>
 
+    <!-- Directorio. Escritorio: lista de nombres a la izquierda y un panel
+         fijo a la derecha que cambia al pasar por cada nombre. Móvil: cada
+         nombre es un acordeón nativo con su retrato y su ficha. -->
+    <div class="directorio lg:grid lg:grid-cols-12 lg:gap-x-16">
+      <ul class="border-t border-borde lg:col-span-7">
+        {
+          especialistas.map((persona, i) => {
+            const areas = areasDe(persona.id);
+
+            return (
+              <li
+                class="persona border-b border-borde"
+                data-persona={persona.id}
+                data-areas={areas.map((area) => area.id).join(' ')}
+              >
+                <details class="fila" name="especialista">
+                  <summary class="fila-cabecera" aria-current={i === 0 ? 'true' : undefined}>
+                    <span class="miniatura foto bg-tinta-800" aria-hidden="true">
+                      {persona.data.retrato ? (
+                        <Picture
+                          src={persona.data.retrato}
+                          alt=""
+                          formats={['avif', 'webp']}
+                          fallbackFormat="jpg"
+                          widths={[96, 160]}
+                          sizes="4rem"
+                          loading="lazy"
+                          class="h-full w-full object-cover object-[50%_22%]"
+                        />
+                      ) : (
+                        <span class="flex h-full items-center justify-center text-menor text-superficie">
+                          {inicialesDe(persona.data.nombre)}
+                        </span>
+                      )}
+                    </span>
+
+                    <span class="fila-texto">
+                      {persona.data.cargo && (
+                        <span class="fila-cargo block text-dato text-verde-700">{persona.data.cargo}</span>
+                      )}
+                      <span class="fila-nombre block hyphens-none">{persona.data.nombre}</span>
+                      <span class="fila-especialidad block text-menor text-grafito">
+                        {persona.data.especialidad}
+                      </span>
+                    </span>
+
+                    <span class="fila-signo" aria-hidden="true" />
+                  </summary>
+
+                  <div class="fila-panel">
+                    <div class="foto aspect-[4/3] bg-tinta-800">
+                      {persona.data.retrato ? (
+                        <Picture
+                          src={persona.data.retrato}
+                          alt={`Retrato de ${persona.data.nombre}.`}
+                          formats={['avif', 'webp']}
+                          fallbackFormat="jpg"
+                          widths={[480, 720, 960]}
+                          sizes="100vw"
+                          loading="lazy"
+                          class="h-full w-full object-cover object-[50%_22%]"
+                        />
+                      ) : (
+                        <div class="flex h-full items-center justify-center" aria-hidden="true">
+                          <span class="text-titulo text-neblina">{inicialesDe(persona.data.nombre)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div class="mt-5">
+                      <FichaEspecialista persona={persona} areas={areas} />
+                    </div>
+                  </div>
+                </details>
+              </li>
+            );
+          })
+        }
+      </ul>
+
+      <div class="panel-escritorio lg:col-span-5">
+        <div class="panel-pila">
+          {
+            especialistas.map((persona, i) => (
+              <div class="panel" data-panel={persona.id} data-activo={i === 0 ? '' : undefined}>
+                <div class="panel-retrato foto bg-tinta-800">
+                  {persona.data.retrato ? (
+                    <Picture
+                      src={persona.data.retrato}
+                      alt={`Retrato de ${persona.data.nombre}.`}
+                      formats={['avif', 'webp']}
+                      fallbackFormat="jpg"
+                      widths={[480, 720, 960]}
+                      sizes="38vw"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      class="h-full w-full object-cover object-[50%_22%]"
+                    />
+                  ) : (
+                    <div class="flex h-full items-center justify-center" aria-hidden="true">
+                      <span class="text-display text-neblina">{inicialesDe(persona.data.nombre)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div class="mt-6">
+                  <FichaEspecialista persona={persona} areas={areasDe(persona.id)} />
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
   </Seccion>
 
   {
@@ -175,3 +285,299 @@ const filasDe = (persona: (typeof especialistas)[number]) => [
   </Seccion>
   <Pie slot="pie" />
 </Base>
+
+<style>
+  .persona[hidden] {
+    display: none;
+  }
+
+  /* --- Fila (móvil y tablet: acordeón) ------------------------------------ */
+
+  .fila-cabecera {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) 1.5rem;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .fila-cabecera::-webkit-details-marker {
+    display: none;
+  }
+
+  .miniatura {
+    aspect-ratio: 4 / 5;
+  }
+
+  .fila-nombre {
+    font-family: var(--font-display);
+    font-size: var(--text-cuerpo-lg);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-tinta);
+  }
+
+  .fila-especialidad {
+    margin-top: 0.25rem;
+  }
+
+  /* Más: dos trazos que giran hasta formar una cruz al abrir. */
+  .fila-signo {
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 240ms var(--ease-salida);
+  }
+
+  .fila-signo::before,
+  .fila-signo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.875rem;
+    height: 1.5px;
+    background-color: var(--color-tinta);
+    translate: -50% -50%;
+  }
+
+  .fila-signo::after {
+    rotate: 90deg;
+  }
+
+  .fila[open] .fila-signo {
+    transform: rotate(45deg);
+  }
+
+  .fila-panel {
+    padding-bottom: 1.75rem;
+  }
+
+  .panel-escritorio {
+    display: none;
+  }
+
+  /* --- Escritorio: lista y panel fijo ------------------------------------- */
+
+  @media (min-width: 64rem) {
+    .panel-escritorio {
+      display: block;
+    }
+
+    .panel-pila {
+      position: sticky;
+      top: 6rem;
+      display: grid;
+    }
+
+    /* Todos los paneles ocupan la misma celda; solo el activo se ve. */
+    .panel {
+      grid-area: 1 / 1;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 260ms var(--ease-salida),
+        visibility 0s linear 260ms;
+    }
+
+    .panel[data-activo] {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 260ms var(--ease-salida);
+    }
+
+    .panel-retrato {
+      aspect-ratio: 4 / 5;
+    }
+
+    .panel-retrato :global(img) {
+      scale: 1.04;
+      transition: scale 600ms var(--ease-salida);
+    }
+
+    .panel[data-activo] .panel-retrato :global(img) {
+      scale: 1;
+    }
+
+    /* En escritorio la fila no se despliega: el panel de la derecha manda. */
+    .fila-panel,
+    .fila-signo,
+    .miniatura {
+      display: none;
+    }
+
+    .fila-cabecera {
+      position: relative;
+      grid-template-columns: minmax(0, 1fr);
+      padding-block: 1.375rem;
+    }
+
+    .fila-texto {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      column-gap: 2rem;
+    }
+
+    .fila-cargo {
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }
+
+    .fila-nombre {
+      font-size: var(--text-subtitulo);
+      color: var(--color-grafito);
+      transition:
+        color var(--duracion-ui) var(--ease-salida),
+        translate 260ms var(--ease-salida);
+    }
+
+    .fila-especialidad {
+      margin-top: 0;
+      text-align: right;
+    }
+
+    /* Barra verde que crece desde arriba en la fila activa. */
+    .fila-cabecera::before {
+      content: '';
+      position: absolute;
+      inset-block: 1.25rem;
+      left: 0;
+      width: 3px;
+      background-color: var(--color-verde);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 260ms var(--ease-salida);
+    }
+
+    .fila-cabecera[aria-current='true'] .fila-nombre {
+      color: var(--color-tinta);
+    }
+
+    .fila-cabecera[aria-current='true'] .fila-nombre {
+      translate: 1.25rem 0;
+    }
+
+    .fila-cabecera[aria-current='true']::before {
+      transform: scaleY(1);
+    }
+  }
+
+  /* Sin desplazamientos: se conservan el color y el fundido del panel. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
+    .fila-cabecera[aria-current='true'] .fila-nombre {
+      translate: none;
+    }
+
+    .panel-retrato :global(img) {
+      scale: 1;
+    }
+  }
+
+  /* --- Filtro -------------------------------------------------------------- */
+
+  .chip {
+    flex: none;
+    min-height: 3rem;
+    padding: 0 1.125rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-accion);
+    font-size: var(--text-menor);
+    color: var(--color-tinta);
+    white-space: nowrap;
+    transition:
+      background-color var(--duracion-ui) var(--ease-salida),
+      color var(--duracion-ui) var(--ease-salida),
+      border-color var(--duracion-ui) var(--ease-salida);
+  }
+
+  .chip[aria-pressed='true'] {
+    background-color: var(--color-tinta);
+    border-color: var(--color-tinta);
+    color: var(--color-superficie);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .chip[aria-pressed='false']:hover {
+      background-color: var(--color-franja);
+    }
+  }
+
+  .chip:active {
+    transform: scale(0.97);
+  }
+</style>
+
+<script>
+  const personas = [...document.querySelectorAll<HTMLElement>('.persona')];
+  const paneles = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+  const escritorio = window.matchMedia('(min-width: 64rem)');
+
+  let activa = personas[0]?.dataset.persona ?? '';
+
+  const activar = (id: string) => {
+    activa = id;
+    for (const persona of personas) {
+      const cabecera = persona.querySelector('summary');
+      if (persona.dataset.persona === id) cabecera?.setAttribute('aria-current', 'true');
+      else cabecera?.removeAttribute('aria-current');
+    }
+    for (const panel of paneles) {
+      panel.toggleAttribute('data-activo', panel.dataset.panel === id);
+    }
+  };
+
+  for (const persona of personas) {
+    const cabecera = persona.querySelector('summary');
+    const id = persona.dataset.persona ?? '';
+    if (!cabecera) continue;
+
+    cabecera.addEventListener('pointerenter', (evento) => {
+      if (escritorio.matches && evento.pointerType === 'mouse') activar(id);
+    });
+    cabecera.addEventListener('focus', () => {
+      if (escritorio.matches) activar(id);
+    });
+    // En escritorio el clic elige, no despliega: el detalle está en el panel.
+    cabecera.addEventListener('click', (evento) => {
+      if (!escritorio.matches) return;
+      evento.preventDefault();
+      activar(id);
+    });
+  }
+
+  const filtro = document.querySelector<HTMLElement>('[data-filtro]');
+  const estado = document.querySelector<HTMLElement>('[data-filtro-estado]');
+
+  if (filtro) {
+    filtro.hidden = false;
+    const botones = [...filtro.querySelectorAll<HTMLButtonElement>('button[data-area]')];
+
+    const filtrar = (area: string) => {
+      const visibles = personas.filter((persona) => {
+        const coincide = !area || (persona.dataset.areas ?? '').split(' ').includes(area);
+        persona.hidden = !coincide;
+        return coincide;
+      });
+
+      for (const boton of botones) {
+        boton.setAttribute('aria-pressed', String(boton.dataset.area === area));
+      }
+
+      if (!visibles.some((persona) => persona.dataset.persona === activa)) {
+        activar(visibles[0]?.dataset.persona ?? '');
+      }
+
+      if (estado) {
+        estado.textContent = `${visibles.length} ${visibles.length === 1 ? 'especialista' : 'especialistas'}`;
+      }
+    };
+
+    for (const boton of botones) {
+      boton.addEventListener('click', () => filtrar(boton.dataset.area ?? ''));
+    }
+  }
+</script>

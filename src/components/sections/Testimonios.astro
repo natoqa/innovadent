@@ -8,9 +8,6 @@ const testimonios = (await getCollection('testimonios')).sort(
   (a, b) => a.data.orden - b.data.orden,
 );
 
-// Sin testimonios ni valoración la sección no se dibuja: aparece sola cuando
-// llega el primer testimonio autorizado.
-
 // La valoración se muestra solo si está copiada de la ficha real, completa.
 const { ficha, valoracion, resenas } = SITIO.google;
 const google =
@@ -21,55 +18,133 @@ const google =
         resenas: new Intl.NumberFormat(SITIO.idioma).format(resenas),
       }
     : null;
+
+/**
+ * Sin testimonios se dibuja la maqueta: un video grande, dos testimonios de
+ * texto y la franja de Google, todo en gris. Ninguna cita se inventa.
+ */
+const maqueta = testimonios.length === 0;
+
+// El primero con video abre la sección en grande; el resto va en columna.
+const principal = testimonios.find((t) => t.data.video) ?? testimonios[0];
+const resto = testimonios.filter((t) => t !== principal);
 ---
 
-{
-  (testimonios.length > 0 || google) && (
 <Seccion id="testimonios" tono="oscuro" ritmo="corto">
-  {
-    testimonios.length > 0 && (
-      <>
-        <EncabezadoSeccion
-          titulo="Lo que cuentan los pacientes."
-          entradilla="Con su nombre o sus iniciales, y con su autorización para publicarlo."
-          sobreOscuro
-        />
+  <EncabezadoSeccion
+    titulo="Lo que cuentan los pacientes."
+    entradilla="Con su nombre o sus iniciales, y con su autorización para publicarlo."
+    sobreOscuro
+  />
 
-        <div class="mt-12 grid gap-x-16 gap-y-12 md:mt-16 md:grid-cols-2">
-          {testimonios.map((testimonio) => (
+  {
+    maqueta ? (
+      <div class="mt-12 grid gap-x-16 gap-y-14 md:mt-16 md:grid-cols-12" aria-hidden="true">
+        <figure class="md:col-span-7">
+          <div class="foto relative flex aspect-video items-end bg-tinta-700 p-5">
+            <span class="absolute top-1/2 left-1/2 flex size-16 -translate-1/2 items-center justify-center rounded-full bg-superficie">
+              <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
+                <path d="M17 10L1 19V1L17 10Z" fill="var(--color-tinta)" />
+              </svg>
+            </span>
+            <p class="max-w-[34ch] text-dato text-superficie">
+              Video de un paciente contando su experiencia, grabado en la clínica.
+            </p>
+          </div>
+
+          <figcaption class="mt-6">
+            <span class="grid gap-3 text-subtitulo">
+              <span class="relleno w-full" />
+              <span class="relleno w-4/5" />
+            </span>
+            <span class="mt-5 flex items-center gap-4 text-menor">
+              <span class="relleno w-16" />
+              <span class="relleno w-28 opacity-10" />
+            </span>
+          </figcaption>
+        </figure>
+
+        <div class="grid content-start gap-10 md:col-span-5">
+          {[0, 1].map(() => (
             <figure class="border-t border-tinta-700 pt-8">
-              {testimonio.data.video && (
-                <video
-                  src={testimonio.data.video}
-                  controls
-                  preload="none"
-                  playsinline
-                  class="foto mb-6 aspect-video w-full bg-tinta-700"
-                  aria-label={`Testimonio en video de ${testimonio.data.autor}`}
-                />
-              )}
-              {testimonio.data.texto && (
-                <blockquote class="text-subtitulo">
-                  <p>{testimonio.data.texto}</p>
-                </blockquote>
-              )}
-              <figcaption class="mt-4 text-menor">{testimonio.data.autor}</figcaption>
+              <span class="grid gap-3 text-cuerpo-lg">
+                <span class="relleno w-full" />
+                <span class="relleno w-full" />
+                <span class="relleno w-2/3" />
+              </span>
+              <span class="mt-5 flex items-center gap-4 text-menor">
+                <span class="relleno w-12" />
+                <span class="relleno w-24 opacity-10" />
+              </span>
             </figure>
           ))}
         </div>
-      </>
+      </div>
+    ) : (
+      <div class="mt-12 grid gap-x-16 gap-y-14 md:mt-16 md:grid-cols-12">
+        {principal && (
+          <figure class="md:col-span-7">
+            {principal.data.video && (
+              <video
+                src={principal.data.video}
+                controls
+                preload="none"
+                playsinline
+                class="foto aspect-video w-full bg-tinta-700"
+                aria-label={`Testimonio en video de ${principal.data.autor}`}
+              />
+            )}
+            {principal.data.texto && (
+              <blockquote class:list={['text-subtitulo', principal.data.video && 'mt-6']}>
+                <p>{principal.data.texto}</p>
+              </blockquote>
+            )}
+            <figcaption class="mt-4 text-menor">{principal.data.autor}</figcaption>
+          </figure>
+        )}
+
+        {resto.length > 0 && (
+          <div class="grid content-start gap-10 md:col-span-5">
+            {resto.map((testimonio) => (
+              <figure class="border-t border-tinta-700 pt-8">
+                {testimonio.data.video && (
+                  <video
+                    src={testimonio.data.video}
+                    controls
+                    preload="none"
+                    playsinline
+                    class="foto mb-6 aspect-video w-full bg-tinta-700"
+                    aria-label={`Testimonio en video de ${testimonio.data.autor}`}
+                  />
+                )}
+                {testimonio.data.texto && (
+                  <blockquote class="text-cuerpo-lg">
+                    <p>{testimonio.data.texto}</p>
+                  </blockquote>
+                )}
+                <figcaption class="mt-4 text-menor">{testimonio.data.autor}</figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </div>
     )
   }
 
   {
-    google && (
-      <p class="cifra mt-12 text-cuerpo-lg">
+    google ? (
+      <p class="cifra mt-14 border-t border-tinta-700 pt-8 text-cuerpo-lg">
         <a class="enlace" href={google.ficha} target="_blank" rel="noopener">
           {google.valoracion} de 5 en Google, con {google.resenas} reseñas
         </a>
       </p>
+    ) : (
+      maqueta && (
+        <div class="mt-14 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-tinta-700 pt-8" aria-hidden="true">
+          <span class="relleno h-[1.4em] w-14 text-titulo" />
+          <span class="text-menor text-superficie/70">Valoración en Google y número de reseñas, copiados de la ficha real.</span>
+        </div>
+      )
     )
   }
 </Seccion>
-  )
-}

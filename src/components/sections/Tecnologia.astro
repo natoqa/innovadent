@@ -2,50 +2,88 @@
 import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import EspacioFoto from '../ui/EspacioFoto.astro';
 
 const categorias = [
-  { clave: 'diagnostico', nombre: 'Diagnóstico' },
-  { clave: 'planificacion', nombre: 'Planificación' },
-  { clave: 'tratamiento', nombre: 'Tratamiento' },
-  { clave: 'seguridad', nombre: 'Seguridad' },
+  { clave: 'diagnostico', nombre: 'Diagnóstico', nota: 'Lo que se usa para examinar antes de decidir.' },
+  { clave: 'planificacion', nombre: 'Planificación', nota: 'Lo que ayuda a preparar el tratamiento antes de empezarlo.' },
+  { clave: 'tratamiento', nombre: 'Tratamiento', nota: 'Lo que se usa en el sillón, durante la atención.' },
+  { clave: 'seguridad', nombre: 'Seguridad', nota: 'Lo que protege al paciente y al equipo en cada consulta.' },
 ] as const;
 
 const equipos = (await getCollection('tecnologia')).sort((a, b) => a.data.orden - b.data.orden);
+
+/**
+ * Las filas alternan el lado de la foto para que cuatro categorías seguidas no
+ * se lean como la misma fila repetida.
+ *
+ * Sin equipos cargados se dibuja la maqueta: un hueco por categoría, con la
+ * foto en gris y barras donde irán el beneficio, el equipo y la marca.
+ */
+const maqueta = equipos.length === 0;
 
 const grupos = categorias
   .map((categoria) => ({
     ...categoria,
     equipos: equipos.filter((equipo) => equipo.data.categoria === categoria.clave),
   }))
-  .filter((grupo) => grupo.equipos.length > 0);
+  .filter((grupo) => maqueta || grupo.equipos.length > 0);
 ---
 
-{/* Sin equipos cargados la sección no se dibuja. */}
-{
-  grupos.length > 0 && (
-    <Seccion id="tecnologia">
-        <EncabezadoSeccion
-          titulo="Con qué trabajamos."
-          entradilla="Contado por lo que cambia para ti durante la consulta, no por la ficha técnica."
-        />
+<Seccion id="tecnologia">
+  <EncabezadoSeccion
+    titulo="Con qué trabajamos."
+    entradilla="Contado por lo que cambia para ti durante la consulta, no por la ficha técnica."
+  />
 
-        <div class="mt-12 border-t border-borde md:mt-16">
-          {grupos.map((grupo) => (
-            <div class="grid gap-x-10 gap-y-4 border-b border-borde py-8 md:grid-cols-12">
-              <h3 class="text-titulo md:col-span-4">{grupo.nombre}</h3>
+  <div class="mt-12 border-t border-tinta md:mt-16">
+    {
+      grupos.map((grupo, i) => (
+        <div class="grid gap-x-10 gap-y-8 border-b border-borde py-10 md:grid-cols-12 md:py-12">
+          <div class="md:col-span-3">
+            <h3 class="text-titulo">{grupo.nombre}</h3>
+            <p class="mt-3 max-w-[28ch] text-menor text-grafito">{grupo.nota}</p>
+          </div>
 
-              <ul class="grid gap-6 md:col-span-7 md:col-start-6">
-                {grupo.equipos.map((equipo) => (
-                  <li>
-                    <p class="text-cuerpo-lg">{equipo.data.beneficio}</p>
-                    <p class="mt-1 text-menor text-grafito">{equipo.data.equipo}</p>
-                    <p class="text-menor text-grafito">{equipo.data.marca}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <ul class="grid gap-10 md:col-span-9">
+            {maqueta ? (
+              <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9" aria-hidden="true">
+                <EspacioFoto
+                  descripcion="Foto del equipo, tomada en la clínica."
+                  aspecto={i % 2 === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]'}
+                  class={i % 2 === 0 ? 'sm:col-span-4' : 'sm:order-2 sm:col-span-5'}
+                />
+
+                <div class={i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4'}>
+                  <span class="grid gap-3 text-subtitulo">
+                    <span class="relleno w-full" />
+                    <span class="relleno w-3/5" />
+                  </span>
+                  <p class="mt-3 text-dato text-grafito">Beneficio para el paciente</p>
+
+                  <dl class="mt-6 border-t border-borde text-menor">
+                    {['Equipo', 'Marca'].map((etiqueta) => (
+                      <div class="flex items-center justify-between gap-6 border-b border-borde py-3">
+                        <dt class="text-grafito">{etiqueta}</dt>
+                        <dd class="relleno w-32" />
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              </li>
+            ) : (
+              grupo.equipos.map((equipo) => (
+                <li class="max-w-[46ch]">
+                  <p class="text-subtitulo">{equipo.data.beneficio}</p>
+                  <p class="mt-3 text-menor text-grafito">
+                    {equipo.data.equipo}, {equipo.data.marca}
+                  </p>
+                </li>
+              ))
+            )}
+          </ul>
         </div>
-    </Seccion>
-  )
-}
+      ))
+    }
+  </div>
+</Seccion>

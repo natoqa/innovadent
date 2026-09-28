@@ -1,0 +1,61 @@
+---
+import { Picture } from 'astro:assets';
+
+/**
+ * El lugar de una fotografía. Con la foto, la muestra recortada a la
+ * proporción. Sin ella, un hueco gris que dice qué foto va ahí, para que el
+ * cliente sepa qué entregar.
+ */
+interface Props {
+  imagen?: ImageMetadata;
+  /** Obligatorio cuando hay imagen: describe lo que se ve. */
+  alt?: string;
+  /** Qué foto falta. Solo se ve mientras no llega. */
+  descripcion: string;
+  /** Proporción, como clase de Tailwind. */
+  aspecto?: string;
+  /** Fondo de la sección: sobre franja el gris tiene que ser más oscuro para verse. */
+  tono?: 'claro' | 'franja' | 'oscuro';
+  sizes?: string;
+  prioritaria?: boolean;
+  class?: string;
+}
+
+const {
+  imagen,
+  alt,
+  descripcion,
+  aspecto = 'aspect-[4/3]',
+  tono = 'claro',
+  sizes = '(min-width: 768px) 50vw, 100vw',
+  prioritaria = false,
+  class: clase,
+} = Astro.props;
+
+const fondos = {
+  claro: 'bg-franja text-grafito',
+  franja: 'bg-borde text-tinta',
+  oscuro: 'bg-tinta-700 text-superficie',
+} as const;
+---
+
+{
+  imagen ? (
+    <div class:list={['foto bg-tinta-800', aspecto, clase]}>
+      <Picture
+        src={imagen}
+        alt={alt ?? descripcion}
+        formats={['avif', 'webp']}
+        widths={[480, 800, 1200]}
+        sizes={sizes}
+        loading={prioritaria ? 'eager' : 'lazy'}
+        fetchpriority={prioritaria ? 'high' : 'auto'}
+        class="h-full w-full object-cover"
+      />
+    </div>
+  ) : (
+    <div class:list={['foto flex items-end p-5', aspecto, fondos[tono], clase]}>
+      <p class="max-w-[34ch] text-dato">{descripcion}</p>
+    </div>
+  )
+}

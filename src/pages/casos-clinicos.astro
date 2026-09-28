@@ -1,0 +1,425 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Nav from '../components/layout/Nav.astro';
+import Pie from '../components/layout/Pie.astro';
+import Seccion from '../components/ui/Seccion.astro';
+import Boton from '../components/ui/Boton.astro';
+import FotosCaso from '../components/casos/FotosCaso.astro';
+import DatosCaso from '../components/casos/DatosCaso.astro';
+import RecorridoCaso from '../components/casos/RecorridoCaso.astro';
+import { casosParaMostrar, describirFormato, type VistaCaso } from '../lib/casos';
+import { SITIO } from '../config/site';
+
+export const prerender = true;
+
+const [destacado, ...registro] = await casosParaMostrar();
+const enMaqueta = destacado?.muestra ?? true;
+
+/** Solo las especialidades que tienen algún caso en el registro. */
+const especialidades = [
+  ...new Map(registro.map((caso) => [caso.tratamiento.id, caso.tratamiento.nombre])),
+].map(([id, nombre]) => ({
+  id,
+  nombre,
+  total: registro.filter((caso) => caso.tratamiento.id === id).length,
+}));
+
+/** En un antes y después la miniatura es el después; en el resto, la principal. */
+const miniatura = (caso: VistaCaso) =>
+  caso.formato === 'antes-despues' ? caso.fotos[1] : caso.fotos[0];
+
+const contenido = [
+  {
+    titulo: 'Fotografías de la clínica',
+    texto: 'Tomadas por el equipo que trató al paciente: antes y después, por etapas o como registro del tratamiento.',
+  },
+  {
+    titulo: 'Motivo y diagnóstico',
+    texto: 'Por qué llegó el paciente y qué se encontró en la evaluación.',
+  },
+  {
+    titulo: 'Plan y duración',
+    texto: 'Qué se hizo, quién lo hizo y cuánto tiempo tomó.',
+  },
+  {
+    titulo: 'Consentimiento firmado',
+    texto: 'Del paciente, o de sus padres si es menor. Sin él, el caso no se publica.',
+  },
+];
+---
+
+<Base
+  titulo={`Casos clínicos en ${SITIO.sede.ciudad}`}
+  descripcion="Casos tratados en Innovadent: fotografías de la clínica, motivo de consulta, diagnóstico y plan de tratamiento, publicados con el consentimiento del paciente."
+  ruta="/casos-clinicos"
+>
+  <Nav slot="encabezado" ruta="/casos-clinicos" />
+
+  <section class="pt-32 pb-seccion-sm md:pt-40">
+    <div class="mx-auto grid max-w-ancho gap-x-16 gap-y-14 px-6 md:grid-cols-12 md:px-10">
+      <div class="md:col-span-6">
+        <h1 class="max-w-[13ch] text-display">Casos tratados en esta clínica.</h1>
+
+        <p class="mt-6 max-w-[42ch] text-cuerpo-lg text-grafito">
+          Cada caso se presenta como se trabaja en consulta: qué traía el paciente, qué se
+          encontró y qué se hizo. Las fotos solo acompañan ese recorrido.
+        </p>
+
+        <p class="mt-6 max-w-[42ch] text-menor text-grafito">
+          Cada resultado es individual y depende del diagnóstico.
+        </p>
+      </div>
+
+      <div class="md:col-span-5 md:col-start-8 md:pt-3">
+        <h2 class="text-cuerpo font-semibold">Qué incluye cada caso</h2>
+
+        <dl class="mt-4 border-t border-tinta">
+          {
+            contenido.map((parte) => (
+              <div class="grid gap-1 border-b border-borde py-4 min-[480px]:grid-cols-[11rem_1fr] min-[480px]:gap-6">
+                <dt class="text-menor font-semibold">{parte.titulo}</dt>
+                <dd class="text-menor text-grafito">{parte.texto}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  {
+    destacado && (
+      <Seccion tono="oscuro" etiquetaAccesible={`Caso ${destacado.numero}`}>
+        <div class="grid gap-x-16 gap-y-6 md:grid-cols-12 md:items-end">
+          <p class="flex items-baseline gap-4 md:col-span-4">
+            <span class="cifra text-titulo text-neblina">{destacado.numero}</span>
+            <span class="text-menor">{destacado.tratamiento.nombre}</span>
+          </p>
+
+          <div class="md:col-span-8">
+            {destacado.titulo ? (
+              <h2 class="max-w-[22ch] text-titulo">{destacado.titulo}</h2>
+            ) : (
+              <h2 class="grid gap-3 text-titulo" aria-label="Caso destacado por publicar">
+                <span class="relleno w-4/5" />
+                <span class="relleno w-2/5" />
+              </h2>
+            )}
+          </div>
+        </div>
+
+        <div class="mt-10 grid gap-x-16 gap-y-10 md:mt-14 md:grid-cols-12">
+          <div class="md:col-span-8">
+            <FotosCaso
+              formato={destacado.formato}
+              fotos={destacado.fotos}
+              titulo={destacado.titulo ?? 'caso destacado'}
+              tono="oscuro"
+              anchoVw={62}
+            />
+          </div>
+
+          <div class="md:col-span-4">
+            <div class="border-t border-tinta-700 md:sticky md:top-28">
+              <DatosCaso caso={destacado} />
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-14 md:mt-20">
+          <RecorridoCaso caso={destacado} />
+        </div>
+      </Seccion>
+    )
+  }
+
+  {
+    registro.length > 0 && (
+      <Seccion ritmo="corto" etiquetaAccesible="Registro de casos">
+        <div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+          <h2 class="text-display">Registro de casos</h2>
+          <p class="cifra text-menor text-grafito" data-registro-estado aria-live="polite">
+            {registro.length} {registro.length === 1 ? 'caso' : 'casos'}
+          </p>
+        </div>
+
+        {/* Filtro por especialidad. Sin JavaScript no aparece y se ve todo el registro. */}
+        <div class="mt-8" data-filtro hidden>
+          <p id="filtro-titulo" class="sr-only">Filtrar casos por especialidad</p>
+          <div
+            class="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:px-0"
+            role="group"
+            aria-labelledby="filtro-titulo"
+          >
+            <button type="button" class="chip" data-area="" aria-pressed="true">
+              Todas
+            </button>
+            {especialidades.map((area) => (
+              <button type="button" class="chip" data-area={area.id} aria-pressed="false">
+                {area.nombre} <span class="cifra opacity-60">{area.total}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <ol class="mt-8 border-t border-tinta">
+          {registro.map((caso, i) => {
+            const foto = miniatura(caso);
+            return (
+              <li class="caso border-b border-borde" data-area={caso.tratamiento.id}>
+                <details name="caso" open={enMaqueta && i === 0 ? true : undefined}>
+                  <summary class="caso-cabecera">
+                    <span class="cifra text-menor text-grafito">{caso.numero}</span>
+
+                    <span class="miniatura foto" aria-hidden="true">
+                      {foto?.foto && (
+                        <Picture
+                          src={foto.foto}
+                          alt=""
+                          formats={['avif', 'webp']}
+                          widths={[160, 320]}
+                          sizes="7rem"
+                          loading="lazy"
+                          class="h-full w-full object-cover"
+                        />
+                      )}
+                    </span>
+
+                    <span class="min-w-0">
+                      {caso.titulo ? (
+                        <span class="caso-titulo block">{caso.titulo}</span>
+                      ) : (
+                        <span class="grid gap-2 py-1" aria-label={`Caso de ${caso.tratamiento.nombre} por publicar`}>
+                          <span class="relleno h-[1.1em] w-[85%] max-w-sm" />
+                        </span>
+                      )}
+                      <span class="mt-1 block text-menor text-grafito">{caso.tratamiento.nombre}</span>
+                    </span>
+
+                    <span class="caso-meta text-menor">
+                      {caso.especialista ?? <span class="relleno w-32" aria-hidden="true" />}
+                    </span>
+
+                    <span class="caso-meta cifra text-menor text-grafito">
+                      {caso.duracion ?? describirFormato(caso.formato, caso.fotos.length)}
+                    </span>
+
+                    <span class="signo" aria-hidden="true" />
+                  </summary>
+
+                  <div class="caso-cuerpo grid gap-x-16 gap-y-10 pb-12 md:grid-cols-12">
+                    <div class="self-start md:sticky md:top-28 md:col-span-7">
+                      <FotosCaso
+                        formato={caso.formato}
+                        fotos={caso.fotos}
+                        titulo={caso.titulo ?? `caso ${caso.numero}`}
+                        anchoVw={55}
+                      />
+                    </div>
+
+                    <div class="md:col-span-5">
+                      <div class="border-t border-borde">
+                        <DatosCaso caso={caso} />
+                      </div>
+                      <div class="mt-10">
+                        <RecorridoCaso caso={caso} disposicion="vertical" />
+                      </div>
+                      <p class="mt-8 text-menor">
+                        <a class="enlace objetivo-tactil" href={`/tratamientos/${caso.tratamiento.id}`}>
+                          Cómo es el tratamiento de {caso.tratamiento.nombre.toLowerCase()}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </details>
+              </li>
+            );
+          })}
+        </ol>
+      </Seccion>
+    )
+  }
+
+  <Seccion tono="franja">
+    <div class="grid gap-x-16 gap-y-10 md:grid-cols-12 md:items-end">
+      <div class="md:col-span-7">
+        <h2 class="max-w-[16ch] text-display">Tu caso empieza con una evaluación.</h2>
+        <p class="mt-6 max-w-[46ch] text-cuerpo-lg text-grafito">
+          Un caso publicado muestra lo que se hizo con un paciente y su diagnóstico. El
+          plan para ti se decide después de revisarte, con las alternativas sobre la mesa.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-4 md:col-span-4 md:col-start-9">
+        <Boton href="/#reserva">Reservar mi cita</Boton>
+        {SITIO.contacto.whatsapp && (
+          <a class="enlace objetivo-tactil text-menor" href={`https://wa.me/${SITIO.contacto.whatsapp}`}>
+            Escribir por WhatsApp
+          </a>
+        )}
+      </div>
+    </div>
+  </Seccion>
+  <Pie slot="pie" />
+</Base>
+
+<style>
+  .caso[hidden] {
+    display: none;
+  }
+
+  /* Fila del registro: número, miniatura, caso, especialista, duración, signo. */
+  .caso-cabecera {
+    display: grid;
+    grid-template-columns: 2rem 5rem minmax(0, 1fr) 1.5rem;
+    align-items: center;
+    column-gap: 1rem;
+    padding-block: 1.25rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .caso-cabecera::-webkit-details-marker {
+    display: none;
+  }
+
+  .caso-meta {
+    display: none;
+  }
+
+  .miniatura {
+    aspect-ratio: 4 / 3;
+    border-radius: calc(var(--radius-foto) / 2);
+  }
+
+  .caso-titulo {
+    font-family: var(--font-display);
+    font-size: var(--text-cuerpo-lg);
+    font-weight: 600;
+    line-height: 1.25;
+    transition: translate 240ms var(--ease-salida);
+  }
+
+  @media (min-width: 64rem) {
+    .caso-cabecera {
+      grid-template-columns: 3rem 7rem minmax(0, 1fr) 13rem 9rem 1.5rem;
+      column-gap: 2rem;
+    }
+
+    .caso-meta {
+      display: block;
+    }
+
+    .caso-titulo {
+      font-size: var(--text-subtitulo);
+    }
+
+    .caso-cuerpo {
+      padding-left: 12rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .caso-cabecera:hover .caso-titulo {
+      translate: 0.5rem 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caso-cabecera:hover .caso-titulo {
+      translate: none;
+    }
+  }
+
+  /* Más que gira hasta cruz al abrir. */
+  .signo {
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 240ms var(--ease-salida);
+  }
+
+  .signo::before,
+  .signo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.875rem;
+    height: 1.5px;
+    background-color: var(--color-tinta);
+    translate: -50% -50%;
+  }
+
+  .signo::after {
+    rotate: 90deg;
+  }
+
+  details[open] .signo {
+    transform: rotate(45deg);
+  }
+
+  .chip {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.125rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-accion);
+    font-size: var(--text-menor);
+    white-space: nowrap;
+    transition:
+      background-color var(--duracion-ui) var(--ease-salida),
+      color var(--duracion-ui) var(--ease-salida),
+      border-color var(--duracion-ui) var(--ease-salida);
+  }
+
+  .chip[aria-pressed='true'] {
+    background-color: var(--color-tinta);
+    border-color: var(--color-tinta);
+    color: var(--color-superficie);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .chip[aria-pressed='false']:hover {
+      background-color: var(--color-franja);
+    }
+  }
+
+  .chip:active {
+    transform: scale(0.97);
+  }
+</style>
+
+<script>
+  const filtro = document.querySelector<HTMLElement>('[data-filtro]');
+  const estado = document.querySelector<HTMLElement>('[data-registro-estado]');
+  const casos = [...document.querySelectorAll<HTMLElement>('.caso')];
+
+  if (filtro && casos.length > 1) {
+    filtro.hidden = false;
+    const botones = [...filtro.querySelectorAll<HTMLButtonElement>('button[data-area]')];
+
+    for (const boton of botones) {
+      boton.addEventListener('click', () => {
+        const area = boton.dataset.area ?? '';
+        let visibles = 0;
+
+        for (const caso of casos) {
+          const coincide = !area || caso.dataset.area === area;
+          caso.hidden = !coincide;
+          if (coincide) visibles += 1;
+        }
+
+        for (const otro of botones) {
+          otro.setAttribute('aria-pressed', String(otro === boton));
+        }
+
+        if (estado) estado.textContent = `${visibles} ${visibles === 1 ? 'caso' : 'casos'}`;
+      });
+    }
+  }
+</script>

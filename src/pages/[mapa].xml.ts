@@ -23,6 +23,8 @@ export const GET: APIRoute = async () => {
     '/tratamientos',
     ...tratamientos.map((tratamiento) => `/tratamientos/${tratamiento.id}`),
     '/especialistas',
+    '/casos-clinicos',
+    '/innovadent-kids',
     '/contacto',
   ];
 

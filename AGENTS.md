@@ -55,7 +55,12 @@ src/
 │   └── mail.ts · validation.ts · seo.ts
 ├── pages/
 │   ├── index.astro
+│   ├── tratamientos/index.astro
 │   ├── tratamientos/[slug].astro
+│   ├── especialistas.astro
+│   ├── casos-clinicos.astro
+│   ├── innovadent-kids.astro
+│   ├── contacto.astro
 │   └── api/reserva.ts
 ├── styles/global.css
 └── config/site.ts

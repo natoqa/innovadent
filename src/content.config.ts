@@ -146,6 +146,11 @@ const sinPlantillas = '**/[!_]*.md';
  * Un caso sin consentimiento informado firmado no compila: `consentimiento`
  * solo admite `true`. Si el paciente es menor, además se exige la autorización
  * de los padres. La relación con el tratamiento vive aquí, no en la landing.
+ *
+ * No todo caso es un antes y después. `formato` dice cómo leer las fotos:
+ * - antes-despues: exactamente dos, en ese orden, con el mismo encuadre.
+ * - secuencia: etapas del tratamiento en orden, cada una con su etiqueta.
+ * - fotos: registro libre del caso, la primera es la principal.
  */
 const casos = defineCollection({
   loader: glob({ base: './src/content/casos', pattern: sinPlantillas }),
@@ -156,13 +161,30 @@ const casos = defineCollection({
         titulo: z.string(),
         tratamiento: reference('tratamientos'),
         especialista: reference('especialistas'),
-        /** Como lo diría la ficha: "14 meses", "3 sesiones". */
+        /** Como lo diría la ficha: "14 meses", "3 semanas". */
         duracion: z.string(),
-        antes: image(),
-        despues: image(),
-        /** Describen lo que se ve clínicamente, no "foto antes". */
-        altAntes: z.string().min(10),
-        altDespues: z.string().min(10),
+        sesiones: z.string().optional(),
+        /** El primero con `destacado` abre la página de casos. */
+        destacado: z.boolean().default(false),
+
+        formato: z.enum(['antes-despues', 'secuencia', 'fotos']),
+        fotos: z
+          .array(
+            z.object({
+              foto: image(),
+              /** Describe lo que se ve clínicamente, no "foto antes". */
+              alt: z.string().min(10),
+              /** "Inicio", "Mes 6", "Control". Obligatoria en una secuencia. */
+              etiqueta: z.string().optional(),
+            }),
+          )
+          .min(1),
+
+        /** Lo que el paciente contó al llegar, con sus palabras o las del especialista. */
+        motivo: z.string().optional(),
+        diagnostico: z.string().optional(),
+        plan: z.array(z.string()).default([]),
+
         consentimiento: z.literal(true),
         menor: z.boolean().default(false),
         autorizacionPadres: z.literal(true).optional(),
@@ -170,7 +192,20 @@ const casos = defineCollection({
       .refine((caso) => !caso.menor || caso.autorizacionPadres === true, {
         message: 'Un caso de un menor necesita autorizacionPadres: true.',
         path: ['autorizacionPadres'],
-      }),
+      })
+      .refine((caso) => caso.formato !== 'antes-despues' || caso.fotos.length === 2, {
+        message: 'Un antes y después lleva exactamente dos fotos: antes y después.',
+        path: ['fotos'],
+      })
+      .refine(
+        (caso) =>
+          caso.formato !== 'secuencia' ||
+          (caso.fotos.length >= 2 && caso.fotos.every((f) => f.etiqueta)),
+        {
+          message: 'Una secuencia lleva al menos dos fotos, cada una con su etiqueta.',
+          path: ['fotos'],
+        },
+      ),
 });
 
 const testimonios = defineCollection({

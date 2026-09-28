@@ -63,13 +63,6 @@ const cifras = [
   { valor: filtros.length, texto: 'especialidades en una misma sede' },
   ...(conRne > 0 ? [{ valor: conRne, texto: 'con Registro Nacional de Especialista' }] : []),
 ];
-
-/** Nombre y primer apellido: "Karina Mercedes Centurión Villar" da KC. */
-const inicialesDe = (nombre: string) => {
-  const partes = nombre.split(/\s+/);
-  const apellido = partes.length >= 4 ? partes[2] : partes[1];
-  return `${partes[0]?.[0] ?? ''}${apellido?.[0] ?? ''}`;
-};
 ---
 
 <Base
@@ -79,18 +72,21 @@ const inicialesDe = (nombre: string) => {
 >
   <Nav slot="encabezado" ruta="/especialistas" />
 
-  <section class="pt-32 md:pt-40">
-    <div class="mx-auto grid max-w-ancho gap-x-16 gap-y-10 px-6 md:grid-cols-12 md:items-end md:px-10">
-      <div class="md:col-span-7">
-        <h1 class="max-w-[16ch] text-display">Especialistas con nombre y colegiatura.</h1>
+  <section class="pt-32 pb-seccion-sm md:pt-40">
+    <div class="mx-auto grid max-w-ancho gap-x-16 gap-y-12 px-6 md:grid-cols-12 md:px-10">
+      <h1 class="max-w-[15ch] text-display md:col-span-7">Detrás de cada tratamiento hay un nombre y una colegiatura.</h1>
 
-        <p class="mt-6 max-w-[46ch] text-cuerpo-lg text-grafito">
-          Todo tratamiento lo realiza un cirujano dentista colegiado. Publicamos el número
-          de colegiatura de cada uno para que cualquier paciente pueda comprobarlo.
+      <div class="border-l border-tinta pl-6 md:col-span-4 md:col-start-9 md:mt-3">
+        <p class="text-cuerpo-lg">
+          Todo tratamiento lo realiza un cirujano dentista colegiado.
+        </p>
+        <p class="mt-4 text-cuerpo text-grafito">
+          Publicamos el número de colegiatura de cada uno para que cualquier paciente
+          pueda comprobarlo en el Colegio Odontológico del Perú.
         </p>
       </div>
 
-      <dl class="grid grid-cols-3 gap-4 border-t border-borde pt-5 md:col-span-5">
+      <dl class="grid grid-cols-3 gap-4 border-t border-borde pt-5 md:col-span-7">
         {
           cifras.map((cifra) => (
             <div>
@@ -107,170 +103,122 @@ const inicialesDe = (nombre: string) => {
   </section>
 
   <Seccion ritmo="corto">
-    <!-- Filtro por especialidad. Sin JavaScript no aparece y se ve todo el
-         equipo, que es el mismo contenido sin atajo. -->
-    <div class="filtro mb-10 md:mb-12" data-filtro hidden>
-      <p id="filtro-titulo" class="text-dato text-grafito">Ver especialistas en</p>
-
-      <div
-        class="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
-        role="group"
-        aria-labelledby="filtro-titulo"
-      >
-        <button type="button" class="chip" data-area="" aria-pressed="true">Todo el equipo</button>
+    {/* Pestañas. Sin JavaScript no aparecen y se ven los dos grupos seguidos. */}
+    <div class="flex justify-center" data-pestanas hidden>
+      <div class="flex gap-8" role="tablist" aria-label="Equipo">
+        <button type="button" role="tab" id="tab-especialistas" aria-controls="panel-especialistas" aria-selected="true" class="pestana">
+          Especialistas
+        </button>
         {
-          filtros.map((area) => (
-            <button type="button" class="chip" data-area={area.id} aria-pressed="false">
-              {area.data.nombre}
+          bloques.length > 0 && (
+            <button type="button" role="tab" id="tab-apoyo" aria-controls="panel-apoyo" aria-selected="false" tabindex="-1" class="pestana">
+              Equipo de apoyo
             </button>
-          ))
+          )
         }
       </div>
-
-      <p class="sr-only" aria-live="polite" data-filtro-estado></p>
     </div>
 
-    <!-- Directorio. Escritorio: lista de nombres a la izquierda y un panel
-         fijo a la derecha que cambia al pasar por cada nombre. Móvil: cada
-         nombre es un acordeón nativo con su retrato y su ficha. -->
-    <div class="directorio lg:grid lg:grid-cols-12 lg:gap-x-16">
-      <ul class="border-t border-borde lg:col-span-7">
-        {
-          especialistas.map((persona, i) => {
-            const areas = areasDe(persona.id);
+    <div id="panel-especialistas" role="tabpanel" aria-labelledby="tab-especialistas" class="mt-12">
+      <h2 class="sr-only">Especialistas</h2>
 
-            return (
-              <li
-                class="persona border-b border-borde"
-                data-persona={persona.id}
-                data-areas={areas.map((area) => area.id).join(' ')}
-              >
-                <details class="fila" name="especialista">
-                  <summary class="fila-cabecera" aria-current={i === 0 ? 'true' : undefined}>
-                    <span class="miniatura foto bg-tinta-800" aria-hidden="true">
-                      {persona.data.retrato ? (
-                        <Picture
-                          src={persona.data.retrato}
-                          alt=""
-                          formats={['avif', 'webp']}
-                          fallbackFormat="jpg"
-                          widths={[96, 160]}
-                          sizes="4rem"
-                          loading="lazy"
-                          class="h-full w-full object-cover object-[50%_22%]"
-                        />
-                      ) : (
-                        <span class="flex h-full items-center justify-center text-menor text-superficie">
-                          {inicialesDe(persona.data.nombre)}
-                        </span>
-                      )}
-                    </span>
-
-                    <span class="fila-texto">
-                      {persona.data.cargo && (
-                        <span class="fila-cargo block text-dato text-verde-700">{persona.data.cargo}</span>
-                      )}
-                      <span class="fila-nombre block hyphens-none">{persona.data.nombre}</span>
-                      <span class="fila-especialidad block text-menor text-grafito">
-                        {persona.data.especialidad}
-                      </span>
-                    </span>
-
-                    <span class="fila-signo" aria-hidden="true" />
-                  </summary>
-
-                  <div class="fila-panel">
-                    <div class="foto aspect-[4/3] bg-tinta-800">
-                      {persona.data.retrato ? (
-                        <Picture
-                          src={persona.data.retrato}
-                          alt={`Retrato de ${persona.data.nombre}.`}
-                          formats={['avif', 'webp']}
-                          fallbackFormat="jpg"
-                          widths={[480, 720, 960]}
-                          sizes="100vw"
-                          loading="lazy"
-                          class="h-full w-full object-cover object-[50%_22%]"
-                        />
-                      ) : (
-                        <div class="flex h-full items-center justify-center" aria-hidden="true">
-                          <span class="text-titulo text-neblina">{inicialesDe(persona.data.nombre)}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div class="mt-5">
-                      <FichaEspecialista persona={persona} areas={areas} />
-                    </div>
-                  </div>
-                </details>
-              </li>
-            );
-          })
-        }
-      </ul>
-
-      <div class="panel-escritorio lg:col-span-5">
-        <div class="panel-pila">
+      <div class="filtro mb-14" data-filtro hidden>
+        <p id="filtro-titulo" class="text-dato text-grafito">Ver especialistas en</p>
+        <div
+          class="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+          role="group"
+          aria-labelledby="filtro-titulo"
+        >
+          <button type="button" class="chip" data-area="" aria-pressed="true">Todo el equipo</button>
           {
-            especialistas.map((persona, i) => (
-              <div class="panel" data-panel={persona.id} data-activo={i === 0 ? '' : undefined}>
-                <div class="panel-retrato foto bg-tinta-800">
+            filtros.map((area) => (
+              <button type="button" class="chip" data-area={area.id} aria-pressed="false">
+                {area.data.nombre}
+              </button>
+            ))
+          }
+        </div>
+        <p class="sr-only" aria-live="polite" data-filtro-estado></p>
+      </div>
+
+      {/* Dos columnas escalonadas. En escritorio la izquierda se desplaza más
+          rápido que la derecha al hacer scroll. */}
+      <ul class="grilla mx-auto grid max-w-[56rem] grid-cols-2 gap-x-5 gap-y-16 md:gap-x-24 md:gap-y-28" data-grilla>
+        {
+          especialistas.map((persona, i) => (
+            <li
+              class="retrato"
+              data-persona={persona.id}
+              data-areas={areasDe(persona.id).map((area) => area.id).join(' ')}
+              data-lado={i % 2 === 0 ? 'izq' : 'der'}
+            >
+              <button
+                type="button"
+                class="retrato-boton block w-full text-left"
+                aria-haspopup="dialog"
+                aria-controls={`ficha-${persona.id}`}
+                data-abrir={persona.id}
+              >
+                <span class="retrato-foto foto relative block aspect-[4/5]">
                   {persona.data.retrato ? (
                     <Picture
                       src={persona.data.retrato}
                       alt={`Retrato de ${persona.data.nombre}.`}
                       formats={['avif', 'webp']}
                       fallbackFormat="jpg"
-                      widths={[480, 720, 960]}
-                      sizes="38vw"
-                      loading={i === 0 ? 'eager' : 'lazy'}
+                      widths={[360, 560, 800]}
+                      sizes="(min-width: 1024px) 26rem, 45vw"
+                      loading={i < 2 ? 'eager' : 'lazy'}
                       class="h-full w-full object-cover object-[50%_22%]"
                     />
                   ) : (
-                    <div class="flex h-full items-center justify-center" aria-hidden="true">
-                      <span class="text-display text-neblina">{inicialesDe(persona.data.nombre)}</span>
-                    </div>
+                    <span class="flex h-full items-end p-4 text-dato text-grafito">
+                      Retrato de {persona.data.nombre}.
+                    </span>
                   )}
-                </div>
+                  <span class="signo" aria-hidden="true" />
+                </span>
 
-                <div class="mt-6">
-                  <FichaEspecialista persona={persona} areas={areasDe(persona.id)} />
-                </div>
-              </div>
-            ))
-          }
-        </div>
-      </div>
+                <span class="mt-5 block">
+                  {persona.data.cargo && (
+                    <span class="mb-1 block text-dato text-verde-700">{persona.data.cargo}</span>
+                  )}
+                  <span class="retrato-nombre block hyphens-none">{persona.data.nombre}</span>
+                  <span class="mt-1.5 block text-menor text-grafito">{persona.data.especialidad}</span>
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
     </div>
-  </Seccion>
 
-  {
-    bloques.length > 0 && (
-      <Seccion tono="franja" ritmo="corto">
-        {bloques.map((bloque, i) => (
-          <div class:list={['grid gap-x-16 gap-y-8 md:grid-cols-12', i > 0 && 'mt-14']}>
-            <div class="md:col-span-4">
-              <h2 class="text-titulo">{bloque.titulo}</h2>
+    {
+      bloques.length > 0 && (
+        <div id="panel-apoyo" role="tabpanel" aria-labelledby="tab-apoyo" class="mt-24" data-panel-apoyo>
+          <h2 class="text-titulo" data-titulo-apoyo>Equipo de apoyo</h2>
 
-              {bloque.nota && (
-                <p class="mt-4 max-w-[34ch] text-menor text-grafito">{bloque.nota}</p>
-              )}
+          {bloques.map((bloque) => (
+            <div class="mt-12 grid gap-x-16 gap-y-8 md:grid-cols-12">
+              <div class="md:col-span-4">
+                <h3 class="text-subtitulo">{bloque.titulo}</h3>
+                {bloque.nota && <p class="mt-4 max-w-[34ch] text-menor text-grafito">{bloque.nota}</p>}
+              </div>
+
+              <ul class="border-t border-tinta md:col-span-7 md:col-start-6">
+                {bloque.personas.map((persona) => (
+                  <li class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-b border-borde py-5">
+                    <span class="text-cuerpo-lg">{persona.data.nombre}</span>
+                    <span class="text-menor text-grafito">{funcionDe(persona)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <ul class="border-t border-borde md:col-span-7 md:col-start-6">
-              {bloque.personas.map((persona) => (
-                <li class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-b border-borde py-4">
-                  <span class="text-cuerpo">{persona.data.nombre}</span>
-                  <span class="text-menor text-grafito">{funcionDe(persona)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </Seccion>
-    )
-  }
+          ))}
+        </div>
+      )
+    }
+  </Seccion>
 
   <Seccion tono="oscuro" ritmo="corto">
     <div class="grid gap-x-16 gap-y-8 md:grid-cols-12 md:items-end">
@@ -283,35 +231,88 @@ const inicialesDe = (nombre: string) => {
       </div>
     </div>
   </Seccion>
+
+  {/* Una ficha por especialista. <dialog> atrapa el foco y cierra con Escape. */}
+  {
+    especialistas.map((persona) => (
+      <dialog id={`ficha-${persona.id}`} class="ficha-panel zona-oscura" aria-labelledby={`nombre-${persona.id}`}>
+        <div class="mx-auto max-w-ancho px-6 py-6 md:px-10 md:py-10">
+          <div class="flex justify-end">
+            <button type="button" class="cerrar" data-cerrar>
+              <span class="sr-only">Cerrar la ficha de {persona.data.nombre}</span>
+            </button>
+          </div>
+
+          <div class="mt-6 grid gap-x-16 gap-y-10 md:grid-cols-12">
+            <div class="foto aspect-[4/5] bg-tinta-700 md:col-span-5">
+              {persona.data.retrato ? (
+                <Picture
+                  src={persona.data.retrato}
+                  alt={`Retrato de ${persona.data.nombre}.`}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="jpg"
+                  widths={[480, 720, 960]}
+                  sizes="(min-width: 768px) 38vw, 100vw"
+                  loading="lazy"
+                  class="h-full w-full object-cover object-[50%_22%]"
+                />
+              ) : (
+                <span class="flex h-full items-end p-5 text-dato">Retrato de {persona.data.nombre}.</span>
+              )}
+            </div>
+
+            <div class="md:col-span-6 md:col-start-7 md:pt-4">
+              {persona.data.cargo && <p class="text-menor text-verde-200">{persona.data.cargo}</p>}
+              <h2 id={`nombre-${persona.id}`} class="mt-2 max-w-[16ch] text-titulo hyphens-none">
+                {persona.data.nombre}
+              </h2>
+              <p class="mt-3 text-cuerpo-lg">{persona.data.especialidad}</p>
+
+              {persona.data.formacion.length > 0 && (
+                <div class="mt-10">
+                  <h3 class="text-cuerpo font-semibold">Formación</h3>
+                  <ul class="mt-3 border-t border-tinta-700">
+                    {persona.data.formacion.map((linea) => (
+                      <li class="border-b border-tinta-700 py-3 text-menor">{linea}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div class="mt-10">
+                <FichaEspecialista persona={persona} areas={areasDe(persona.id)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </dialog>
+    ))
+  }
   <Pie slot="pie" />
 </Base>
 
 <style>
-  .persona[hidden] {
+  .retrato[hidden] {
     display: none;
   }
 
-  /* --- Fila (móvil y tablet: acordeón) ------------------------------------ */
-
-  .fila-cabecera {
-    display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr) 1.5rem;
-    align-items: center;
-    gap: 1rem;
-    padding-block: 1rem;
-    cursor: pointer;
-    list-style: none;
+  /* Escalonado: la columna derecha arranca más abajo. Usa `translate`, no
+     `transform`, para no pisar el parallax de la izquierda. */
+  .retrato[data-lado='der'] {
+    translate: 0 3rem;
   }
 
-  .fila-cabecera::-webkit-details-marker {
-    display: none;
+  @media (min-width: 64rem) {
+    .retrato[data-lado='der'] {
+      translate: 0 9rem;
+    }
+
+    .grilla {
+      padding-bottom: 9rem;
+    }
   }
 
-  .miniatura {
-    aspect-ratio: 4 / 5;
-  }
-
-  .fila-nombre {
+  .retrato-nombre {
     font-family: var(--font-display);
     font-size: var(--text-cuerpo-lg);
     font-weight: 600;
@@ -319,20 +320,34 @@ const inicialesDe = (nombre: string) => {
     color: var(--color-tinta);
   }
 
-  .fila-especialidad {
-    margin-top: 0.25rem;
+  @media (min-width: 48rem) {
+    .retrato-nombre {
+      font-size: var(--text-subtitulo);
+    }
   }
 
-  /* Más: dos trazos que giran hasta formar una cruz al abrir. */
-  .fila-signo {
-    position: relative;
-    width: 1.5rem;
-    height: 1.5rem;
-    transition: transform 240ms var(--ease-salida);
+  .retrato-foto {
+    background-color: var(--color-franja);
   }
 
-  .fila-signo::before,
-  .fila-signo::after {
+  .retrato-foto :global(img) {
+    transition: scale 500ms var(--ease-salida);
+  }
+
+  /* Botón redondo de la esquina: un más que gira al pasar por encima. */
+  .signo {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background-color: var(--color-superficie);
+    transition: rotate 240ms var(--ease-salida), background-color var(--duracion-ui) var(--ease-salida);
+  }
+
+  .signo::before,
+  .signo::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -343,138 +358,60 @@ const inicialesDe = (nombre: string) => {
     translate: -50% -50%;
   }
 
-  .fila-signo::after {
+  .signo::after {
     rotate: 90deg;
   }
 
-  .fila[open] .fila-signo {
-    transform: rotate(45deg);
+  @media (hover: hover) and (pointer: fine) {
+    .retrato-boton:hover .retrato-foto :global(img) {
+      scale: 1.03;
+    }
+
+    .retrato-boton:hover .signo {
+      rotate: 90deg;
+      background-color: var(--color-verde);
+    }
   }
 
-  .fila-panel {
-    padding-bottom: 1.75rem;
+  .retrato-boton:active .signo {
+    scale: 0.94;
   }
 
-  .panel-escritorio {
-    display: none;
-  }
-
-  /* --- Escritorio: lista y panel fijo ------------------------------------- */
-
-  @media (min-width: 64rem) {
-    .panel-escritorio {
-      display: block;
-    }
-
-    .panel-pila {
-      position: sticky;
-      top: 6rem;
-      display: grid;
-    }
-
-    /* Todos los paneles ocupan la misma celda; solo el activo se ve. */
-    .panel {
-      grid-area: 1 / 1;
-      opacity: 0;
-      visibility: hidden;
-      transition:
-        opacity 260ms var(--ease-salida),
-        visibility 0s linear 260ms;
-    }
-
-    .panel[data-activo] {
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 260ms var(--ease-salida);
-    }
-
-    .panel-retrato {
-      aspect-ratio: 4 / 5;
-    }
-
-    .panel-retrato :global(img) {
-      scale: 1.04;
-      transition: scale 600ms var(--ease-salida);
-    }
-
-    .panel[data-activo] .panel-retrato :global(img) {
+  @media (prefers-reduced-motion: reduce) {
+    .retrato-boton:hover .retrato-foto :global(img) {
       scale: 1;
     }
 
-    /* En escritorio la fila no se despliega: el panel de la derecha manda. */
-    .fila-panel,
-    .fila-signo,
-    .miniatura {
-      display: none;
+    .retrato-boton:hover .signo {
+      rotate: 0deg;
     }
+  }
 
-    .fila-cabecera {
-      position: relative;
-      grid-template-columns: minmax(0, 1fr);
-      padding-block: 1.375rem;
-    }
+  /* --- Pestañas ------------------------------------------------------------ */
 
-    .fila-texto {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: space-between;
-      column-gap: 2rem;
-    }
+  .pestana {
+    min-height: 3rem;
+    font-size: var(--text-cuerpo-lg);
+    color: var(--color-grafito);
+    border-bottom: 1.5px solid transparent;
+    transition:
+      color var(--duracion-ui) var(--ease-salida),
+      border-color var(--duracion-ui) var(--ease-salida);
+  }
 
-    .fila-cargo {
-      width: 100%;
-      margin-bottom: 0.25rem;
-    }
+  .pestana[aria-selected='true'] {
+    color: var(--color-tinta);
+    border-color: var(--color-tinta);
+  }
 
-    .fila-nombre {
-      font-size: var(--text-subtitulo);
-      color: var(--color-grafito);
-      transition:
-        color var(--duracion-ui) var(--ease-salida),
-        translate 260ms var(--ease-salida);
-    }
-
-    .fila-especialidad {
-      margin-top: 0;
-      text-align: right;
-    }
-
-    /* Barra verde que crece desde arriba en la fila activa. */
-    .fila-cabecera::before {
-      content: '';
-      position: absolute;
-      inset-block: 1.25rem;
-      left: 0;
-      width: 3px;
-      background-color: var(--color-verde);
-      transform: scaleY(0);
-      transform-origin: top;
-      transition: transform 260ms var(--ease-salida);
-    }
-
-    .fila-cabecera[aria-current='true'] .fila-nombre {
+  @media (hover: hover) and (pointer: fine) {
+    .pestana:hover {
       color: var(--color-tinta);
     }
-
-    .fila-cabecera[aria-current='true'] .fila-nombre {
-      translate: 1.25rem 0;
-    }
-
-    .fila-cabecera[aria-current='true']::before {
-      transform: scaleY(1);
-    }
   }
 
-  /* Sin desplazamientos: se conservan el color y el fundido del panel. */
-  @media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
-    .fila-cabecera[aria-current='true'] .fila-nombre {
-      translate: none;
-    }
-
-    .panel-retrato :global(img) {
-      scale: 1;
-    }
+  [role='tabpanel'][hidden] {
+    display: none;
   }
 
   /* --- Filtro -------------------------------------------------------------- */
@@ -509,45 +446,163 @@ const inicialesDe = (nombre: string) => {
   .chip:active {
     transform: scale(0.97);
   }
+
+  /* --- Ficha a pantalla completa ------------------------------------------ */
+
+  .ficha-panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    translate: 100% 0;
+    transition:
+      translate 220ms var(--ease-cortina),
+      display 220ms allow-discrete,
+      overlay 220ms allow-discrete;
+  }
+
+  .ficha-panel[open] {
+    translate: 0 0;
+    transition:
+      translate var(--duracion-panel) var(--ease-cortina),
+      display var(--duracion-panel) allow-discrete,
+      overlay var(--duracion-panel) allow-discrete;
+  }
+
+  @starting-style {
+    .ficha-panel[open] {
+      translate: 100% 0;
+    }
+  }
+
+  .ficha-panel::backdrop {
+    background-color: transparent;
+  }
+
+  :global(html:has(.ficha-panel[open])) {
+    overflow: hidden;
+  }
+
+  /* Sin movimiento: la ficha aparece por opacidad, sin deslizarse. */
+  @media (prefers-reduced-motion: reduce) {
+    .ficha-panel,
+    .ficha-panel[open] {
+      translate: 0 0;
+    }
+
+    .ficha-panel {
+      opacity: 0;
+      transition: opacity 200ms linear, display 200ms allow-discrete, overlay 200ms allow-discrete;
+    }
+
+    .ficha-panel[open] {
+      opacity: 1;
+    }
+
+    @starting-style {
+      .ficha-panel[open] {
+        opacity: 0;
+        translate: 0 0;
+      }
+    }
+  }
+
+  .cerrar {
+    position: relative;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: var(--color-superficie);
+    transition: rotate 240ms var(--ease-salida);
+  }
+
+  .cerrar::before,
+  .cerrar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 1.5px;
+    background-color: var(--color-tinta);
+    translate: -50% -50%;
+    rotate: 45deg;
+  }
+
+  .cerrar::after {
+    rotate: -45deg;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cerrar:hover {
+      rotate: 90deg;
+    }
+  }
 </style>
 
 <script>
-  const personas = [...document.querySelectorAll<HTMLElement>('.persona')];
-  const paneles = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
-  const escritorio = window.matchMedia('(min-width: 64rem)');
+  import { gsap, ScrollTrigger } from '../lib/motion/gsap';
 
-  let activa = personas[0]?.dataset.persona ?? '';
+  const grilla = document.querySelector<HTMLElement>('[data-grilla]');
+  const retratos = [...document.querySelectorAll<HTMLElement>('.retrato')];
 
-  const activar = (id: string) => {
-    activa = id;
-    for (const persona of personas) {
-      const cabecera = persona.querySelector('summary');
-      if (persona.dataset.persona === id) cabecera?.setAttribute('aria-current', 'true');
-      else cabecera?.removeAttribute('aria-current');
-    }
-    for (const panel of paneles) {
-      panel.toggleAttribute('data-activo', panel.dataset.panel === id);
-    }
+  // --- Fichas ---------------------------------------------------------------
+
+  for (const boton of document.querySelectorAll<HTMLButtonElement>('[data-abrir]')) {
+    const ficha = document.getElementById(`ficha-${boton.dataset.abrir}`) as HTMLDialogElement | null;
+    if (!ficha) continue;
+
+    boton.addEventListener('click', () => ficha.showModal());
+    ficha.querySelector('[data-cerrar]')?.addEventListener('click', () => ficha.close());
+  }
+
+  // --- Parallax -------------------------------------------------------------
+  // Excepción aprobada por el cliente: la columna izquierda se desplaza más
+  // rápido que la derecha. Solo escritorio y sin movimiento reducido.
+
+  let parallax = gsap.matchMedia();
+
+  const montarParallax = () => {
+    parallax.revert();
+    parallax = gsap.matchMedia();
+
+    parallax.add('(min-width: 64rem) and (prefers-reduced-motion: no-preference)', () => {
+      const izquierda = retratos.filter((r) => !r.hidden && r.dataset.lado === 'izq');
+      for (const retrato of izquierda) {
+        gsap.fromTo(
+          retrato,
+          { y: 150 },
+          {
+            y: -150,
+            ease: 'none',
+            scrollTrigger: { trigger: retrato, start: 'top bottom', end: 'bottom top', scrub: true },
+          },
+        );
+      }
+    });
   };
 
-  for (const persona of personas) {
-    const cabecera = persona.querySelector('summary');
-    const id = persona.dataset.persona ?? '';
-    if (!cabecera) continue;
+  /** Tras filtrar, los visibles se reparten de nuevo entre las dos columnas. */
+  const repartir = () => {
+    retratos
+      .filter((r) => !r.hidden)
+      .forEach((retrato, i) => {
+        retrato.dataset.lado = i % 2 === 0 ? 'izq' : 'der';
+      });
+    montarParallax();
+    ScrollTrigger.refresh();
+  };
 
-    cabecera.addEventListener('pointerenter', (evento) => {
-      if (escritorio.matches && evento.pointerType === 'mouse') activar(id);
-    });
-    cabecera.addEventListener('focus', () => {
-      if (escritorio.matches) activar(id);
-    });
-    // En escritorio el clic elige, no despliega: el detalle está en el panel.
-    cabecera.addEventListener('click', (evento) => {
-      if (!escritorio.matches) return;
-      evento.preventDefault();
-      activar(id);
-    });
-  }
+  if (grilla) montarParallax();
+
+  // --- Filtro por especialidad ---------------------------------------------
 
   const filtro = document.querySelector<HTMLElement>('[data-filtro]');
   const estado = document.querySelector<HTMLElement>('[data-filtro-estado]');
@@ -556,28 +611,57 @@ const inicialesDe = (nombre: string) => {
     filtro.hidden = false;
     const botones = [...filtro.querySelectorAll<HTMLButtonElement>('button[data-area]')];
 
-    const filtrar = (area: string) => {
-      const visibles = personas.filter((persona) => {
-        const coincide = !area || (persona.dataset.areas ?? '').split(' ').includes(area);
-        persona.hidden = !coincide;
-        return coincide;
+    for (const boton of botones) {
+      boton.addEventListener('click', () => {
+        const area = boton.dataset.area ?? '';
+        let visibles = 0;
+
+        for (const retrato of retratos) {
+          const coincide = !area || (retrato.dataset.areas ?? '').split(' ').includes(area);
+          retrato.hidden = !coincide;
+          if (coincide) visibles += 1;
+        }
+
+        for (const otro of botones) otro.setAttribute('aria-pressed', String(otro === boton));
+        if (estado) estado.textContent = `${visibles} ${visibles === 1 ? 'especialista' : 'especialistas'}`;
+        repartir();
       });
+    }
+  }
 
-      for (const boton of botones) {
-        boton.setAttribute('aria-pressed', String(boton.dataset.area === area));
-      }
+  // --- Pestañas -------------------------------------------------------------
 
-      if (!visibles.some((persona) => persona.dataset.persona === activa)) {
-        activar(visibles[0]?.dataset.persona ?? '');
-      }
+  const pestanas = document.querySelector<HTMLElement>('[data-pestanas]');
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
 
-      if (estado) {
-        estado.textContent = `${visibles.length} ${visibles.length === 1 ? 'especialista' : 'especialistas'}`;
+  if (pestanas && tabs.length > 1) {
+    pestanas.hidden = false;
+    // Con pestañas, el titular del panel repite la pestaña: queda solo para lectores de pantalla.
+    document.querySelector<HTMLElement>('[data-panel-apoyo]')?.classList.replace('mt-24', 'mt-12');
+    document.querySelector<HTMLElement>('[data-titulo-apoyo]')?.classList.add('sr-only');
+
+    const elegir = (tab: HTMLButtonElement, enfocar = false) => {
+      for (const otro of tabs) {
+        const activo = otro === tab;
+        otro.setAttribute('aria-selected', String(activo));
+        otro.tabIndex = activo ? 0 : -1;
+        const panel = document.getElementById(otro.getAttribute('aria-controls') ?? '');
+        if (panel) panel.hidden = !activo;
       }
+      if (enfocar) tab.focus();
+      ScrollTrigger.refresh();
     };
 
-    for (const boton of botones) {
-      boton.addEventListener('click', () => filtrar(boton.dataset.area ?? ''));
-    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => elegir(tab));
+      tab.addEventListener('keydown', (evento) => {
+        const paso = evento.key === 'ArrowRight' ? 1 : evento.key === 'ArrowLeft' ? -1 : 0;
+        if (!paso) return;
+        evento.preventDefault();
+        elegir(tabs[(i + paso + tabs.length) % tabs.length]!, true);
+      });
+    });
+
+    elegir(tabs[0]!);
   }
 </script>

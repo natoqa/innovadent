@@ -1,0 +1,40 @@
+---
+import { describirFormato, type VistaCaso } from '../../lib/casos';
+
+/**
+ * Ficha del caso en formato historia clínica. En un caso de muestra el valor
+ * que falta es una barra gris; en uno real, la fila sin dato no aparece.
+ */
+interface Props {
+  caso: VistaCaso;
+  /** En la landing la especialidad ya está en el titular de la página. */
+  mostrarEspecialidad?: boolean;
+}
+
+const { caso, mostrarEspecialidad = true } = Astro.props;
+
+const filas = [
+  ...(mostrarEspecialidad ? [{ etiqueta: 'Especialidad', valor: caso.tratamiento.nombre }] : []),
+  { etiqueta: 'Especialista', valor: caso.especialista },
+  { etiqueta: 'Duración', valor: caso.duracion },
+  { etiqueta: 'Sesiones', valor: caso.sesiones, soloReal: true },
+  { etiqueta: 'Registro', valor: describirFormato(caso.formato, caso.fotos.length) },
+  { etiqueta: 'Autorización', valor: caso.muestra ? undefined : 'Consentimiento informado firmado' },
+].filter((fila) => fila.valor || (caso.muestra && !fila.soloReal));
+---
+
+<table class="ficha">
+  <caption class="sr-only">Datos del caso {caso.numero}</caption>
+  <tbody>
+    {
+      filas.map((fila) => (
+        <tr>
+          <th scope="row">{fila.etiqueta}</th>
+          <td class="cifra">
+            {fila.valor ?? <span class="relleno w-24 translate-y-[0.15em]" aria-hidden="true" />}
+          </td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

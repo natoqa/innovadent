@@ -378,6 +378,17 @@
     background-color: var(--color-franja);
   }
 
+  /* --- Relleno de maqueta ----------------------------------------------
+     Barra gris donde irá un texto que el cliente aún no entrega. Toma el
+     color del texto, así funciona sobre claro, franja, Kids y zona oscura.
+     -------------------------------------------------------------------- */
+  .relleno {
+    display: block;
+    height: 0.7em;
+    background-color: currentColor;
+    opacity: 0.14;
+  }
+
   /* --- Ámbito Kids -----------------------------------------------------
      No añade un cuarto color. Invierte la proporción: el verde sube del
      10% al 30% y pasa a ser superficie, no solo acento.

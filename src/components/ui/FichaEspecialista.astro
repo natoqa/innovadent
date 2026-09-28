@@ -41,7 +41,7 @@ const { persona, areas } = Astro.props;
   {
     areas.length > 0 && (
       <div class="mt-5">
-        <p class="text-dato text-grafito">Atiende en</p>
+        <p class="text-dato text-grafito [.zona-oscura_&]:text-superficie/70">Atiende en</p>
         <ul class="mt-1 flex flex-wrap gap-x-5">
           {areas.map((area) => (
             <li>

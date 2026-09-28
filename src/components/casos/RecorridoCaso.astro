@@ -1,0 +1,85 @@
+---
+import type { VistaCaso } from '../../lib/casos';
+
+/**
+ * El razonamiento clínico del caso: por qué vino el paciente, qué se encontró
+ * y qué se hizo. Es una secuencia real, por eso va numerada.
+ *
+ * En un caso de muestra cada paso lleva barras grises; en uno real, el paso
+ * sin texto no se dibuja.
+ */
+interface Props {
+  caso: VistaCaso;
+  /** horizontal: tres columnas unidas por una línea. vertical: una debajo de otra. */
+  disposicion?: 'horizontal' | 'vertical';
+}
+
+const { caso, disposicion = 'horizontal' } = Astro.props;
+
+const pasos = [
+  { titulo: 'Motivo de consulta', texto: caso.motivo, lineas: [100, 92, 60] },
+  { titulo: 'Diagnóstico', texto: caso.diagnostico, lineas: [100, 78] },
+  { titulo: 'Plan de tratamiento', lista: caso.plan, lineas: [70, 84, 56] },
+].filter((paso) => caso.muestra || paso.texto || (paso.lista && paso.lista.length > 0));
+
+const numero = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+{
+  pasos.length > 0 && (
+    <ol
+      class:list={[
+        'recorrido grid',
+        disposicion === 'horizontal' ? 'gap-10 md:grid-cols-3 md:gap-8' : 'gap-8',
+      ]}
+      data-disposicion={disposicion}
+    >
+      {pasos.map((paso, i) => (
+        <li class="paso">
+          <p class="flex items-baseline gap-3">
+            <span class="cifra text-menor text-verde-700 [.zona-oscura_&]:text-verde-200">{numero(i)}</span>
+            <span class="text-cuerpo font-semibold">{paso.titulo}</span>
+          </p>
+
+          <div class="mt-3 text-cuerpo">
+            {paso.texto && <p class="max-w-[42ch]">{paso.texto}</p>}
+
+            {paso.lista && paso.lista.length > 0 && (
+              <ul class="grid gap-1.5">
+                {paso.lista.map((item) => (
+                  <li class="flex gap-3">
+                    <span class="mt-[0.7em] h-px w-3 flex-none bg-current opacity-50" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {caso.muestra && (
+              <span class="grid gap-2.5 pt-1" aria-hidden="true">
+                {paso.lineas.map((ancho) => (
+                  <span class="relleno" style={`width: ${ancho}%`} />
+                ))}
+              </span>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+<style>
+  /* Cada paso cuelga de una línea: arriba en horizontal, a la izquierda en vertical. */
+  .paso {
+    border-top: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+    padding-top: 1.25rem;
+  }
+
+  [data-disposicion='vertical'] .paso {
+    border-top: 0;
+    padding-top: 0;
+    padding-left: 1.25rem;
+    border-left: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+  }
+</style>

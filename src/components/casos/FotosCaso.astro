@@ -1,0 +1,146 @@
+---
+import Comparador from '../ui/Comparador.astro';
+import EspacioFoto from '../ui/EspacioFoto.astro';
+import type { FotoCaso, Formato } from '../../lib/casos';
+
+/**
+ * Las fotos de un caso, leídas según su formato:
+ * - antes-despues: el comparador de corte.
+ * - secuencia: las etapas colgadas de un eje de tiempo. En móvil se deslizan.
+ * - fotos: una principal grande y el resto en columna.
+ */
+interface Props {
+  formato: Formato;
+  fotos: FotoCaso[];
+  /** Qué caso es, para los nombres accesibles. */
+  titulo: string;
+  tono?: 'claro' | 'franja' | 'oscuro';
+  /** Ancho que ocupa el bloque en escritorio, en vw, para calcular sizes. */
+  anchoVw?: number;
+  /** Proporción del comparador, cuando el bloque va a sangre. */
+  aspecto?: string;
+}
+
+const { formato, fotos, titulo, tono = 'claro', anchoVw = 60, aspecto } = Astro.props;
+
+const [primera, segunda] = fotos;
+const resto = fotos.slice(1);
+---
+
+{
+  formato === 'antes-despues' && (
+    <Comparador
+      antes={primera?.foto}
+      despues={segunda?.foto}
+      altAntes={primera?.alt}
+      altDespues={segunda?.alt}
+      titulo={titulo}
+      aspecto={aspecto}
+      sizes={`(min-width: 768px) ${anchoVw}vw, 100vw`}
+      marcador={
+        primera?.foto ? undefined : 'Dos fotos del mismo caso, con el mismo encuadre: antes y después.'
+      }
+    />
+  )
+}
+
+{
+  formato === 'secuencia' && (
+    <ol
+      class="secuencia -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-0 md:grid md:gap-5 md:overflow-visible md:px-0 md:pb-0"
+      style={`--etapas: ${fotos.length}`}
+      aria-label={`Etapas del caso: ${titulo}`}
+    >
+      {fotos.map((etapa, i) => (
+        <li class="etapa w-[72%] flex-none snap-start md:w-auto">
+          <span class="eje" aria-hidden="true" />
+          <p class="cifra mt-3 mb-4 text-dato">{etapa.etiqueta ?? `Etapa ${i + 1}`}</p>
+
+          <EspacioFoto
+            imagen={etapa.foto}
+            alt={etapa.alt}
+            descripcion="Fotografía de esta etapa."
+            aspecto="aspect-[4/5]"
+            tono={tono}
+            sizes={`(min-width: 768px) ${Math.round(anchoVw / fotos.length)}vw, 72vw`}
+          />
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+{
+  formato === 'fotos' && (
+    <div class:list={['grid gap-4 md:gap-5', resto.length > 0 && 'grid-cols-3']}>
+      <EspacioFoto
+        imagen={primera?.foto}
+        alt={primera?.alt}
+        descripcion={primera?.etiqueta ?? 'Foto principal del caso.'}
+        aspecto={resto.length > 0 ? 'h-full min-h-72' : 'aspect-[4/3]'}
+        tono={tono}
+        sizes={`(min-width: 768px) ${Math.round(anchoVw * (resto.length > 0 ? 0.66 : 1))}vw, 100vw`}
+        class={resto.length > 0 ? 'col-span-2 row-span-2' : undefined}
+      />
+
+      {resto.slice(0, 2).map((foto) => (
+        <EspacioFoto
+          imagen={foto.foto}
+          alt={foto.alt}
+          descripcion={foto.etiqueta ?? 'Foto del caso.'}
+          aspecto="aspect-square"
+          tono={tono}
+          sizes={`(min-width: 768px) ${Math.round(anchoVw / 3)}vw, 33vw`}
+        />
+      ))}
+
+      {resto.slice(2).map((foto) => (
+        <EspacioFoto
+          imagen={foto.foto}
+          alt={foto.alt}
+          descripcion={foto.etiqueta ?? 'Foto del caso.'}
+          aspecto="aspect-[4/3]"
+          tono={tono}
+          sizes={`(min-width: 768px) ${Math.round(anchoVw / 3)}vw, 33vw`}
+        />
+      ))}
+    </div>
+  )
+}
+
+<style>
+  /* Eje de tiempo: un punto por etapa y una línea que las une. */
+  .eje {
+    display: flex;
+    align-items: center;
+  }
+
+  .eje::before {
+    content: '';
+    flex: none;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background-color: var(--color-verde);
+  }
+
+  .eje::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    margin-right: -1rem;
+    background-color: currentColor;
+    opacity: 0.35;
+  }
+
+  /* La última etapa es el cierre: no sigue ninguna línea. */
+  .etapa:last-child .eje::after {
+    visibility: hidden;
+  }
+
+  @media (min-width: 48rem) {
+    .secuencia {
+      grid-template-columns: repeat(var(--etapas), minmax(0, 1fr));
+    }
+  }
+</style>

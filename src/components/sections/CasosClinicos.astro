@@ -1,34 +1,29 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
-import Comparador from '../ui/Comparador.astro';
 import Figura from '../ui/Figura.astro';
-
-const casos = (await getCollection('casos')).sort((a, b) => a.data.orden - b.data.orden);
+import FotosCaso from '../casos/FotosCaso.astro';
+import { casosParaMostrar, describirFormato } from '../../lib/casos';
 
 // Un caso grande con su ficha y hasta tres más en miniatura. El resto vive en
-// la landing de cada tratamiento.
-const [destacado, ...resto] = casos;
-const otros = resto.slice(0, 3);
+// /casos-clinicos y en la landing de cada tratamiento. Sin casos publicados, el
+// destacado es el de muestra, en gris.
+const [destacado, ...resto] = await casosParaMostrar();
+const otros = resto.filter((caso) => !caso.muestra).slice(0, 3);
 
-const AUTORIZACION = 'Consentimiento informado firmado';
+const ficha =
+  destacado && !destacado.muestra
+    ? [
+        { etiqueta: 'Tratamiento', valor: destacado.tratamiento.nombre },
+        { etiqueta: 'Especialista', valor: destacado.especialista ?? '' },
+        { etiqueta: 'Duración', valor: destacado.duracion ?? '' },
+        { etiqueta: 'Registro', valor: describirFormato(destacado.formato, destacado.fotos.length) },
+      ].filter((fila) => fila.valor)
+    : [];
 
-// Sin caso publicado no hay ficha: se muestra solo el comparador de muestra.
-const ficha = destacado
-  ? [
-      { etiqueta: 'Tratamiento', valor: (await getEntry(destacado.data.tratamiento))?.data.nombre ?? '' },
-      { etiqueta: 'Especialista', valor: (await getEntry(destacado.data.especialista))?.data.nombre ?? '' },
-      { etiqueta: 'Duración', valor: destacado.data.duracion },
-      { etiqueta: 'Autorización', valor: AUTORIZACION },
-    ].filter((fila) => fila.valor)
-  : [];
-
-const nombresOtros = await Promise.all(
-  otros.map(async (caso) => (await getEntry(caso.data.tratamiento))?.data.nombre ?? caso.data.titulo),
-);
-
-const aspecto = 'aspect-[4/5] md:aspect-video';
+/** En un antes y después la miniatura es el después; en el resto, la principal. */
+const miniatura = (caso: (typeof otros)[number]) =>
+  caso.formato === 'antes-despues' ? caso.fotos[1] : caso.fotos[0];
 ---
 
 <Seccion id="casos-clinicos" tono="oscuro">
@@ -40,20 +35,14 @@ const aspecto = 'aspect-[4/5] md:aspect-video';
 
   <div class="mt-12 md:mt-16">
     {
-      destacado ? (
-        <Comparador
-          antes={destacado.data.antes}
-          despues={destacado.data.despues}
-          altAntes={destacado.data.altAntes}
-          altDespues={destacado.data.altDespues}
-          titulo={destacado.data.titulo}
-          sizes="(min-width: 1248px) 1200px, 100vw"
-          aspecto={aspecto}
-        />
-      ) : (
-        <Comparador
-          titulo="caso pendiente"
-          aspecto={aspecto}
+      destacado && (
+        <FotosCaso
+          formato={destacado.formato}
+          fotos={destacado.fotos}
+          titulo={destacado.titulo ?? 'caso pendiente'}
+          tono="oscuro"
+          anchoVw={95}
+          aspecto="aspect-[4/5] md:aspect-video"
         />
       )
     }
@@ -75,16 +64,23 @@ const aspecto = 'aspect-[4/5] md:aspect-video';
   {
     otros.length > 0 ? (
       <div class="mt-12 grid gap-4 min-[480px]:grid-cols-2 md:mt-16 md:grid-cols-3 md:gap-6">
-        {otros.map((caso, i) => (
-          <Figura
-            imagen={caso.data.despues}
-            alt={caso.data.altDespues}
-            pie={nombresOtros[i]}
-            sizes="(min-width: 768px) 30vw, (min-width: 480px) 50vw, 100vw"
-            class="[&_.foto]:aspect-[4/5] [&_figcaption]:text-superficie/70 [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
-          />
-        ))}
+        {otros.map((caso) => {
+          const foto = miniatura(caso);
+          return foto?.foto && foto.alt ? (
+            <Figura
+              imagen={foto.foto}
+              alt={foto.alt}
+              pie={caso.tratamiento.nombre}
+              sizes="(min-width: 768px) 30vw, (min-width: 480px) 50vw, 100vw"
+              class="[&_.foto]:aspect-[4/5] [&_figcaption]:text-superficie/70 [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+            />
+          ) : null;
+        })}
       </div>
     ) : null
   }
+
+  <p class="mt-10 text-menor">
+    <a class="enlace objetivo-tactil" href="/casos-clinicos">Ver los casos por especialidad</a>
+  </p>
 </Seccion>

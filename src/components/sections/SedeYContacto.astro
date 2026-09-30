@@ -5,7 +5,7 @@ import Boton from '../ui/Boton.astro';
 import { SITIO } from '../../config/site';
 
 const { sede, horarios } = SITIO;
-const { whatsapp, whatsappTexto } = SITIO.contacto;
+const { whatsapp } = SITIO.contacto;
 
 const direccion = `${sede.calle}, ${sede.distrito}, ${sede.ciudad}`;
 
@@ -45,7 +45,7 @@ const filas: Fila[] = [
         {
           whatsapp && (
             <Boton href={`https://wa.me/${whatsapp}`} variante="secundaria" target="_blank" rel="noopener">
-              WhatsApp {whatsappTexto}
+              WhatsApp
             </Boton>
           )
         }

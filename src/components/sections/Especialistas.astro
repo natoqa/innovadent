@@ -3,12 +3,20 @@ import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import { tamanosRetrato, type Regla } from '../../lib/retrato';
 
 // La home muestra los cuatro primeros según el `orden` de la colección.
 // Cambiar quién aparece aquí es cuestión de reordenar, no de tocar el componente.
 const principales = (await getCollection('especialistas'))
   .sort((a, b) => a.data.orden - b.data.orden)
   .slice(0, 4);
+
+// Ancho real de cada columna: 4 en escritorio dentro de max-w-ancho, 2 en móvil.
+const COLUMNA: Regla[] = [
+  ['(min-width: 1248px)', '17rem'],
+  ['(min-width: 768px)', '(25vw - 2.6rem)'],
+  ['', '(50vw - 2rem)'],
+];
 ---
 
 <Seccion id="especialistas" ritmo="corto">
@@ -29,8 +37,8 @@ const principales = (await getCollection('especialistas'))
                   src={persona.data.retrato}
                   alt={`Retrato de ${persona.data.nombre}.`}
                   formats={['avif', 'webp']}
-                  widths={[320, 480, 640]}
-                  sizes="(min-width: 768px) 22vw, 45vw"
+                  widths={[400, 600, 800, 1200]}
+                  sizes={tamanosRetrato(persona.data.retrato, 3 / 4, COLUMNA)}
                   loading="lazy"
                   class="h-full w-full object-cover"
                 />

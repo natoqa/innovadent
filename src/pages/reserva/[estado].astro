@@ -60,7 +60,7 @@ export function getStaticPaths() {
 }
 
 const { resultado } = Astro.props;
-const { whatsapp, whatsappTexto } = SITIO.contacto;
+const { whatsapp } = SITIO.contacto;
 ---
 
 <Base titulo={resultado.titulo.replace(/\.$/, '')} noIndexar>
@@ -74,7 +74,7 @@ const { whatsapp, whatsappTexto } = SITIO.contacto;
       {
         resultado.whatsapp && whatsapp && (
           <Boton href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener">
-            Escribir por WhatsApp al {whatsappTexto}
+            Escribir por WhatsApp
           </Boton>
         )
       }

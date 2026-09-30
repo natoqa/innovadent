@@ -1,6 +1,7 @@
 ---
 import { SITIO } from '../config/site';
 import { urlAbsoluta } from '../lib/seo';
+import RedesFlotantes from '../components/layout/RedesFlotantes.astro';
 import '../styles/global.css';
 // Mismo archivo que pide global.css: Vite lo emite una sola vez con el mismo hash.
 import fuenteArchivo from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
@@ -58,6 +59,8 @@ const canonical = urlAbsoluta(ruta ?? Astro.url.pathname);
     </main>
 
     <slot name="pie" />
+
+    <RedesFlotantes />
   </body>
 </html>
 

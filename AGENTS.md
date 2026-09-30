@@ -111,7 +111,7 @@ Si vas a crear archivos nuevos en un área, lee su regla antes de empezar.
 
 Nunca debe aparecer en este repositorio:
 
-- Degradados de cualquier tipo
+- Degradados de cualquier tipo. Única excepción aprobada: los colores de marca originales de las redes sociales en el botón flotante (ver `.claude/rules/diseno.md`)
 - Sombras difusas decorativas bajo tarjetas
 - Etiquetas en MAYÚSCULAS con letter-spacing sobre los títulos
 - Una palabra del titular resaltada en otro color

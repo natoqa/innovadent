@@ -5,7 +5,7 @@ import Boton from '../ui/Boton.astro';
 import { SITIO } from '../../config/site';
 
 const { motivos, horarios: franjas } = SITIO.reserva;
-const { whatsapp, whatsappTexto } = SITIO.contacto;
+const { whatsapp } = SITIO.contacto;
 const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
 ---
 
@@ -49,7 +49,6 @@ const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
         method="post"
         action="/api/reserva"
         data-whatsapp-enlace={enlaceWhatsapp}
-        data-whatsapp-texto={whatsappTexto}
         class="border border-borde bg-superficie p-6 md:p-10"
       >
         <div class="grid gap-6">
@@ -152,7 +151,7 @@ const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
 
   if (formulario && exito && aviso && boton) {
     const textoBoton = boton.textContent?.trim() ?? '';
-    const { whatsappEnlace, whatsappTexto } = formulario.dataset;
+    const { whatsappEnlace } = formulario.dataset;
 
     // Con JavaScript los mensajes los pone el servidor, en el mismo tono
     // para todos los navegadores. Sin él, quedan los de required nativo.
@@ -213,10 +212,7 @@ const enlaceWhatsapp = whatsapp ? `https://wa.me/${whatsapp}` : null;
       const contenido = molde.content.cloneNode(true) as DocumentFragment;
       const enlace = contenido.querySelector<HTMLAnchorElement>('[data-whatsapp]');
 
-      if (enlace && whatsappEnlace) {
-        enlace.href = whatsappEnlace;
-        enlace.textContent = `escríbenos por WhatsApp al ${whatsappTexto}`;
-      }
+      if (enlace && whatsappEnlace) enlace.href = whatsappEnlace;
       aviso.replaceChildren(contenido);
     };
 

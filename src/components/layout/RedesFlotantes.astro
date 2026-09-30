@@ -1,0 +1,496 @@
+---
+import Icon from '../ui/Icon.astro';
+import { SITIO } from '../../config/site';
+
+/**
+ * Botón fijo abajo a la derecha. Cerrado muestra los iconos agrupados en
+ * triángulo; al abrirse, esos mismos iconos viajan hasta formar una columna
+ * con su nombre al lado. Solo aparecen las redes con enlace en site.ts: con
+ * una sola, el círculo es directamente ese enlace y no hay menú.
+ */
+
+type NombreRed = 'whatsapp' | 'instagram' | 'tiktok';
+
+interface Red {
+  nombre: NombreRed;
+  texto: string;
+  href: string;
+  /** Diámetro del círculo abierto, en px. */
+  diametro: number;
+  /** Tamaño del icono abierto, en px. */
+  icono: number;
+}
+
+// En desarrollo se muestran las redes sin enlace para poder revisar el
+// triángulo; en producción solo existe lo que está en site.ts.
+const vistaPrevia = import.meta.env.DEV;
+
+const { whatsapp } = SITIO.contacto;
+const { instagram, tiktok } = SITIO.redes;
+
+const candidatas: (Red | null)[] = [
+  whatsapp
+    ? {
+        nombre: 'whatsapp',
+        texto: 'WhatsApp',
+        href: `https://wa.me/${whatsapp}`,
+        diametro: 56,
+        icono: 24,
+      }
+    : null,
+  instagram || vistaPrevia
+    ? { nombre: 'instagram', texto: 'Instagram', href: instagram ?? '#', diametro: 48, icono: 22 }
+    : null,
+  tiktok || vistaPrevia
+    ? { nombre: 'tiktok', texto: 'TikTok', href: tiktok ?? '#', diametro: 48, icono: 22 }
+    : null,
+];
+
+const redes = candidatas.filter((red): red is Red => red !== null);
+
+const DISPARADOR = 64;
+const SEPARACION = 12;
+const ICONO_CERRADO = 18;
+
+// Triángulo: uno arriba al centro, dos abajo. Desplazamiento desde el centro
+// del disparador, en px.
+const triangulo: Record<number, [number, number][]> = {
+  3: [
+    [0, -10],
+    [-11, 9],
+    [11, 9],
+  ],
+  2: [
+    [-10, 0],
+    [10, 0],
+  ],
+};
+
+// Columna abierta: se apila de abajo hacia arriba sobre el disparador.
+let cursor = DISPARADOR / 2 + SEPARACION;
+const alturas = redes
+  .map((red) => red.diametro)
+  .reverse()
+  .map((diametro) => {
+    const altura = -(cursor + diametro / 2);
+    cursor += diametro + SEPARACION;
+    return altura;
+  })
+  .reverse();
+
+const posiciones = redes.map((red, i) => {
+  const [x, y] = triangulo[redes.length]?.[i] ?? [0, 0];
+  return [
+    `--diametro: ${red.diametro}px`,
+    `--cerrado-x: ${x}px`,
+    `--cerrado-y: ${y}px`,
+    `--cerrado-escala: ${ICONO_CERRADO / red.icono}`,
+    `--abierto-y: ${alturas[i]}px`,
+    `--orden: ${i}`,
+    `--orden-inverso: ${redes.length - 1 - i}`,
+  ].join('; ');
+});
+
+const unica = redes.length === 1 ? redes[0] : null;
+---
+
+{
+  redes.length > 0 && (
+    <div class="redes" data-redes data-oculto>
+      {unica ? (
+        <a
+          class="disparador"
+          href={unica.href}
+          target="_blank"
+          rel="noopener"
+          aria-label={unica.texto}
+        >
+          <Icon nombre={unica.nombre} tamano={26} />
+        </a>
+      ) : (
+        <>
+          <button
+            type="button"
+            class="disparador"
+            aria-label="Contacto y redes"
+            aria-expanded="false"
+            aria-controls="redes-lista"
+            data-redes-boton
+          >
+            <Icon nombre="cerrar" tamano={22} class="cerrar" />
+          </button>
+
+          <ul id="redes-lista" class="lista" inert>
+            {redes.map((red, i) => (
+              <li>
+                <a class="red" style={posiciones[i]} href={red.href} target="_blank" rel="noopener">
+                  <span class="etiqueta">{red.texto}</span>
+                  <span class="circulo" data-marca={red.nombre}>
+                    <Icon nombre={red.nombre} tamano={red.icono} />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .redes {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 40;
+    width: 64px;
+    height: 64px;
+    transition:
+      opacity 200ms var(--ease-salida),
+      transform 200ms var(--ease-salida),
+      visibility 0s linear 0s;
+  }
+
+  @media (min-width: 768px) {
+    .redes {
+      right: 1.5rem;
+      bottom: 1.5rem;
+    }
+  }
+
+  .redes[data-oculto] {
+    opacity: 0;
+    transform: translateY(12px);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 160ms var(--ease-salida),
+      transform 160ms var(--ease-salida),
+      visibility 0s linear 160ms;
+  }
+
+  .disparador {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1px solid var(--color-verde-800);
+    background-color: var(--color-verde);
+    color: var(--color-tinta);
+    cursor: pointer;
+    transition:
+      background-color 220ms var(--ease-salida),
+      border-color 220ms var(--ease-salida),
+      color 220ms var(--ease-salida),
+      transform 140ms var(--ease-salida);
+  }
+
+  .disparador:active {
+    transform: scale(0.94);
+  }
+
+  /* Abierto, el círculo pasa a tinta: el cambio de estado se lee de lejos. */
+  [data-abierto] .disparador {
+    background-color: var(--color-tinta);
+    border-color: var(--color-tinta);
+    color: var(--color-superficie);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .redes:not([data-abierto]) .disparador:hover {
+      background-color: var(--color-verde-600);
+    }
+
+    [data-abierto] .disparador:hover {
+      background-color: var(--color-tinta-700);
+    }
+
+    /* Anticipación: al pasar el ratón, el triángulo se abre un poco. */
+    .redes:not([data-abierto]) .disparador:hover + .lista .red {
+      --apertura: 1.3;
+      transition-delay: 0ms;
+    }
+  }
+
+  /* Un anillo que se expande una sola vez, la primera vez que el botón
+     aparece en la página. */
+  .disparador::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    border: 2px solid var(--color-verde);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  [data-saludo] .disparador::after {
+    animation: saludo 900ms var(--ease-salida) 250ms 1;
+  }
+
+  @keyframes saludo {
+    from {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  .disparador:focus-visible,
+  .red:focus-visible {
+    border-radius: 50%;
+  }
+
+  .disparador :global(.cerrar) {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.9);
+    transition:
+      opacity 160ms var(--ease-salida),
+      transform 260ms var(--ease-ambos);
+  }
+
+  [data-abierto] .disparador :global(.cerrar) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .lista {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  [data-abierto] .red {
+    pointer-events: auto;
+  }
+
+  /* Cerrado, cada enlace se encoge sobre el disparador y forma el triángulo.
+     Abierto, el mismo elemento sube a su lugar en la columna. */
+  .red {
+    position: absolute;
+    right: calc((64px - var(--diametro)) / 2);
+    bottom: calc((64px - var(--diametro)) / 2);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform-origin: calc(100% - var(--diametro) / 2) 50%;
+    --apertura: 1;
+    transform: translate(calc(var(--cerrado-x) * var(--apertura)), calc(var(--cerrado-y) * var(--apertura)))
+      scale(var(--cerrado-escala));
+    transition: transform 180ms var(--ease-salida);
+    transition-delay: calc(var(--orden-inverso) * 20ms);
+  }
+
+  [data-abierto] .red {
+    transform: translateY(var(--abierto-y));
+    transition-duration: 260ms;
+    transition-delay: calc(var(--orden) * 40ms);
+  }
+
+  /* Excepción aprobada por el cliente: abiertas, las redes llevan sus
+     colores de marca originales, degradado de Instagram incluido. Viven solo
+     aquí; cerrado, el triángulo sigue en la paleta del sitio. */
+  .circulo {
+    --marca: var(--color-superficie);
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--diametro);
+    height: var(--diametro);
+    border-radius: 50%;
+    color: var(--color-tinta);
+    transition:
+      color 180ms var(--ease-salida),
+      transform 140ms var(--ease-salida);
+  }
+
+  .circulo[data-marca='whatsapp'] {
+    --marca: #25d366;
+  }
+
+  .circulo[data-marca='instagram'] {
+    --marca: radial-gradient(
+      circle at 30% 107%,
+      #fdf497 0%,
+      #fdf497 5%,
+      #fd5949 45%,
+      #d6249f 60%,
+      #285aeb 90%
+    );
+  }
+
+  .circulo[data-marca='tiktok'] {
+    --marca: #000;
+  }
+
+  .circulo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--marca);
+    opacity: 0;
+    transition: opacity 180ms var(--ease-salida);
+  }
+
+  .circulo :global(svg) {
+    position: relative;
+  }
+
+  .red:active .circulo {
+    transform: scale(0.94);
+  }
+
+  [data-abierto] .circulo {
+    color: #fff;
+  }
+
+  [data-abierto] .circulo::before {
+    opacity: 1;
+  }
+
+  /* El logotipo de TikTok: glifo blanco con sus dos ecos, cian y rojo. */
+  [data-abierto] .circulo[data-marca='tiktok'] :global(svg) {
+    filter: drop-shadow(-1px -1px 0 #25f4ee) drop-shadow(1px 1px 0 #fe2c55);
+  }
+
+  .etiqueta {
+    padding: 0.4rem 0.75rem;
+    white-space: nowrap;
+    font-size: var(--text-menor);
+    line-height: var(--text-menor--line-height);
+    color: var(--color-tinta);
+    background-color: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-accion);
+    opacity: 0;
+    transform: translateX(6px);
+    transition:
+      opacity 120ms var(--ease-salida),
+      transform 120ms var(--ease-salida);
+  }
+
+  [data-abierto] .etiqueta {
+    opacity: 1;
+    transform: none;
+    transition-duration: 200ms;
+    transition-delay: calc(var(--orden) * 40ms + 80ms);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-abierto] .red:hover .circulo::before {
+      opacity: 0.88;
+    }
+  }
+
+  /* Sin movimiento: los iconos cambian de lugar sin viajar y solo la
+     opacidad se transiciona. */
+  @media (prefers-reduced-motion: reduce) {
+    .redes,
+    .redes[data-oculto],
+    .etiqueta,
+    [data-abierto] .etiqueta,
+    .disparador :global(.cerrar) {
+      transform: none !important;
+    }
+
+    .red {
+      transform: translate(var(--cerrado-x), var(--cerrado-y)) scale(var(--cerrado-escala)) !important;
+    }
+
+    [data-abierto] .red {
+      transform: translateY(var(--abierto-y)) !important;
+    }
+
+    .etiqueta,
+    .redes {
+      transition: opacity 150ms linear !important;
+    }
+
+    [data-saludo] .disparador::after {
+      animation: none;
+    }
+
+    .disparador:active,
+    .red:active .circulo {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const contenedor = document.querySelector<HTMLElement>('[data-redes]');
+
+  if (contenedor) {
+    const boton = contenedor.querySelector<HTMLButtonElement>('[data-redes-boton]');
+    const lista = contenedor.querySelector<HTMLElement>('.lista');
+    let alturaAlAbrir = 0;
+
+    const estaAbierto = () => contenedor.hasAttribute('data-abierto');
+
+    const ocultar = (oculto: boolean) => {
+      contenedor.toggleAttribute('data-oculto', oculto);
+      if (!oculto) contenedor.setAttribute('data-saludo', '');
+    };
+
+    const alternar = (abrir: boolean, devolverFoco = false) => {
+      if (!boton || !lista) return;
+      contenedor.toggleAttribute('data-abierto', abrir);
+      boton.setAttribute('aria-expanded', String(abrir));
+      boton.setAttribute('aria-label', abrir ? 'Cerrar contacto y redes' : 'Contacto y redes');
+      lista.inert = !abrir;
+      if (abrir) alturaAlAbrir = window.scrollY;
+      if (devolverFoco) boton.focus();
+    };
+
+    boton?.addEventListener('click', () => alternar(!estaAbierto()));
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Escape' && estaAbierto()) alternar(false, true);
+    });
+
+    document.addEventListener('pointerdown', (evento) => {
+      if (estaAbierto() && !contenedor.contains(evento.target as Node)) alternar(false);
+    });
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (estaAbierto() && Math.abs(window.scrollY - alturaAlAbrir) > 80) alternar(false);
+      },
+      { passive: true },
+    );
+
+    // Se oculta donde la página ya ofrece el contacto: el hero y el formulario.
+    const zonas = ['#inicio', '#reserva']
+      .map((selector) => document.querySelector(selector))
+      .filter((zona): zona is Element => zona !== null);
+
+    if (zonas.length === 0) {
+      ocultar(false);
+    } else {
+      const visibles = new Set<Element>();
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          for (const entrada of entradas) {
+            if (entrada.isIntersecting) visibles.add(entrada.target);
+            else visibles.delete(entrada.target);
+          }
+          const hayZona = visibles.size > 0;
+          if (hayZona && estaAbierto()) alternar(false);
+          ocultar(hayZona);
+        },
+        { rootMargin: '-20% 0px -20% 0px' },
+      );
+      zonas.forEach((zona) => observador.observe(zona));
+    }
+  }
+</script>

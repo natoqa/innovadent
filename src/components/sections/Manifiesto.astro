@@ -1,14 +1,15 @@
 ---
 import { Picture } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import { SITIO } from '../../config/site';
 import fotoEquipo from '../../assets/equipo/especialistas-innovadent.jpg';
-import fotoDirector from '../../assets/equipo/fundador.jpg';
+import fotoEspecialistas from '../../assets/equipo/especialistas-innovadent-2.jpg';
 
 const anios = SITIO.aniversario - SITIO.fundacion;
 const pacientes = new Intl.NumberFormat(SITIO.idioma).format(SITIO.pacientes);
 
-// El equipo actual y el director de la clínica, en color: el gris estaba pensado para una foto
+// Dos fotos del equipo actual, en color: el gris estaba pensado para una foto
 // de archivo y aquí haría pasar por antiguas fotos de hoy.
 const fotos = [
   {
@@ -24,25 +25,17 @@ const fotos = [
     proporcion: 'aspect-[3/4]',
     desplazada: true,
     gris: false,
-    imagen: fotoDirector,
-    alt: 'Jorge Alva Alva, director de la clínica, con uniforme negro y gorro quirúrgico, de brazos cruzados junto al sillón dental en una sala clínica.',
+    imagen: fotoEspecialistas,
+    alt: 'Seis especialistas de Innovadent con uniforme negro, sonriendo juntos alrededor de un sillón dental en una sala clínica: tres sentados delante y tres de pie detrás.',
     marcador: '',
-    pie: 'Jorge Alva Alva, director de la clínica.',
+    pie: 'Especialistas de Innovadent en una de las salas clínicas.',
   },
 ];
 
-// Solo cifras verificables: las dos primeras salen del propio proyecto, el premio
-// está documentado en la colección de hitos y el total de pacientes lo entregó la
-// clínica. Ninguna se estima.
-//
-// `valor` marca las cantidades que se cuentan al llegar a la banda. El año del
-// premio no lleva: un año que sube desde cero parece un dato inventado.
-const cifras = [
-  { dato: String(anios), valor: anios, nota: 'Años de ejercicio continuo en Trujillo' },
-  { dato: '6', valor: 6, nota: 'Especialidades bajo un mismo criterio clínico' },
-  { dato: '2011', nota: 'Premio Presidente a la MYPE' },
-  { dato: pacientes, valor: SITIO.pacientes, nota: 'Pacientes atendidos' },
-];
+// Solo cifras verificables: los años salen de site.ts, las especialidades de
+// la colección de tratamientos, el premio está en la colección de hitos y el
+// total de pacientes lo entregó la clínica. Ninguna se estima.
+const especialidades = (await getCollection('tratamientos')).length;
 ---
 
 <Seccion id="manifiesto" ritmo="corto">
@@ -102,32 +95,50 @@ const cifras = [
     }
   </div>
 
-  <div class="mt-16 grid grid-cols-2 border-t border-borde md:grid-cols-4" data-cifras data-idioma={SITIO.idioma}>
-    {
-      cifras.map((cifra, i) => (
-        <div
-          class:list={[
-            'border-b border-borde py-7 pr-6 md:border-b-0',
-            i < cifras.length - 1 && 'md:border-r',
-          ]}
-        >
-          {
-            cifra.valor === undefined ? (
-              <span class="cifra block text-titulo">{cifra.dato}</span>
-            ) : (
-              <>
-                {/* El lector de pantalla lee la cifra final, nunca los pasos del conteo. */}
-                <span class="sr-only">{cifra.dato}</span>
-                <span class="cifra block text-titulo" data-contar={cifra.valor} aria-hidden="true">
-                  {cifra.dato}
-                </span>
-              </>
-            )
-          }
-          <span class="mt-2 block text-menor text-grafito">{cifra.nota}</span>
+</Seccion>
+
+<!-- Excepción aprobada por el cliente: tercera zona oscura de la home. -->
+<Seccion tono="oscuro" ritmo="corto" etiquetaAccesible="Innovadent en cifras">
+  <div data-cifras data-idioma={SITIO.idioma}>
+    <div class="pb-10 md:pb-14">
+      <span class="sr-only">{pacientes}</span>
+      <span class="cifra block font-light text-cifra-mayor" data-contar={SITIO.pacientes} aria-hidden="true">
+        {pacientes}
+      </span>
+      <p class="mt-5 text-subtitulo">Pacientes atendidos desde {SITIO.fundacion}</p>
+    </div>
+
+    <div class="grid grid-cols-2 border-t border-tinta-700 md:grid-cols-12">
+      <div class="border-r border-tinta-700 py-8 pr-6 md:col-span-4 md:py-10 md:pr-10">
+        <span class="sr-only">{anios}</span>
+        <span class="cifra block font-light text-display" data-contar={anios} aria-hidden="true">{anios}</span>
+        <p class="mt-3 text-menor text-superficie/75">Años de ejercicio continuo en {SITIO.sede.ciudad}</p>
+
+        <div class="mt-6 flex items-center gap-3 text-dato text-superficie/75" aria-hidden="true">
+          <span class="cifra">{SITIO.fundacion}</span>
+          <span class="relative h-px flex-1 bg-tinta-700">
+            <span class="absolute inset-0 origin-left bg-verde-200" data-trazo></span>
+          </span>
+          <span class="cifra">{SITIO.aniversario}</span>
         </div>
-      ))
-    }
+      </div>
+
+      <div class="py-8 pl-6 md:col-span-3 md:border-r md:border-tinta-700 md:px-10 md:py-10">
+        <span class="sr-only">{especialidades}</span>
+        <span class="cifra block font-light text-display" data-contar={especialidades} aria-hidden="true">
+          {especialidades}
+        </span>
+        <p class="mt-3 text-menor text-superficie/75">Especialidades bajo una misma visión</p>
+      </div>
+
+      <div class="col-span-2 border-t border-tinta-700 py-8 md:col-span-5 md:border-t-0 md:py-10 md:pl-10">
+        <span class="cifra block font-light text-display text-verde-200">2011</span>
+        <h3 class="mt-3 text-subtitulo">Premio Presidente a la MYPE</h3>
+        <p class="mt-2 text-menor text-superficie/75">
+          Un reconocimiento que nos permitió conocer nuevas realidades y experiencias en São Paulo, Brasil.
+        </p>
+      </div>
+    </div>
   </div>
 </Seccion>
 
@@ -139,6 +150,7 @@ const cifras = [
   if (banda) {
     const formato = new Intl.NumberFormat(banda.dataset.idioma);
     const numeros = [...banda.querySelectorAll<HTMLElement>('[data-contar]')];
+    const trazo = banda.querySelector<HTMLElement>('[data-trazo]');
 
     gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -162,6 +174,15 @@ const cifras = [
             onUpdate: () => {
               numero.textContent = formato.format(Math.round(estado.valor));
             },
+            scrollTrigger: { trigger: banda, start: 'top 85%', once: true },
+          });
+        }
+
+        // La línea 2006–2026 se dibuja al ritmo de los años.
+        if (trazo) {
+          gsap.from(trazo, {
+            scaleX: 0,
+            duration: 1.2,
             scrollTrigger: { trigger: banda, start: 'top 85%', once: true },
           });
         }

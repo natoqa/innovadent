@@ -129,6 +129,8 @@ La `.ficha` presenta los datos como historia clínica: etiqueta a la izquierda e
 
 **Máximo dos secciones con `.zona-oscura` en toda la home**, para que el contraste signifique algo.
 
+**Excepción aprobada por el cliente: la banda de cifras** que cierra `Manifiesto.astro` (pacientes atendidos, años, especialidades y premio) es una tercera zona oscura. No abre la puerta a una cuarta.
+
 ## Estructura de la home
 
 En este orden, correspondiendo al documento de solicitud de contenido:

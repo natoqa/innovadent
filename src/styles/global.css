@@ -73,7 +73,7 @@
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
-  --text-hero:    clamp(3rem, 9vw, 7.5rem);
+  --text-hero:    clamp(2.5rem, 7vw, 6rem);
   --text-hero--line-height: 0.92;
   --text-hero--letter-spacing: -0.03em;
 
@@ -86,6 +86,12 @@
   --text-anio:    clamp(3rem, 7vw, 6rem);
   --text-anio--line-height: 0.9;
   --text-anio--letter-spacing: -0.02em;
+
+  /* Pacientes atendidos en la banda de cifras. Es un numeral, no un
+     titular: puede superar al hero porque se lee como imagen. */
+  --text-cifra-mayor: clamp(4.5rem, 19vw, 15rem);
+  --text-cifra-mayor--line-height: 0.8;
+  --text-cifra-mayor--letter-spacing: -0.05em;
 
   --text-titulo:  clamp(1.75rem, 3vw, 2.5rem);
   --text-titulo--line-height: 1.1;

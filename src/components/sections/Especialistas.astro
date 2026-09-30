@@ -5,11 +5,12 @@ import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
 import { tamanosRetrato, type Regla } from '../../lib/retrato';
 
-// La home muestra los cuatro primeros según el `orden` de la colección.
-// Cambiar quién aparece aquí es cuestión de reordenar, no de tocar el componente.
+// La home muestra hasta ocho especialistas con retrato, según el `orden` de la
+// colección. Quien aún no tiene foto entra solo cuando llegue.
 const principales = (await getCollection('especialistas'))
+  .filter((persona) => persona.data.retrato)
   .sort((a, b) => a.data.orden - b.data.orden)
-  .slice(0, 4);
+  .slice(0, 8);
 
 // Ancho real de cada columna: 4 en escritorio dentro de max-w-ancho, 2 en móvil.
 const COLUMNA: Regla[] = [
@@ -21,8 +22,8 @@ const COLUMNA: Regla[] = [
 
 <Seccion id="especialistas" ritmo="corto">
   <EncabezadoSeccion
-    titulo="El equipo es la parte de la clínica que no se puede comprar."
-    entradilla="Especialistas con formación específica en su área, trabajando sobre un mismo plan de tratamiento."
+    titulo="Un equipo que hace la diferencia."
+    entradilla="Especialistas en distintas áreas que trabajan de manera coordinada para construir el plan de tratamiento que cada paciente necesita."
     medida="16ch"
   />
 

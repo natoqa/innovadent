@@ -4,6 +4,7 @@ import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
 import Figura from '../ui/Figura.astro';
 import FotosCaso from '../casos/FotosCaso.astro';
 import { casosParaMostrar, describirFormato } from '../../lib/casos';
+import { SITIO } from '../../config/site';
 
 // Un caso grande con su ficha y hasta tres más en miniatura. El resto vive en
 // /casos-clinicos y en la landing de cada tratamiento. Sin casos publicados, el
@@ -28,8 +29,8 @@ const miniatura = (caso: (typeof otros)[number]) =>
 
 <Seccion id="casos-clinicos" tono="oscuro">
   <EncabezadoSeccion
-    titulo="Resultados que hablan por nosotros."
-    entradilla="Casos reales documentados por nuestro equipo, publicados con autorización del paciente. Cada resultado es individual y depende del diagnóstico."
+    titulo="Casos que muestran nuestro trabajo."
+    entradilla={`${SITIO.aniversario - SITIO.fundacion} años de experiencia clínica, reflejados en casos reales.`}
     sobreOscuro
   />
 

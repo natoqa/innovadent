@@ -43,7 +43,7 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
               {hito.data.anio}
             </p>
 
-            <div>
+            <div class="hito-texto">
               <h3 class="text-subtitulo">{hito.data.titular}</h3>
               <p class="mt-2 max-w-[38ch] text-menor text-grafito">{hito.data.descripcion}</p>
               {hito.data.foto && hito.data.altFoto && (
@@ -90,6 +90,15 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
   [data-seguimiento] .anio:not(.es-leido) {
     color: var(--color-neblina);
   }
+
+  /* El texto del hito se enciende con su año: lo que falta queda en espera. */
+  .hito-texto {
+    transition: opacity 400ms var(--ease-salida);
+  }
+
+  [data-seguimiento] li:not(.es-leido) .hito-texto {
+    opacity: 0.3;
+  }
 </style>
 
 <script>
@@ -123,8 +132,14 @@ const sinFecha = todos.filter((hito) => hito.data.anio === null);
           ScrollTrigger.create({
             trigger: anio,
             start: 'top 60%',
-            onEnter: () => anio.classList.add('es-leido'),
-            onLeaveBack: () => anio.classList.remove('es-leido'),
+            onEnter: () => {
+              anio.classList.add('es-leido');
+              anio.closest('li')?.classList.add('es-leido');
+            },
+            onLeaveBack: () => {
+              anio.classList.remove('es-leido');
+              anio.closest('li')?.classList.remove('es-leido');
+            },
           });
         }
 

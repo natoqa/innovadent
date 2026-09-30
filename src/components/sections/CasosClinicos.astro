@@ -27,11 +27,12 @@ const miniatura = (caso: (typeof otros)[number]) =>
   caso.formato === 'antes-despues' ? caso.fotos[1] : caso.fotos[0];
 ---
 
-<Seccion id="casos-clinicos" tono="oscuro">
+<Seccion id="casos-clinicos" tono="oscuro" data-barra-fija>
   <EncabezadoSeccion
     titulo="Casos que muestran nuestro trabajo."
     entradilla={`${SITIO.aniversario - SITIO.fundacion} años de experiencia clínica, reflejados en casos reales.`}
     sobreOscuro
+    movimiento="solo-movil"
   />
 
   <div class="mt-12 md:mt-16">

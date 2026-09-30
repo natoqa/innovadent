@@ -28,9 +28,9 @@ const filas: Fila[] = [
 <Seccion id="sede" tono="franja" ritmo="corto">
   <div class="grid gap-x-16 gap-y-12 md:grid-cols-12">
     <div class="md:col-span-5">
-      <h2 class="text-display">Cómo llegar.</h2>
+      <h2 class="text-display" data-mov="titulo">Cómo llegar.</h2>
 
-      <address class="mt-6 text-subtitulo not-italic">
+      <address class="mt-6 text-subtitulo not-italic" data-mov="texto">
         {sede.calle}<br />
         {sede.distrito}<br />
         {sede.ciudad}, {sede.region}
@@ -52,7 +52,7 @@ const filas: Fila[] = [
       </div>
     </div>
 
-    <div class="md:col-span-7">
+    <div class="md:col-span-7" data-mov-fotos>
       {
         sede.vistaCalle ? (
           <div class="foto relative aspect-[4/3] bg-tinta-800">

@@ -11,9 +11,13 @@ interface Props {
   medida?: '12ch' | '14ch' | '16ch';
   /** Dentro de una sección oscura el texto secundario no puede ir en grafito. */
   sobreOscuro?: boolean;
+  /** `solo-movil` cuando en escritorio el titular ya lo anima otra coreografía. */
+  movimiento?: 'siempre' | 'solo-movil';
 }
 
-const { titulo, entradilla, medida = '14ch', sobreOscuro = false } = Astro.props;
+const { titulo, entradilla, medida = '14ch', sobreOscuro = false, movimiento = 'siempre' } = Astro.props;
+
+const soloMovil = movimiento === 'solo-movil' || undefined;
 
 const medidas = {
   '12ch': 'max-w-[12ch]',
@@ -23,11 +27,13 @@ const medidas = {
 ---
 
 <div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
-  <h2 class:list={['text-display', medidas[medida]]}>{titulo}</h2>
+  <h2 class:list={['text-display', medidas[medida]]} data-mov="titulo" data-mov-solo-movil={soloMovil}>{titulo}</h2>
 
   {
     entradilla && (
       <p
+        data-mov="texto"
+        data-mov-solo-movil={soloMovil}
         class:list={[
           'max-w-[38ch] text-cuerpo-lg',
           sobreOscuro ? 'text-superficie' : 'text-grafito',

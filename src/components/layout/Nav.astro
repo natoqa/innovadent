@@ -38,7 +38,7 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
   id="barra"
   data-sobre-hero={sobreHero ? '' : undefined}
   class:list={[
-    'fixed inset-x-0 top-0 z-50 border-b transition-colors duration-200 ease-salida',
+    'fixed inset-x-0 top-0 z-50 border-b transition-[color,background-color,border-color,translate] duration-200 ease-salida data-[oculta]:-translate-y-full',
     sobreHero
       ? 'border-transparent text-superficie data-[solida]:border-borde data-[solida]:bg-fondo data-[solida]:text-tinta'
       : 'border-borde bg-fondo text-tinta',
@@ -268,6 +268,42 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
 
     window.addEventListener('scroll', revisar, { passive: true });
     revisar();
+  }
+
+  /**
+   * Al bajar la barra se retira para dejar leer; al subir vuelve. Se queda
+   * quieta sobre el hero, con un menú abierto, con el foco dentro y en las
+   * secciones fijadas que calculan su margen contando con ella.
+   */
+  if (barra && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const fijas = new Set<Element>();
+    const observador = new IntersectionObserver((entradas) => {
+      for (const entrada of entradas) {
+        if (entrada.isIntersecting) fijas.add(entrada.target);
+        else fijas.delete(entrada.target);
+      }
+    });
+    document.querySelectorAll('[data-barra-fija]').forEach((zona) => observador.observe(zona));
+
+    let ultimo = window.scrollY;
+
+    const seguir = () => {
+      const actual = window.scrollY;
+      const delta = actual - ultimo;
+      if (Math.abs(delta) < 8) return;
+      ultimo = actual;
+
+      const bloqueada =
+        fijas.size > 0 ||
+        barra.contains(document.activeElement) ||
+        barra.querySelector('[aria-expanded="true"]') !== null ||
+        document.getElementById('menu-movil')?.hasAttribute('data-abierto');
+
+      barra.toggleAttribute('data-oculta', delta > 0 && actual > window.innerHeight * 0.85 && !bloqueada);
+    };
+
+    window.addEventListener('scroll', seguir, { passive: true });
+    barra.addEventListener('focusin', () => barra.removeAttribute('data-oculta'));
   }
 
   /**

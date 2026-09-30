@@ -15,6 +15,8 @@ interface Props {
   /** Etiqueta accesible cuando la sección no abre con un encabezado visible. */
   etiquetaAccesible?: string;
   class?: string;
+  /** Atributos de datos para scripts, como `data-barra-fija`. */
+  [atributo: `data-${string}`]: unknown;
 }
 
 const {
@@ -24,6 +26,7 @@ const {
   ancho = 'contenido',
   etiquetaAccesible,
   class: clase,
+  ...resto
 } = Astro.props;
 
 const clasesTono = {
@@ -41,6 +44,7 @@ const clasesAncho = {
 ---
 
 <section
+  {...resto}
   id={id}
   aria-label={etiquetaAccesible}
   class:list={[

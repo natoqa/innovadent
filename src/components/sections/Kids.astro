@@ -19,10 +19,10 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
       {
         odontopediatria ? (
           <>
-            <h2 class="mt-4 max-w-[14ch] text-display">{odontopediatria.data.titular}</h2>
-            <p class="mt-6 max-w-[38ch] text-cuerpo-lg">{odontopediatria.data.resumen}</p>
+            <h2 class="mt-4 max-w-[14ch] text-display" data-mov="titulo">{odontopediatria.data.titular}</h2>
+            <p class="mt-6 max-w-[38ch] text-cuerpo-lg" data-mov="texto">{odontopediatria.data.resumen}</p>
 
-            <ul class="mt-8 border-t border-verde-700/30">
+            <ul class="mt-8 border-t border-verde-700/30" data-mov="filas">
               {odontopediatria.data.atendemos.map((motivo) => (
                 <li class="border-b border-verde-700/30 py-3 text-cuerpo">{motivo}</li>
               ))}
@@ -39,7 +39,7 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
       }
     </div>
 
-    <div class="md:col-span-6 md:col-start-7">
+    <div class="md:col-span-6 md:col-start-7" data-mov-fotos data-mov="profundidad" data-mov-intensidad="40">
       {
         fotos.length > 0 ? (
           <div class="grid grid-cols-2 gap-4">

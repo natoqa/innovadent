@@ -16,6 +16,7 @@ import Kids from '../components/sections/Kids.astro';
 import SedeYContacto from '../components/sections/SedeYContacto.astro';
 import Reserva from '../components/sections/Reserva.astro';
 import JsonLd from '../components/seo/JsonLd.astro';
+import Movimiento from '../components/motion/Movimiento.astro';
 import { esquemaClinica } from '../lib/seo';
 
 // Sin estado por petición: el formulario habla con /api/reserva desde el cliente.
@@ -37,6 +38,7 @@ export const prerender = true;
   <Kids />
   <SedeYContacto />
   <Reserva />
+  <Movimiento />
 
   <Pie slot="pie" />
 </Base>

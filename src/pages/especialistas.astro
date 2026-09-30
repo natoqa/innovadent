@@ -154,7 +154,7 @@ const cifras = [
 
       {/* Dos columnas escalonadas. En escritorio la izquierda se desplaza más
           rápido que la derecha al hacer scroll. */}
-      <ul class="grilla mx-auto grid max-w-[56rem] grid-cols-2 gap-x-5 gap-y-16 md:gap-x-24 md:gap-y-28" data-grilla>
+      <ul class="grilla mx-auto grid max-w-[56rem] grid-cols-2 gap-x-5 gap-y-16 md:gap-x-24 md:gap-y-28" data-grilla data-cierra-derecha={especialistas.length % 2 === 0 || undefined}>
         {
           especialistas.map((persona, i) => (
             <li
@@ -318,7 +318,14 @@ const cifras = [
       translate: 0 9rem;
     }
 
+    /* Holgura para el parallax de la izquierda, que baja la última foto al
+       entrar. Si la última fila termina a la derecha, además hay que cubrir
+       su escalón de 9rem. */
     .grilla {
+      padding-bottom: 4rem;
+    }
+
+    .grilla[data-cierra-derecha] {
       padding-bottom: 9rem;
     }
   }
@@ -602,11 +609,11 @@ const cifras = [
 
   /** Tras filtrar, los visibles se reparten de nuevo entre las dos columnas. */
   const repartir = () => {
-    retratos
-      .filter((r) => !r.hidden)
-      .forEach((retrato, i) => {
-        retrato.dataset.lado = i % 2 === 0 ? 'izq' : 'der';
-      });
+    const visibles = retratos.filter((r) => !r.hidden);
+    visibles.forEach((retrato, i) => {
+      retrato.dataset.lado = i % 2 === 0 ? 'izq' : 'der';
+    });
+    grilla?.toggleAttribute('data-cierra-derecha', visibles.length % 2 === 0);
     montarParallax();
     ScrollTrigger.refresh();
   };

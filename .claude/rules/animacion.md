@@ -7,17 +7,38 @@ paths:
 
 # Animación
 
-GSAP está aquí para **un momento orquestado**, no para decorar cada sección.
+El sitio está animado de punta a punta, pero con **un solo lenguaje de movimiento**: cada sección usa el revelado que corresponde a lo que muestra, con las mismas curvas y duraciones. Decisión del cliente (29-09-2026), que reemplaza la regla anterior de "solo dos momentos coreografiados".
+
+## Lenguaje de movimiento — `src/lib/motion/revelar.ts`
+
+Las secciones no escriben GSAP para revelarse: declaran `data-mov` en el HTML y el módulo lo ejecuta. `src/components/motion/Movimiento.astro` lo activa, al final de cada página que lo usa.
+
+| Atributo | Para | Movimiento |
+|---|---|---|
+| `data-mov="titulo"` | Titulares de sección | Líneas que suben desde detrás de una máscara (la firma del sitio) |
+| `data-mov="texto"` | Entradillas, párrafos | Solo opacidad, sin desplazamiento |
+| `data-mov-fotos` | Región con `.foto` | Clip de abajo arriba, la imagen se asienta de 1.15 a 1 |
+| `data-mov="grupo"` | Retratos | Se revelan por tandas (`ScrollTrigger.batch`), nombres después |
+| `data-mov="filas"` | Listas, filas con borde | Cada fila se dibuja de izquierda a derecha |
+| `data-mov="palabras"` | Citas de testimonios | Se ilumina palabra a palabra con el scroll |
+| `data-mov="profundidad"` | Una foto o columna | Parallax vertical con `scrub`, solo escritorio |
+
+Si una sección necesita algo nuevo, se agrega un tipo al módulo; no se escribe una animación suelta en el componente.
+
+## Coreografías propias
+
+Siguen con su código: la entrada del hero, la rueda de áreas clínicas (con la subida de Casos), el comparador antes/después, las cifras que cuentan, la línea de tiempo que se llena y el parallax de `/especialistas`. En escritorio el titular de Casos lo anima la rueda: su encabezado usa `movimiento="solo-movil"`.
+
+La barra de navegación se oculta al bajar y vuelve al subir. Se queda quieta sobre el hero, con un menú abierto, con el foco dentro y sobre las zonas `data-barra-fija` (las secciones fijadas que calculan su margen contando con ella).
 
 ## Reglas duras
 
-- **Dos momentos coreografiados en todo el sitio: la entrada del hero y la rueda de áreas clínicas.** Todo lo demás es discreto. La rueda es excepción aprobada por el cliente: solo desde 1024px, sin ella en móvil, tablet ni con movimiento reducido. Incluye su salida: Casos clínicos sube sobre la rueda y su titular entra por líneas al ritmo de esa subida. No es un tercer momento ni un permiso para animar la entrada de otras secciones. No abrir un tercero.
-- **Excepción aprobada por el cliente: la entrada del comparador antes/después.** El cuadro espera oculto; al entrar en pantalla aparece (opacidad y escala desde 0.96) y, una sola vez, la línea recorre de "solo antes" a la mitad. El barrido es demostrativo (enseña el resultado y que se puede arrastrar). Se detiene ante cualquier gesto. Con movimiento reducido solo queda el fundido de opacidad. No sirve de precedente para animar la entrada de otros elementos.
-- **Excepción aprobada por el cliente: el parallax de `/especialistas`.** Retratos en dos columnas escalonadas; al hacer scroll la columna izquierda se desplaza más rápido que la derecha (`y` de 150 a -150 con `scrub`, sin opacidad). Solo desde 1024px y sin movimiento reducido; en el resto las columnas quedan escalonadas y quietas. Tomado de la sección de equipo de lavadental.lv. No se extiende a otras secciones.
-- **Prohibido el fade-and-slide-up genérico en cada sección al hacer scroll.** Es la firma visual de una página generada por IA.
-- **Prohibido animar cada tarjeta al entrar en viewport.**
+- El formulario de reserva no se anima.
+- **Prohibido el fade-and-slide-up genérico.** Es la firma visual de una página generada por IA. El texto aparece por opacidad o por máscara de líneas, nunca deslizándose.
+- **Prohibido animar cada tarjeta por su cuenta al entrar en viewport.** Las piezas que entran juntas se revelan como tanda.
+- Todo revelado ocurre una sola vez (`once: true`). Solo el parallax y la cita palabra a palabra van ligados al scroll.
 - Las micro-interacciones (hover, foco, `:active`) se hacen con **transiciones CSS**, nunca con GSAP.
-- Nunca animar propiedades que provocan layout (`width`, `height`, `top`, `margin`). Solo `transform` y `opacity`.
+- Nunca animar propiedades que provocan layout (`width`, `height`, `top`, `margin`). Solo `transform`, `opacity` y `clip-path`.
 - Nunca `transition: all`. Especificar la propiedad: `transition: transform 200ms var(--ease-salida)`.
 
 ## Curvas — `src/lib/motion/easings.ts`

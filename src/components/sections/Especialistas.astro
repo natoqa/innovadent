@@ -27,10 +27,14 @@ const COLUMNA: Regla[] = [
     medida="16ch"
   />
 
-  <ul class="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-4 md:gap-x-7">
+  <ul data-mov="grupo" class="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-4 md:gap-x-7">
     {
       principales.map((persona, i) => (
-        <li class:list={[i % 2 === 1 && 'mt-8 md:mt-14']}>
+        <li
+          class:list={[i % 2 === 1 && 'mt-8 md:mt-14']}
+          data-mov={i % 2 === 1 ? 'profundidad' : undefined}
+          data-mov-intensidad="30"
+        >
           <article>
             <div class="foto aspect-[3/4] bg-tinta-800">
               {persona.data.retrato ? (

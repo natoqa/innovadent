@@ -40,9 +40,9 @@ const especialidades = (await getCollection('tratamientos')).length;
 
 <Seccion id="manifiesto" ritmo="corto">
   <div class="grid gap-x-10 gap-y-8 md:grid-cols-12">
-    <h2 class="text-display md:col-span-7">Calidad y ética en cada tratamiento.</h2>
+    <h2 class="text-display md:col-span-7" data-mov="titulo">Calidad y ética en cada tratamiento.</h2>
 
-    <div class="md:col-span-4 md:col-start-9 md:self-end">
+    <div class="md:col-span-4 md:col-start-9 md:self-end" data-mov="texto">
       <p class="text-cuerpo">
         Una buena odontología no se trata solamente de hacer un buen trabajo clínico.
         Se trata de indicar lo que el paciente realmente necesita, explicar con
@@ -51,7 +51,7 @@ const especialidades = (await getCollection('tratamientos')).length;
     </div>
   </div>
 
-  <div class="mt-10 max-w-texto">
+  <div class="mt-10 max-w-texto" data-mov="texto">
     <p class="text-cuerpo-lg">
       Innovadent nació en {SITIO.fundacion} con un propósito claro: brindar a la comunidad
       trujillana una atención odontológica especializada, cercana y comprometida con las
@@ -66,10 +66,14 @@ const especialidades = (await getCollection('tratamientos')).length;
     </p>
   </div>
 
-  <div class="mt-16 grid gap-6 md:grid-cols-2 md:items-end">
+  <div class="mt-16 grid gap-6 md:grid-cols-2 md:items-end" data-mov-fotos>
     {
       fotos.map((foto) => (
-        <figure class:list={[foto.desplazada && 'md:mb-16']}>
+        <figure
+          class:list={[foto.desplazada && 'md:mb-16']}
+          data-mov={foto.desplazada ? 'profundidad' : undefined}
+          data-mov-intensidad="50"
+        >
           <div class:list={['foto bg-tinta-800', foto.proporcion, foto.gris && 'grayscale']}>
             {foto.imagen ? (
               <Picture
@@ -108,7 +112,7 @@ const especialidades = (await getCollection('tratamientos')).length;
       <p class="mt-5 text-subtitulo">Pacientes atendidos desde {SITIO.fundacion}</p>
     </div>
 
-    <div class="grid grid-cols-2 border-t border-tinta-700 md:grid-cols-12">
+    <div class="grid grid-cols-2 border-t border-tinta-700 md:grid-cols-12" data-mov="filas" data-mov-retraso="0.3">
       <div class="border-r border-tinta-700 py-8 pr-6 md:col-span-4 md:py-10 md:pr-10">
         <span class="sr-only">{anios}</span>
         <span class="cifra block font-light text-display" data-contar={anios} aria-hidden="true">{anios}</span>

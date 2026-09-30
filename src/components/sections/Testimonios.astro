@@ -39,7 +39,7 @@ const resto = testimonios.filter((t) => t !== principal);
 
   {
     maqueta ? (
-      <div class="mt-12 grid gap-x-16 gap-y-14 md:mt-16 md:grid-cols-12" aria-hidden="true">
+      <div class="mt-12 grid gap-x-16 gap-y-14 md:mt-16 md:grid-cols-12" aria-hidden="true" data-mov-fotos>
         <figure class="md:col-span-7">
           <div class="foto relative flex aspect-video items-end bg-tinta-700 p-5">
             <span class="absolute top-1/2 left-1/2 flex size-16 -translate-1/2 items-center justify-center rounded-full bg-superficie">
@@ -96,7 +96,7 @@ const resto = testimonios.filter((t) => t !== principal);
             )}
             {principal.data.texto && (
               <blockquote class:list={['text-subtitulo', principal.data.video && 'mt-6']}>
-                <p>{principal.data.texto}</p>
+                <p data-mov="palabras">{principal.data.texto}</p>
               </blockquote>
             )}
             <figcaption class="mt-4 text-menor">{principal.data.autor}</figcaption>

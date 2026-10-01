@@ -46,7 +46,7 @@ El color lo ponen las fotografías clínicas; la interfaz se aparta. Toda fotogr
 - Introducir cualquier color fuera de los tokens. Si algo parece necesitar un cuarto color, es que el diseño está mal resuelto. Kids lo demuestra: no añade color, invierte la proporción y sube el verde del 10% al 30%.
 - Usar `--color-verde` como texto sobre claro. Es el error más fácil de cometer y el más visible.
 
-**Excepción aprobada por el cliente: el botón flotante de redes** (`src/components/layout/RedesFlotantes.astro`). Abierto, cada red lleva sus colores de marca originales: WhatsApp `#25D366`, Instagram con su degradado oficial, TikTok negro con sus ecos cian y rojo. Solo ahí y solo en esos círculos; cerrado, el botón sigue en la paleta. No sirve de precedente para degradados ni colores de marca en otros elementos.
+**Excepción aprobada por el cliente: el botón flotante de redes** (`src/components/layout/RedesFlotantes.astro`). Abierto, cada red lleva sus colores de marca originales: WhatsApp `#25D366`, Instagram con su degradado oficial, Facebook azul `#0866FF`. Solo ahí y solo en esos círculos; cerrado, el botón sigue en la paleta. No sirve de precedente para degradados ni colores de marca en otros elementos.
 
 ## Tipografía
 

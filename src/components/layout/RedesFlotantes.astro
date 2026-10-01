@@ -9,7 +9,7 @@ import { SITIO } from '../../config/site';
  * una sola, el círculo es directamente ese enlace y no hay menú.
  */
 
-type NombreRed = 'whatsapp' | 'instagram' | 'tiktok';
+type NombreRed = 'whatsapp' | 'instagram' | 'facebook';
 
 interface Red {
   nombre: NombreRed;
@@ -26,7 +26,7 @@ interface Red {
 const vistaPrevia = import.meta.env.DEV;
 
 const { whatsapp } = SITIO.contacto;
-const { instagram, tiktok } = SITIO.redes;
+const { instagram, facebook } = SITIO.redes;
 
 const candidatas: (Red | null)[] = [
   whatsapp
@@ -41,8 +41,8 @@ const candidatas: (Red | null)[] = [
   instagram || vistaPrevia
     ? { nombre: 'instagram', texto: 'Instagram', href: instagram ?? '#', diametro: 48, icono: 22 }
     : null,
-  tiktok || vistaPrevia
-    ? { nombre: 'tiktok', texto: 'TikTok', href: tiktok ?? '#', diametro: 48, icono: 22 }
+  facebook || vistaPrevia
+    ? { nombre: 'facebook', texto: 'Facebook', href: facebook ?? '#', diametro: 48, icono: 22 }
     : null,
 ];
 
@@ -327,8 +327,8 @@ const unica = redes.length === 1 ? redes[0] : null;
     );
   }
 
-  .circulo[data-marca='tiktok'] {
-    --marca: #000;
+  .circulo[data-marca='facebook'] {
+    --marca: #0866ff;
   }
 
   .circulo::before {
@@ -355,11 +355,6 @@ const unica = redes.length === 1 ? redes[0] : null;
 
   [data-abierto] .circulo::before {
     opacity: 1;
-  }
-
-  /* El logotipo de TikTok: glifo blanco con sus dos ecos, cian y rojo. */
-  [data-abierto] .circulo[data-marca='tiktok'] :global(svg) {
-    filter: drop-shadow(-1px -1px 0 #25f4ee) drop-shadow(1px 1px 0 #fe2c55);
   }
 
   .etiqueta {

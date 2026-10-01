@@ -20,8 +20,17 @@ const pendiente = (valor: string | null) => !valor || valor.startsWith('[PENDIEN
 const telefono = SITIO.contacto.telefono;
 const correo = SITIO.contacto.correo;
 const whatsapp = SITIO.contacto.whatsapp;
+const whatsappTexto = SITIO.contacto.whatsappTexto;
 
-const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [string, string][];
+const nombresRedes: Record<keyof typeof SITIO.redes, string> = {
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+};
+
+const redes = (Object.entries(SITIO.redes) as [keyof typeof SITIO.redes, string | null][])
+  .filter((red): red is [keyof typeof SITIO.redes, string] => red[1] !== null)
+  .map(([clave, url]) => ({ nombre: nombresRedes[clave], url }));
 ---
 
 <footer class="border-t border-borde bg-franja">
@@ -99,6 +108,7 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
               <li class="pointer-coarse:py-0 py-1.5 text-menor">
                 <a href={`https://wa.me/${whatsapp}`} class="objetivo-tactil underline-offset-4 hover:underline">
                   WhatsApp
+                  {whatsappTexto && <span class="cifra ml-1.5">{whatsappTexto}</span>}
                 </a>
               </li>
             )
@@ -136,9 +146,14 @@ const redes = Object.entries(SITIO.redes).filter(([, url]) => url !== null) as [
         {
           redes.length > 0 && (
             <ul class="mt-8 flex flex-wrap gap-x-6">
-              {redes.map(([nombre, url]) => (
+              {redes.map(({ nombre, url }) => (
                 <li>
-                  <a href={url} class="objetivo-tactil text-menor underline-offset-4 hover:underline">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener"
+                    class="objetivo-tactil text-menor underline-offset-4 hover:underline"
+                  >
                     {nombre}
                   </a>
                 </li>

@@ -2,7 +2,7 @@
 orden: 9
 nombre: Daivy Daniel Mostacero Abanto
 titulo: Cirujano dentista
-especialidad: Ortodoncia y ortopedia dentofacial
+especialidad: Ortodoncia y ortopedia maxilar
 colegiatura: "25894"
 rne: "2049"
 retrato: ../../assets/equipo/DaivyMostacero.jpg

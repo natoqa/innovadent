@@ -90,7 +90,7 @@ export const SITIO = {
     // la clínica el 22-09-2026. Es la calle, no el interior del local.
     latitud: -8.116867021853317,
     longitud: -79.03130160450394,
-    mapa: null,
+    mapa: 'https://www.google.com/maps/place/Centro+Odontol%C3%B3gico+Innovadent/@-8.1168811,-79.0310618,16.75z/data=!4m15!1m8!3m7!1s0x91ad3d77f068c5af:0xc2a05d356d2188a8!2sArgentina+113,+Trujillo+13008!3b1!8m2!3d-8.116831!4d-79.0311846!16s%2Fg%2F11cskg4h9y!3m5!1s0x91ad3d77f05892d1:0xf739ee5b8ffd85af!8m2!3d-8.116831!4d-79.0311846!16s%2Fg%2F1tf_tydm',
     vistaCalle:
       'https://www.google.com/maps/embed?pb=!3m2!1ses!2spe!4v1790124364562!5m2!1ses!2spe!6m8!1m7!1siFFAwkB_w14oIH2031Tozg!2m2!1d-8.116867021853317!2d-79.03130160450394!3f80.31016311233914!4f3.778219078890558!5f0.7820865974627469',
     estacionamiento: true,
@@ -107,9 +107,8 @@ export const SITIO = {
   ] satisfies Horario[],
 
   redes: {
-    facebook: null as string | null,
-    instagram: null as string | null,
-    tiktok: null as string | null,
+    facebook: 'https://www.facebook.com/innovadent' as string | null,
+    instagram: 'https://www.instagram.com/innovadentperu/' as string | null,
     youtube: null as string | null,
   },
 

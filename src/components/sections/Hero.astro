@@ -3,7 +3,14 @@ import Boton from '../ui/Boton.astro';
 import Icon from '../ui/Icon.astro';
 import { SITIO } from '../../config/site';
 
-const FUENTE_VIDEO = '/video/VideoHero.mp4';
+/**
+ * El clip en HEVC pesa una décima parte que en H.264, pero no todos los
+ * navegadores lo decodifican (Firefox y equipos sin aceleración por hardware).
+ * Esos reciben el H.264 de respaldo.
+ */
+const FUENTE_VIDEO = '/video/Videohero2.mp4';
+const RESPALDO_VIDEO = '/video/VideoHero.mp4';
+const CODEC_VIDEO = 'video/mp4; codecs="hvc1.1.6.L120.90"';
 
 /**
  * El clip cierra con una placa blanca de logo a partir del segundo 21.4 y la
@@ -21,6 +28,8 @@ const whatsapp = SITIO.contacto.whatsapp;
     <video
       id="hero-video"
       data-fuente={FUENTE_VIDEO}
+      data-respaldo={RESPALDO_VIDEO}
+      data-codec={CODEC_VIDEO}
       data-fin={FIN_UTIL}
       preload="none"
       muted
@@ -152,7 +161,8 @@ const whatsapp = SITIO.contacto.whatsapp;
 
       const cargarFuente = () => {
         if (fuenteCargada) return;
-        video.src = video.dataset.fuente ?? '';
+        const hevc = video.canPlayType(video.dataset.codec ?? '') !== '';
+        video.src = (hevc ? video.dataset.fuente : video.dataset.respaldo) ?? '';
         fuenteCargada = true;
       };
 
@@ -175,6 +185,14 @@ const whatsapp = SITIO.contacto.whatsapp;
       });
 
       video.addEventListener('pause', () => marcar(false));
+
+      // canPlayType puede prometer HEVC y fallar al decodificar: se cae al respaldo una vez.
+      video.addEventListener('error', () => {
+        const respaldo = video.dataset.respaldo ?? '';
+        if (!respaldo || video.src.endsWith(respaldo)) return;
+        video.src = respaldo;
+        if (!pausadoPorElUsuario) video.play().catch(() => marcar(false));
+      });
 
       // El bucle se cierra antes de la placa final en vez de usar loop a secas.
       video.addEventListener('timeupdate', () => {

@@ -2,7 +2,7 @@
 import { SITIO } from '../../config/site';
 
 /**
- * Logotipo: el nombre en Jost 200 y la bajada debajo en Archivo, las dos
+ * Logotipo: el nombre en Jost 600 y la bajada debajo en Archivo, las dos
  * líneas con el mismo ancho. Toma el color del contexto, así sirve igual sobre
  * el hero, la barra sólida o el pie.
  */
@@ -43,7 +43,7 @@ const letras = [...SITIO.bajada].map((letra) => (letra === ' ' ? ' ' : letra));
      espaciado que queda tras la última letra, para medir solo lo visible. */
   .logo-nombre {
     font-family: var(--font-logo);
-    font-weight: 200;
+    font-weight: 600;
     font-size: 1.75rem;
     letter-spacing: 0.055em;
     margin-right: -0.055em;

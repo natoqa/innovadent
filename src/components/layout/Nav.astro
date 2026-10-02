@@ -5,7 +5,7 @@ import Logo from '../ui/Logo.astro';
 import { SITIO } from '../../config/site';
 
 interface Props {
-  /** En la home la barra flota sobre la foto del hero hasta que se hace scroll. */
+  /** En la home la barra flota sobre la foto del hero hasta el primer scroll. */
   sobreHero?: boolean;
   /** Ruta actual, para marcar el enlace activo. */
   ruta?: string;
@@ -259,10 +259,11 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
   const cerrar = document.getElementById('cerrar-menu');
   const contenido = document.getElementById('contenido');
 
-  // La barra se vuelve sólida al dejar atrás el hero. Sin hero, ya nace sólida.
+  // Transparente solo con el hero quieto arriba: el primer scroll la vuelve
+  // sólida. Sin hero, ya nace sólida.
   if (barra?.hasAttribute('data-sobre-hero')) {
     const revisar = () => {
-      const solida = window.scrollY > window.innerHeight * 0.85;
+      const solida = window.scrollY > 8;
       barra.toggleAttribute('data-solida', solida);
     };
 

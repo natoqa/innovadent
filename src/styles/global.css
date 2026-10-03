@@ -4,8 +4,8 @@
    y wdth (62–125%). Sustituye a las fuentes en public/fonts. */
 @import "@fontsource-variable/archivo/wdth.css";
 
-/* Jost solo para el logotipo, en su único peso: 600, alfabeto latino. */
-@import "@fontsource/jost/latin-600.css";
+/* Jost solo para el logotipo, en su único peso: 500, alfabeto latino. */
+@import "@fontsource/jost/latin-500.css";
 
 /* ==========================================================================
    INNOVADENT — Sistema de diseño

@@ -140,7 +140,7 @@ const hitos = defineCollection({
  * que empiezan por guion bajo (_plantilla.md) documentan los campos y el
  * cargador los ignora.
  */
-const sinPlantillas = '**/[!_]*.md';
+const sinPlantillas = '**/[^_]*.md';
 
 /**
  * Un caso sin consentimiento informado firmado no compila: `consentimiento`
@@ -213,11 +213,13 @@ const testimonios = defineCollection({
   schema: z
     .object({
       orden: z.number().int().positive(),
-      /** Nombre o iniciales, como el paciente autorizó que aparezca. */
-      autor: z.string(),
+      /** Nombre o iniciales, como el paciente autorizó que aparezca. Sin él, no se firma. */
+      autor: z.string().optional(),
       texto: z.string().optional(),
-      /** Ruta dentro de public/, por ejemplo "/video/testimonio-ana.mp4". */
+      /** Ruta dentro de public/, por ejemplo "/video/testimonio-ana.mp4". Se graba en vertical. */
       video: z.string().startsWith('/').optional(),
+      /** Fotograma de portada dentro de public/. Sin él se muestra el primer cuadro del video. */
+      poster: z.string().startsWith('/').optional(),
       autorizacion: z.literal(true),
       tratamiento: reference('tratamientos').optional(),
     })

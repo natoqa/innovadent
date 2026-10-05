@@ -3,13 +3,49 @@ import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
 import EspacioFoto from '../ui/EspacioFoto.astro';
+import fotoDiagnostico from '../../assets/diagnostico.jpg';
+import fotoPlanificacion from '../../assets/planificacion.jpg';
+import fotoSeguridad from '../../assets/seguridad.jpg';
+import fotoTratamiento from '../../assets/tratamiento.jpg';
 
 const categorias = [
-  { clave: 'diagnostico', nombre: 'Diagnóstico', nota: 'Lo que se usa para examinar antes de decidir.' },
-  { clave: 'planificacion', nombre: 'Planificación', nota: 'Lo que ayuda a preparar el tratamiento antes de empezarlo.' },
-  { clave: 'tratamiento', nombre: 'Tratamiento', nota: 'Lo que se usa en el sillón, durante la atención.' },
-  { clave: 'seguridad', nombre: 'Seguridad', nota: 'Lo que protege al paciente y al equipo en cada consulta.' },
-] as const;
+  {
+    clave: 'diagnostico',
+    nombre: 'Diagnóstico',
+    nota: 'Lo que se usa para examinar antes de decidir.',
+    foto: {
+      imagen: fotoDiagnostico,
+      alt: 'Una especialista señala en una pantalla la radiografía panorámica de un paciente mientras se la explica.',
+    },
+  },
+  {
+    clave: 'planificacion',
+    nombre: 'Planificación',
+    nota: 'Lo que ayuda a preparar el tratamiento antes de empezarlo.',
+    foto: {
+      imagen: fotoPlanificacion,
+      alt: 'Dos especialistas de la clínica revisan juntos una ficha en el pasillo de los consultorios.',
+    },
+  },
+  {
+    clave: 'tratamiento',
+    nombre: 'Tratamiento',
+    nota: 'Lo que se usa en el sillón, durante la atención.',
+    foto: {
+      imagen: fotoTratamiento,
+      alt: 'Un especialista con guantes y mascarilla atiende a una paciente recostada en el sillón dental.',
+    },
+  },
+  {
+    clave: 'seguridad',
+    nombre: 'Seguridad',
+    nota: 'Lo que protege al paciente y al equipo en cada consulta.',
+    foto: {
+      imagen: fotoSeguridad,
+      alt: 'Un especialista le muestra a una paciente un modelo dental con brackets durante la consulta.',
+    },
+  },
+];
 
 const equipos = (await getCollection('tecnologia')).sort((a, b) => a.data.orden - b.data.orden);
 
@@ -47,14 +83,17 @@ const grupos = categorias
 
           <ul class="grid gap-10 md:col-span-9">
             {maqueta ? (
-              <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9" aria-hidden="true">
+              <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9" aria-hidden={grupo.foto ? undefined : "true"}>
                 <EspacioFoto
+                  imagen={grupo.foto?.imagen}
+                  alt={grupo.foto?.alt}
                   descripcion="Foto del equipo, tomada en la clínica."
+                  sizes="(min-width: 768px) 30vw, 100vw"
                   aspecto={i % 2 === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]'}
                   class={i % 2 === 0 ? 'sm:col-span-4' : 'sm:order-2 sm:col-span-5'}
                 />
 
-                <div class={i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4'}>
+                <div class={i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4'} aria-hidden="true">
                   <span class="grid gap-3 text-subtitulo">
                     <span class="relleno w-full" />
                     <span class="relleno w-3/5" />

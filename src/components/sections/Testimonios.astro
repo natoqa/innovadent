@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
+import Reproductor from '../ui/Reproductor.astro';
 import { SITIO } from '../../config/site';
 
 const testimonios = (await getCollection('testimonios')).sort(
@@ -30,9 +31,6 @@ const videos = testimonios.filter((t) => t.data.video);
 const textos = testimonios.filter((t) => !t.data.video);
 const huecos = Math.max(ESPACIOS_VIDEO - videos.length, 0);
 const maqueta = testimonios.length === 0;
-
-/** Sin portada, `#t=0.1` hace que el navegador pinte un cuadro y no un rectángulo negro. */
-const fuente = (video: string, poster?: string) => (poster ? video : `${video}#t=0.1`);
 ---
 
 <Seccion id="testimonios" tono="oscuro" ritmo="corto">
@@ -52,21 +50,15 @@ const fuente = (video: string, poster?: string) => (poster ? video : `${video}#t
       videos.map((testimonio) => (
         <li class="w-[72vw] max-w-80 shrink-0 snap-start md:w-auto md:max-w-none">
           <figure>
-            <div class="foto aspect-[9/16] bg-tinta-700">
-              <video
-                src={fuente(testimonio.data.video!, testimonio.data.poster)}
-                poster={testimonio.data.poster}
-                controls
-                preload={testimonio.data.poster ? 'none' : 'metadata'}
-                playsinline
-                class="h-full w-full object-cover"
-                aria-label={
-                  testimonio.data.autor
-                    ? `Testimonio en video de ${testimonio.data.autor}`
-                    : 'Testimonio en video de un paciente'
-                }
-              />
-            </div>
+            <Reproductor
+              src={testimonio.data.video!}
+              poster={testimonio.data.poster}
+              etiqueta={
+                testimonio.data.autor
+                  ? `Testimonio en video de ${testimonio.data.autor}`
+                  : 'Testimonio en video de un paciente'
+              }
+            />
             {(testimonio.data.texto || testimonio.data.autor) && (
               <figcaption class="mt-5">
                 {testimonio.data.texto && (
@@ -141,19 +133,6 @@ const fuente = (video: string, poster?: string) => (poster ? video : `${video}#t
     )
   }
 </Seccion>
-
-<script>
-  // Un solo testimonio sonando a la vez.
-  const videos = document.querySelectorAll<HTMLVideoElement>('#testimonios video');
-
-  videos.forEach((video) => {
-    video.addEventListener('play', () => {
-      videos.forEach((otro) => {
-        if (otro !== video) otro.pause();
-      });
-    });
-  });
-</script>
 
 <style>
   .testimonios-fila {

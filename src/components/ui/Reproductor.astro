@@ -1,0 +1,201 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Reproductor de video vertical, sin los controles nativos del navegador.
+ * Un solo botón en el centro: reproducir y pausar. Mientras suena, el botón se
+ * oculta tras unos segundos sin tocar nada y vuelve al mover el puntero o
+ * llegar con el tabulador. Tocar el video también lo pausa.
+ */
+interface Props {
+  src: string;
+  poster?: string;
+  /** Nombre accesible del video, por ejemplo "Testimonio en video de M. R." */
+  etiqueta: string;
+  class?: string;
+}
+
+const { src, poster, etiqueta, class: clase } = Astro.props;
+
+/** Sin portada, `#t=0.1` hace que el navegador pinte un cuadro y no un rectángulo negro. */
+const fuente = poster ? src : `${src}#t=0.1`;
+---
+
+<div
+  class:list={['reproductor foto relative aspect-[9/16] bg-tinta-700', clase]}
+  data-reproductor
+  data-estado="inicial"
+>
+  <video
+    src={fuente}
+    poster={poster}
+    preload={poster ? 'none' : 'metadata'}
+    playsinline
+    aria-hidden="true"
+    class="h-full w-full object-cover"
+  ></video>
+
+  <button type="button" class="reproductor-centro" aria-label={`Reproducir: ${etiqueta}`} data-etiqueta={etiqueta}>
+    <span data-icono="reproducir"><Icon nombre="reproducir" tamano={26} /></span>
+    <span data-icono="pausa"><Icon nombre="pausa" tamano={24} /></span>
+  </button>
+
+  <span class="reproductor-duracion cifra" data-duracion aria-hidden="true"></span>
+</div>
+
+<script>
+  const ESPERA_BOTON = 2000;
+
+  const formatear = (segundos: number) => {
+    if (!Number.isFinite(segundos)) return '';
+    const minutos = Math.floor(segundos / 60);
+    const resto = Math.floor(segundos % 60).toString().padStart(2, '0');
+    return `${minutos}:${resto}`;
+  };
+
+  const reproductores = [...document.querySelectorAll<HTMLElement>('[data-reproductor]')];
+  const videos = reproductores.map((r) => r.querySelector('video')!);
+
+  reproductores.forEach((reproductor) => {
+    const video = reproductor.querySelector('video')!;
+    const boton = reproductor.querySelector<HTMLButtonElement>('.reproductor-centro')!;
+    const duracion = reproductor.querySelector<HTMLElement>('[data-duracion]')!;
+    const etiqueta = boton.dataset.etiqueta;
+
+    let temporizador: number | undefined;
+
+    const mostrarBoton = () => {
+      reproductor.removeAttribute('data-inactivo');
+      window.clearTimeout(temporizador);
+      if (!video.paused) {
+        temporizador = window.setTimeout(() => {
+          if (document.activeElement !== boton) reproductor.setAttribute('data-inactivo', '');
+        }, ESPERA_BOTON);
+      }
+    };
+
+    const alternar = () => {
+      if (video.paused) video.play();
+      else video.pause();
+    };
+
+    const ponerDuracion = () => {
+      duracion.textContent = formatear(video.duration);
+    };
+
+    if (video.readyState >= 1) ponerDuracion();
+    video.addEventListener('loadedmetadata', ponerDuracion);
+
+    video.addEventListener('play', () => {
+      videos.forEach((otro) => otro !== video && otro.pause());
+      reproductor.dataset.estado = 'reproduciendo';
+      boton.setAttribute('aria-label', `Pausar: ${etiqueta}`);
+      mostrarBoton();
+    });
+
+    video.addEventListener('pause', () => {
+      reproductor.dataset.estado = 'pausado';
+      boton.setAttribute('aria-label', `Reproducir: ${etiqueta}`);
+      mostrarBoton();
+    });
+
+    video.addEventListener('ended', () => {
+      video.currentTime = 0;
+      reproductor.dataset.estado = 'inicial';
+    });
+
+    boton.addEventListener('click', alternar);
+    video.addEventListener('click', alternar);
+
+    reproductor.addEventListener('pointermove', mostrarBoton);
+    boton.addEventListener('focus', mostrarBoton);
+  });
+</script>
+
+<style>
+  .reproductor video {
+    cursor: pointer;
+  }
+
+  .reproductor-centro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    width: 4.5rem;
+    height: 4.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--color-verde);
+    color: var(--color-tinta);
+    translate: -50% -50%;
+    transition:
+      opacity var(--duracion-ui) var(--ease-salida),
+      scale var(--duracion-ui) var(--ease-salida),
+      background-color var(--duracion-ui) var(--ease-salida);
+  }
+
+  .reproductor-centro:active {
+    scale: 0.97;
+  }
+
+  .reproductor-centro:focus-visible {
+    outline: 2px solid var(--color-verde-100);
+    outline-offset: 3px;
+  }
+
+  /* El triángulo se corre un poco para que se vea centrado en el círculo. */
+  [data-icono='reproducir'] :global(svg) {
+    margin-left: 3px;
+  }
+
+  [data-icono] {
+    display: contents;
+  }
+
+  .reproductor[data-estado='reproduciendo'] [data-icono='reproducir'],
+  .reproductor:not([data-estado='reproduciendo']) [data-icono='pausa'] {
+    display: none;
+  }
+
+  .reproductor[data-inactivo] .reproductor-centro {
+    opacity: 0;
+    scale: 0.95;
+  }
+
+  .reproductor[data-inactivo] {
+    cursor: none;
+  }
+
+  /* Duración: solo antes de empezar, como en una red social. */
+  .reproductor-duracion {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-accion);
+    background-color: color-mix(in srgb, var(--color-tinta-800) 80%, transparent);
+    color: var(--color-superficie);
+    font-size: var(--text-dato);
+    transition: opacity var(--duracion-ui) var(--ease-salida);
+  }
+
+  .reproductor-duracion:empty,
+  .reproductor:not([data-estado='inicial']) .reproductor-duracion {
+    opacity: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .reproductor-centro:hover {
+      background-color: var(--color-verde-600);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reproductor-centro:active,
+    .reproductor[data-inactivo] .reproductor-centro {
+      scale: none;
+    }
+  }
+</style>

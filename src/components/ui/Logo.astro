@@ -2,7 +2,7 @@
 import { SITIO } from '../../config/site';
 
 /**
- * Logotipo: el nombre en Jost 500 y la bajada debajo en Archivo, las dos
+ * Logotipo: el nombre en Jost 400 y la bajada debajo en Archivo, las dos
  * líneas con el mismo ancho. Toma el color del contexto, así sirve igual sobre
  * el hero, la barra sólida o el pie.
  */
@@ -39,22 +39,22 @@ const letras = [...SITIO.bajada].map((letra) => (letra === ' ' ? ' ' : letra));
     line-height: 1;
   }
 
-  /* El ancho del bloque lo marca el nombre. El margen negativo quita el
-     espaciado que queda tras la última letra, para medir solo lo visible. */
+  /* El ancho del bloque lo marca el nombre. El margen compensa el espaciado
+     que queda tras la última letra, para medir solo lo visible. */
   .logo-nombre {
     font-family: var(--font-logo);
-    font-weight: 500;
-    font-size: 2.25rem;
-    letter-spacing: 0.055em;
-    margin-right: -0.055em;
+    font-weight: 400;
+    font-size: 2.75rem;
+    letter-spacing: -0.03em;
+    margin-right: 0.03em;
     text-transform: uppercase;
   }
 
   .logo-bajada {
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
-    font-size: 0.6875rem;
+    margin-top: 10px;
+    font-size: 0.75rem;
     font-weight: 300;
     text-transform: uppercase;
     color: color-mix(in oklab, currentColor 65%, transparent);

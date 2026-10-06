@@ -4,8 +4,8 @@
    y wdth (62–125%). Sustituye a las fuentes en public/fonts. */
 @import "@fontsource-variable/archivo/wdth.css";
 
-/* Jost solo para el logotipo, en su único peso: 500, alfabeto latino. */
-@import "@fontsource/jost/latin-500.css";
+/* Jost solo para el logotipo, en su único peso: 400, alfabeto latino. */
+@import "@fontsource/jost/latin-400.css";
 
 /* ==========================================================================
    INNOVADENT — Sistema de diseño
@@ -73,7 +73,7 @@
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
-  --text-hero:    clamp(2.5rem, 7vw, 6rem);
+  --text-hero:    clamp(2.25rem, 5.5vw, 4.5rem);
   --text-hero--line-height: 0.92;
   --text-hero--letter-spacing: -0.03em;
 

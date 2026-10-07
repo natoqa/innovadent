@@ -32,7 +32,8 @@ Las fotos de menores (Innovadent Kids, odontopediatría) requieren autorización
 | `casos` | tratamiento, especialista, duración, foto antes, foto después, `consentimiento` |
 | `hitos` | año, titular, descripción, foto (opcional) |
 | `testimonios` | texto o video, nombre o iniciales, autorización |
-| `tecnologia` | equipo, marca, categoría, beneficio para el paciente |
+| `tecnologia` | equipo, marca, categoría, beneficio para el paciente, foto (opcional) |
+| `espacios` | nombre, foto tomada en la sede, alt |
 
 La categoría de `tecnologia` es una de: diagnóstico, planificación, tratamiento, seguridad. El campo que se muestra al paciente es el beneficio, no la especificación técnica.
 

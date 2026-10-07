@@ -24,6 +24,7 @@ export const GET: APIRoute = async () => {
     ...tratamientos.map((tratamiento) => `/tratamientos/${tratamiento.id}`),
     '/especialistas',
     '/casos-clinicos',
+    '/instalaciones',
     '/innovadent-kids',
     '/contacto',
   ];

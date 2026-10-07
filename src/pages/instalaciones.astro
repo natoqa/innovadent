@@ -1,0 +1,193 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Nav from '../components/layout/Nav.astro';
+import Pie from '../components/layout/Pie.astro';
+import Seccion from '../components/ui/Seccion.astro';
+import Boton from '../components/ui/Boton.astro';
+import EspacioFoto from '../components/ui/EspacioFoto.astro';
+import { CATEGORIAS } from '../lib/tecnologia';
+import { SITIO } from '../config/site';
+
+export const prerender = true;
+
+const equipos = (await getCollection('tecnologia')).sort((a, b) => a.data.orden - b.data.orden);
+const espacios = (await getCollection('espacios')).sort((a, b) => a.data.orden - b.data.orden);
+
+/**
+ * Sin equipos cargados, cada categoría muestra un hueco de maqueta. Con equipos,
+ * solo las categorías que tienen alguno.
+ */
+const maquetaEquipos = equipos.length === 0;
+const grupos = CATEGORIAS.map((categoria) => ({
+  ...categoria,
+  equipos: equipos.filter((equipo) => equipo.data.categoria === categoria.clave),
+})).filter((grupo) => maquetaEquipos || grupo.equipos.length > 0);
+
+/** Mientras no lleguen las fotos de la sede, cuatro huecos dicen qué falta. */
+const huecosEspacios = espacios.length === 0 ? 4 : 0;
+
+/**
+ * Las fotos de la sede son verticales: van de a dos, una ancha y una angosta,
+ * y el par siguiente invierte el orden, como un recorrido por la sede.
+ */
+const disposicion = (i: number) =>
+  i % 4 === 0 || i % 4 === 3
+    ? { columnas: 'md:col-span-7', aspecto: 'aspect-[4/3]', sizes: '(min-width: 768px) 55vw, 100vw' }
+    : { columnas: 'md:col-span-5', aspecto: 'aspect-[4/5]', sizes: '(min-width: 768px) 40vw, 100vw' };
+---
+
+<Base
+  titulo={`Equipos e instalaciones en ${SITIO.sede.ciudad}`}
+  descripcion={`El equipamiento y los espacios de Innovadent en ${SITIO.sede.ciudad}: con qué se examina, se planifica y se atiende a cada paciente.`}
+  ruta="/instalaciones"
+>
+  <Nav slot="encabezado" ruta="/instalaciones" />
+
+  <section class="pt-32 pb-seccion-sm md:pt-40">
+    <div class="mx-auto grid max-w-ancho gap-x-16 gap-y-8 px-6 md:grid-cols-12 md:px-10">
+      <h1 class="max-w-[14ch] text-display md:col-span-7">Equipos y espacios de la clínica.</h1>
+
+      <p class="max-w-[42ch] text-cuerpo-lg text-grafito md:col-span-5 md:self-end">
+        Dónde se te atiende y con qué. Cada equipo se presenta por lo que cambia para ti durante
+        la consulta, no por su ficha técnica.
+      </p>
+    </div>
+  </section>
+
+  <Seccion ritmo="corto">
+    <h2 class="text-titulo">Equipos</h2>
+
+    <div class="mt-8 border-t border-tinta">
+      {
+        grupos.map((grupo) => (
+          <div class="grid gap-x-10 gap-y-8 border-b border-borde py-10 md:grid-cols-12 md:py-12">
+            <div class="md:col-span-3">
+              <h3 class="text-titulo">{grupo.nombre}</h3>
+              <p class="mt-3 max-w-[28ch] text-menor text-grafito">{grupo.nota}</p>
+            </div>
+
+            <ul class="grid gap-12 md:col-span-9">
+              {maquetaEquipos ? (
+                <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9" aria-hidden="true">
+                  <EspacioFoto
+                    descripcion="Foto del equipo, tomada en la clínica."
+                    sizes="(min-width: 768px) 30vw, 100vw"
+                    class="sm:col-span-4"
+                  />
+
+                  <div class="sm:col-span-5">
+                    <span class="grid gap-3 text-subtitulo">
+                      <span class="relleno w-full" />
+                      <span class="relleno w-3/5" />
+                    </span>
+                    <p class="mt-3 text-dato text-grafito">Beneficio para el paciente</p>
+
+                    <dl class="mt-6 border-t border-borde text-menor">
+                      {['Equipo', 'Marca'].map((etiqueta) => (
+                        <div class="flex items-center justify-between gap-6 border-b border-borde py-3">
+                          <dt class="text-grafito">{etiqueta}</dt>
+                          <dd class="relleno w-32" />
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                </li>
+              ) : (
+                grupo.equipos.map((equipo) => (
+                  <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9">
+                    {equipo.data.foto && (
+                      <EspacioFoto
+                        imagen={equipo.data.foto}
+                        alt={equipo.data.alt}
+                        descripcion={equipo.data.equipo}
+                        sizes="(min-width: 768px) 30vw, 100vw"
+                        class="sm:col-span-4"
+                      />
+                    )}
+
+                    <div class={equipo.data.foto ? 'sm:col-span-5' : 'max-w-[46ch] sm:col-span-9'}>
+                      <p class="text-subtitulo">{equipo.data.beneficio}</p>
+
+                      <dl class="mt-6 border-t border-borde text-menor">
+                        <div class="flex justify-between gap-6 border-b border-borde py-3">
+                          <dt class="text-grafito">Equipo</dt>
+                          <dd class="text-right">{equipo.data.equipo}</dd>
+                        </div>
+                        {equipo.data.marca && (
+                          <div class="flex justify-between gap-6 border-b border-borde py-3">
+                            <dt class="text-grafito">Marca</dt>
+                            <dd class="text-right">{equipo.data.marca}</dd>
+                          </div>
+                        )}
+                      </dl>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </Seccion>
+
+  <Seccion tono="franja">
+    <div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+      <h2 class="text-titulo">Espacios</h2>
+      <p class="max-w-[38ch] text-menor text-grafito">
+        {SITIO.sede.calle}, {SITIO.sede.distrito}.
+      </p>
+    </div>
+
+    <ul class="mt-10 grid gap-x-8 gap-y-12 md:grid-cols-12">
+      {
+        espacios.map((espacio, i) => {
+          const { columnas, aspecto, sizes } = disposicion(i);
+          return (
+            <li class={columnas}>
+              <EspacioFoto
+                imagen={espacio.data.foto}
+                alt={espacio.data.alt}
+                descripcion={espacio.data.nombre}
+                aspecto={aspecto}
+                sizes={sizes}
+              />
+              <p class="mt-4 text-cuerpo font-semibold">{espacio.data.nombre}</p>
+              {espacio.data.descripcion && (
+                <p class="mt-1 max-w-[46ch] text-menor text-grafito">{espacio.data.descripcion}</p>
+              )}
+            </li>
+          );
+        })
+      }
+      {
+        Array.from({ length: huecosEspacios }, (_, i) => {
+          const { columnas, aspecto, sizes } = disposicion(i);
+          return (
+            <li class={columnas} aria-hidden="true">
+              <EspacioFoto
+                descripcion="Foto de un espacio de la sede, tomada en la clínica."
+                aspecto={aspecto}
+                sizes={sizes}
+                tono="franja"
+              />
+              <span class="mt-4 block text-cuerpo">
+                <span class="relleno w-40" />
+              </span>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </Seccion>
+
+  <Seccion ritmo="corto">
+    <div class="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+      <p class="max-w-[24ch] text-titulo">Conoce la clínica en tu primera consulta.</p>
+      <Boton href="/#reserva">Reservar mi cita</Boton>
+    </div>
+  </Seccion>
+
+  <Pie slot="pie" />
+</Base>

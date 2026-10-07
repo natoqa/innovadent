@@ -3,58 +3,43 @@ import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import EncabezadoSeccion from '../ui/EncabezadoSeccion.astro';
 import EspacioFoto from '../ui/EspacioFoto.astro';
+import Boton from '../ui/Boton.astro';
+import { CATEGORIAS, type ClaveCategoria } from '../../lib/tecnologia';
 import fotoDiagnostico from '../../assets/diagnostico.jpg';
 import fotoPlanificacion from '../../assets/planificacion.jpg';
 import fotoSeguridad from '../../assets/seguridad.jpg';
 import fotoTratamiento from '../../assets/tratamiento.jpg';
 
-const categorias = [
-  {
-    clave: 'diagnostico',
-    nombre: 'Diagnóstico',
-    nota: 'Lo que se usa para examinar antes de decidir.',
-    foto: {
-      imagen: fotoDiagnostico,
-      alt: 'Una especialista señala en una pantalla la radiografía panorámica de un paciente mientras se la explica.',
-    },
+const fotos = {
+  diagnostico: {
+    imagen: fotoDiagnostico,
+    alt: 'Una especialista señala en una pantalla la radiografía panorámica de un paciente mientras se la explica.',
   },
-  {
-    clave: 'planificacion',
-    nombre: 'Planificación',
-    nota: 'Lo que ayuda a preparar el tratamiento antes de empezarlo.',
-    foto: {
-      imagen: fotoPlanificacion,
-      alt: 'Dos especialistas de la clínica revisan juntos una ficha en el pasillo de los consultorios.',
-    },
+  planificacion: {
+    imagen: fotoPlanificacion,
+    alt: 'Dos especialistas de la clínica revisan juntos una ficha en el pasillo de los consultorios.',
   },
-  {
-    clave: 'tratamiento',
-    nombre: 'Tratamiento',
-    nota: 'Lo que se usa en el sillón, durante la atención.',
-    foto: {
-      imagen: fotoTratamiento,
-      alt: 'Un especialista con guantes y mascarilla atiende a una paciente recostada en el sillón dental.',
-    },
+  tratamiento: {
+    imagen: fotoTratamiento,
+    alt: 'Un especialista con guantes y mascarilla atiende a una paciente recostada en el sillón dental.',
   },
-  {
-    clave: 'seguridad',
-    nombre: 'Seguridad',
-    nota: 'Lo que protege al paciente y al equipo en cada consulta.',
-    foto: {
-      imagen: fotoSeguridad,
-      alt: 'Un especialista le muestra a una paciente un modelo dental con brackets durante la consulta.',
-    },
+  seguridad: {
+    imagen: fotoSeguridad,
+    alt: 'Un especialista le muestra a una paciente un modelo dental con brackets durante la consulta.',
   },
-];
+} satisfies Record<ClaveCategoria, { imagen: ImageMetadata; alt: string }>;
+
+const categorias = CATEGORIAS.map((categoria) => ({ ...categoria, foto: fotos[categoria.clave] }));
 
 const equipos = (await getCollection('tecnologia')).sort((a, b) => a.data.orden - b.data.orden);
 
 /**
  * Las filas alternan el lado de la foto para que cuatro categorías seguidas no
- * se lean como la misma fila repetida.
+ * se lean como la misma fila repetida. Con equipos cargados, solo aparecen las
+ * categorías que tienen alguno.
  *
- * Sin equipos cargados se dibuja la maqueta: un hueco por categoría, con la
- * foto en gris y barras donde irán el beneficio, el equipo y la marca.
+ * Sin equipos se dibuja la maqueta: barras donde irán el beneficio, el equipo
+ * y la marca.
  */
 const maqueta = equipos.length === 0;
 
@@ -81,48 +66,52 @@ const grupos = categorias
             <p class="mt-3 max-w-[28ch] text-menor text-grafito">{grupo.nota}</p>
           </div>
 
-          <ul class="grid gap-10 md:col-span-9">
+          <div class="grid gap-x-10 gap-y-6 sm:grid-cols-9 md:col-span-9">
+            <EspacioFoto
+              imagen={grupo.foto.imagen}
+              alt={grupo.foto.alt}
+              descripcion="Foto del equipo, tomada en la clínica."
+              sizes="(min-width: 768px) 30vw, 100vw"
+              aspecto={i % 2 === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]'}
+              class={i % 2 === 0 ? 'sm:col-span-4' : 'sm:order-2 sm:col-span-5'}
+            />
+
             {maqueta ? (
-              <li class="grid gap-x-10 gap-y-6 sm:grid-cols-9" aria-hidden={grupo.foto ? undefined : "true"}>
-                <EspacioFoto
-                  imagen={grupo.foto?.imagen}
-                  alt={grupo.foto?.alt}
-                  descripcion="Foto del equipo, tomada en la clínica."
-                  sizes="(min-width: 768px) 30vw, 100vw"
-                  aspecto={i % 2 === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]'}
-                  class={i % 2 === 0 ? 'sm:col-span-4' : 'sm:order-2 sm:col-span-5'}
-                />
+              <div class={i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4'} aria-hidden="true">
+                <span class="grid gap-3 text-subtitulo">
+                  <span class="relleno w-full" />
+                  <span class="relleno w-3/5" />
+                </span>
+                <p class="mt-3 text-dato text-grafito">Beneficio para el paciente</p>
 
-                <div class={i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4'} aria-hidden="true">
-                  <span class="grid gap-3 text-subtitulo">
-                    <span class="relleno w-full" />
-                    <span class="relleno w-3/5" />
-                  </span>
-                  <p class="mt-3 text-dato text-grafito">Beneficio para el paciente</p>
-
-                  <dl class="mt-6 border-t border-borde text-menor">
-                    {['Equipo', 'Marca'].map((etiqueta) => (
-                      <div class="flex items-center justify-between gap-6 border-b border-borde py-3">
-                        <dt class="text-grafito">{etiqueta}</dt>
-                        <dd class="relleno w-32" />
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              </li>
+                <dl class="mt-6 border-t border-borde text-menor">
+                  {['Equipo', 'Marca'].map((etiqueta) => (
+                    <div class="flex items-center justify-between gap-6 border-b border-borde py-3">
+                      <dt class="text-grafito">{etiqueta}</dt>
+                      <dd class="relleno w-32" />
+                    </div>
+                  ))}
+                </dl>
+              </div>
             ) : (
-              grupo.equipos.map((equipo) => (
-                <li class="max-w-[46ch]">
-                  <p class="text-subtitulo">{equipo.data.beneficio}</p>
-                  <p class="mt-3 text-menor text-grafito">
-                    {equipo.data.equipo}, {equipo.data.marca}
-                  </p>
-                </li>
-              ))
+              <ul class:list={['grid content-start gap-8', i % 2 === 0 ? 'sm:col-span-5' : 'sm:col-span-4']}>
+                {grupo.equipos.map((equipo) => (
+                  <li class="max-w-[46ch]">
+                    <p class="text-cuerpo-lg">{equipo.data.beneficio}</p>
+                    <p class="mt-2 text-menor text-grafito">
+                      {equipo.data.marca ? `${equipo.data.equipo}, ${equipo.data.marca}` : equipo.data.equipo}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             )}
-          </ul>
+          </div>
         </div>
       ))
     }
+  </div>
+
+  <div class="mt-10 md:mt-12">
+    <Boton href="/instalaciones" variante="secundaria">Ver equipos e instalaciones</Boton>
   </div>
 </Seccion>

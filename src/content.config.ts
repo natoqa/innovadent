@@ -243,16 +243,41 @@ const kids = defineCollection({
     }),
 });
 
-/** Se muestra el beneficio para el paciente; equipo y marca van como dato. */
+/**
+ * Se muestra el beneficio para el paciente; equipo y marca van como dato.
+ * La foto, tomada en la clínica, se ve en /instalaciones.
+ */
 const tecnologia = defineCollection({
   loader: glob({ base: './src/content/tecnologia', pattern: sinPlantillas }),
-  schema: z.object({
-    orden: z.number().int().positive(),
-    equipo: z.string(),
-    marca: z.string(),
-    categoria: z.enum(['diagnostico', 'planificacion', 'tratamiento', 'seguridad']),
-    beneficio: z.string(),
-  }),
+  schema: ({ image }) =>
+    z
+      .object({
+        orden: z.number().int().positive(),
+        equipo: z.string(),
+        /** Opcional mientras el cliente no confirme fabricante y modelo. */
+        marca: z.string().optional(),
+        categoria: z.enum(['diagnostico', 'planificacion', 'tratamiento', 'seguridad']),
+        beneficio: z.string(),
+        foto: image().optional(),
+        alt: z.string().min(10).optional(),
+      })
+      .refine((t) => !t.foto || Boolean(t.alt), {
+        message: 'Una foto necesita alt que describa lo que se ve.',
+        path: ['alt'],
+      }),
+});
+
+/** Los espacios de la sede: sala de espera, consultorios, esterilización. */
+const espacios = defineCollection({
+  loader: glob({ base: './src/content/espacios', pattern: sinPlantillas }),
+  schema: ({ image }) =>
+    z.object({
+      orden: z.number().int().positive(),
+      nombre: z.string(),
+      descripcion: z.string().optional(),
+      foto: image(),
+      alt: z.string().min(10),
+    }),
 });
 
 export const collections = {
@@ -263,5 +288,6 @@ export const collections = {
   casos,
   testimonios,
   tecnologia,
+  espacios,
   kids,
 };

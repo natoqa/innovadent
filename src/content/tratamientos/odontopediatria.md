@@ -67,12 +67,10 @@ seo:
     Atención odontológica para bebés, niños y adolescentes desde los 6 meses:
     prevención, tratamiento de caries y evaluación de la mordida.
 
-# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
-# la clínica antes de publicar. La foto real casi seguro mostrará a un menor:
-# añadir fotoConMenores: true y autorizacionPadres: true, solo con la autorización
-# firmada por los padres.
-foto: ../../assets/especialidades/Odontopediatría.jpg
-altFoto: Odontopediatra choca las manos con un niño sentado en el sillón dental, los dos sonriendo.
+foto: ../../assets/atencion/odontopediatria-revision-nino.webp
+altFoto: La odontopediatra revisa la boca de un niño sentado en un sillón infantil, en el consultorio decorado con figuras de videojuego.
+fotoConMenores: true
+autorizacionPadres: true
 ---
 
 Las fotografías de menores requieren autorización de los padres antes de publicarse.

@@ -5,5 +5,5 @@ titulo: Cirujano dentista
 especialidad: Implantología y periodoncia
 colegiatura: "28366"
 rne: "2541"
-retrato: ../../assets/equipo/KarinaCenturion.jpg
+retrato: ../../assets/equipo/KarinaCenturion.webp
 ---

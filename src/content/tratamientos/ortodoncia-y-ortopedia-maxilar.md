@@ -67,11 +67,8 @@ seo:
     Evaluación y tratamiento de maloclusiones en niños, jóvenes y adultos.
     Ortopedia maxilar, brackets y alineadores transparentes según cada caso.
 
-# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
-# la clínica antes de publicar. Si en la foto real aparece un menor, añadir
-# fotoConMenores: true y autorizacionPadres: true.
-foto: ../../assets/especialidades/OrtodonciayOrtopediaMaxilar.jpg
-altFoto: Ortodoncista con guantes y gafas de protección ajusta con una pinza los brackets de una paciente en el sillón dental.
+foto: ../../assets/atencion/ortodoncia-modelo-brackets.webp
+altFoto: El especialista señala un modelo dental con brackets mientras la paciente sonríe sentada en el sillón.
 ---
 
 Las herramientas de diagnóstico permiten obtener información detallada para la

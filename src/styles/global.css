@@ -160,7 +160,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3 {
+  h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-stretch: 112%;
     font-weight: 600;
@@ -171,7 +171,7 @@
   /* En pantallas angostas una palabra como "Odontopediatría" no cabe entera
      en el ancho expandido del titular: se divide con guion, no desborda. */
   @media (max-width: 29.99rem) {
-    h1, h2, h3 { hyphens: auto; }
+    h1, h2, h3, h4 { hyphens: auto; }
   }
 
   p, li { text-wrap: pretty; }

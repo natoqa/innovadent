@@ -62,7 +62,8 @@ const iconos: Record<string, NombreIcono> = {
                     alt={area.data.altFoto}
                     formats={['avif', 'webp']}
                     fallbackFormat="jpg"
-                    widths={[480, 720, 960, 1280]}
+                    quality={65}
+                    widths={[480, 720, 960, 1280, 1600]}
                     sizes="(min-width: 768px) 40vw, 100vw"
                     loading="lazy"
                     class="h-full w-full object-cover"
@@ -126,7 +127,8 @@ const iconos: Record<string, NombreIcono> = {
                       alt={area.data.altFoto}
                       formats={['avif', 'webp']}
                       fallbackFormat="jpg"
-                      widths={[400, 600, 800]}
+                      quality={65}
+                      widths={[400, 600, 800, 1000]}
                       sizes="(min-width: 64rem) 24rem, 1px"
                       loading="eager"
                       fetchpriority="low"
@@ -483,7 +485,7 @@ const iconos: Record<string, NombreIcono> = {
               (contenido.parentElement as HTMLElement).style.transform =
                 `translateY(${oculta * 100}%)`;
               contenido.style.transform =
-                `translateY(${-oculta * 100 - salida * 12}%) scale(${1 + oculta * 0.12})`;
+                `translateY(${-oculta * 100 - salida * 12}%) scale(${1 + oculta * 0.04})`;
               contenido.style.opacity = String(1 - salida * 0.4);
             });
 

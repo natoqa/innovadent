@@ -68,10 +68,8 @@ seo:
     Tratamiento de conductos con radiografía digital, localizador de ápice y
     magnificación, para conservar la pieza dental cuando es posible.
 
-# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
-# la clínica antes de publicar.
-foto: ../../assets/especialidades/Endodoncia.jpg
-altFoto: Endodoncista trabaja a través de un microscopio clínico mientras atiende a un paciente recostado en el sillón dental.
+foto: ../../assets/atencion/endodoncia-instrumental-modelo.webp
+altFoto: Especialista sonriente sostiene un modelo dental y una lima, frente a las cajas de instrumental de colores sobre la mesa del consultorio.
 ---
 
 La evaluación clínica y radiográfica determina en cada caso el tratamiento más

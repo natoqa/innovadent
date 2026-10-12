@@ -10,23 +10,41 @@ interface Props {
   prioritaria?: boolean;
   anchos?: number[];
   sizes?: string;
+  /** Proporción del recorte, como clase de Tailwind. Sin ella, la de la foto. */
+  aspecto?: string;
+  /** Fotos con mucho grano, como las de Kids, admiten menos sin que se note. */
+  calidad?: number;
   class?: string;
 }
 
-const { imagen, alt, pie, prioritaria = false, anchos, sizes, class: clase } = Astro.props;
+// Sin anchos, Astro sirve una sola copia al tamaño original de la foto.
+const {
+  imagen,
+  alt,
+  pie,
+  prioritaria = false,
+  anchos = [480, 800, 1200, 1600],
+  sizes,
+  aspecto,
+  calidad = 65,
+  class: clase,
+} = Astro.props;
 ---
 
 <figure class:list={[clase]}>
-  <div class="foto">
+  <div class:list={['foto', aspecto]}>
     <Picture
       src={imagen}
       alt={alt}
       formats={['avif', 'webp']}
+      fallbackFormat="jpg"
+      quality={calidad}
       widths={anchos}
       sizes={sizes}
       loading={prioritaria ? 'eager' : 'lazy'}
       decoding={prioritaria ? 'sync' : 'async'}
       fetchpriority={prioritaria ? 'high' : 'auto'}
+      class:list={[aspecto && 'h-full w-full object-cover']}
     />
   </div>
 

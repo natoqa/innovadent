@@ -17,7 +17,7 @@ Las secciones no escriben GSAP para revelarse: declaran `data-mov` en el HTML y 
 |---|---|---|
 | `data-mov="titulo"` | Titulares de sección | Líneas que suben desde detrás de una máscara (la firma del sitio) |
 | `data-mov="texto"` | Entradillas, párrafos | Solo opacidad, sin desplazamiento |
-| `data-mov-fotos` | Región con `.foto` | Clip de abajo arriba, la imagen se asienta de 1.15 a 1 |
+| `data-mov-fotos` | Región con `.foto` | Clip de abajo arriba, la imagen se asienta de 1.04 a 1 en 1 s. Más escala ablanda la foto mientras dura (10-10-2026) |
 | `data-mov="grupo"` | Retratos | Se revelan por tandas (`ScrollTrigger.batch`), nombres después |
 | `data-mov="filas"` | Listas, filas con borde | Cada fila se dibuja de izquierda a derecha |
 | `data-mov="palabras"` | Citas de testimonios | Se ilumina palabra a palabra con el scroll |

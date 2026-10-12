@@ -12,6 +12,6 @@ equipo: Tomógrafo de haz cónico
 marca: Nombre del fabricante y modelo
 categoria: diagnostico
 beneficio: Permite ver el hueso en tres dimensiones antes de colocar un implante.
-foto: ./nombre-de-la-foto.jpg
+foto: ./nombre-de-la-foto.webp
 alt: El tomógrafo de la clínica, en la sala de diagnóstico por imagen
 ---

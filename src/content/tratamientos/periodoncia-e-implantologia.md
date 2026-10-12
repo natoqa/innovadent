@@ -64,10 +64,8 @@ seo:
     Tratamiento de encías y tejidos de soporte, y reposición de piezas perdidas
     mediante implantes con planificación digital y guías quirúrgicas.
 
-# TEMPORAL: imagen de muestra para ver la maqueta. Reemplazar por la foto real de
-# la clínica antes de publicar.
-foto: ../../assets/especialidades/PeriodonciaeImplantología.webp
-altFoto: Colocación de implantes dentales con una guía quirúrgica transparente, con la tomografía del maxilar en la pantalla del fondo.
+foto: ../../assets/atencion/implantologia-revision-paciente.webp
+altFoto: La especialista revisa la boca de una paciente recostada en el sillón, con la bandeja de instrumental a su lado.
 ---
 
 La planificación previa permite anticipar el procedimiento y ajustar el tratamiento a

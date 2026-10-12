@@ -18,6 +18,8 @@ interface Props {
   tono?: 'claro' | 'franja' | 'oscuro';
   sizes?: string;
   prioritaria?: boolean;
+  /** Fotos con mucho grano, como las de Kids, admiten menos sin que se note. */
+  calidad?: number;
   class?: string;
 }
 
@@ -29,6 +31,7 @@ const {
   tono = 'claro',
   sizes = '(min-width: 768px) 50vw, 100vw',
   prioritaria = false,
+  calidad = 65,
   class: clase,
 } = Astro.props;
 
@@ -46,7 +49,9 @@ const fondos = {
         src={imagen}
         alt={alt ?? descripcion}
         formats={['avif', 'webp']}
-        widths={[480, 800, 1200]}
+        fallbackFormat="jpg"
+        quality={calidad}
+        widths={[480, 800, 1200, 1600]}
         sizes={sizes}
         loading={prioritaria ? 'eager' : 'lazy'}
         fetchpriority={prioritaria ? 'high' : 'auto'}

@@ -86,7 +86,7 @@ function revelarFoto(foto: HTMLElement, demora = 0) {
   linea.to(foto, { clipPath: recorte(foto, '0%'), duration: 1.3, ease: EASE_GSAP.ambas, clearProps: 'clipPath' });
 
   if (interior) {
-    linea.fromTo(interior, { scale: 1.15 }, { scale: 1, duration: 1.8, clearProps: 'scale' }, 0);
+    linea.fromTo(interior, { scale: 1.04 }, { scale: 1, duration: 1, clearProps: 'scale' }, 0);
   }
 
   return linea;

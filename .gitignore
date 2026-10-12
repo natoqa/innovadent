@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# originales de fotos, respaldo local antes de convertir a webp
+fotos-originales/

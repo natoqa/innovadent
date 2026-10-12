@@ -45,9 +45,11 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
           <div class="grid grid-cols-2 gap-4">
             {fotos.map((foto, i) => (
               <Figura
+                calidad={50}
                 imagen={foto.data.foto}
                 alt={foto.data.alt}
                 sizes={i === 0 ? '(min-width: 768px) 45vw, 100vw' : '(min-width: 768px) 22vw, 50vw'}
+                aspecto={i === 0 ? 'aspect-[4/5]' : 'aspect-[3/4]'}
                 class={i === 0 ? 'col-span-2' : undefined}
               />
             ))}
@@ -56,6 +58,7 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
           odontopediatria?.data.foto &&
           odontopediatria.data.altFoto && (
             <Figura
+              calidad={50}
               imagen={odontopediatria.data.foto}
               alt={odontopediatria.data.altFoto}
               sizes="(min-width: 768px) 45vw, 100vw"

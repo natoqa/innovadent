@@ -8,6 +8,6 @@
 orden: 1
 nombre: Sala de espera
 descripcion: Donde se espera antes de la consulta.
-foto: ./nombre-de-la-foto.jpg
+foto: ./nombre-de-la-foto.webp
 alt: La sala de espera de la clínica, con sillones y luz natural desde la ventana
 ---

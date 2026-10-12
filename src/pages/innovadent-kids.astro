@@ -25,15 +25,15 @@ const odontopediatras = (
 const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data.orden);
 
 /**
- * Los huecos de foto de la página, en orden de aparición. Las fotos de la
- * colección kids los van ocupando según su `orden`; los que quedan vacíos se
- * ven en gris con la foto que falta.
+ * Los huecos de foto de la página, en orden de aparición. El `orden` de cada
+ * foto de la colección kids es el número de su hueco, así una foto vertical
+ * no cae en un hueco horizontal. Los que quedan vacíos se ven en gris con la
+ * foto que falta.
  */
-const hueco = (i: number, descripcion: string) => ({
-  descripcion,
-  imagen: fotos[i]?.data.foto,
-  alt: fotos[i]?.data.alt,
-});
+const hueco = (i: number, descripcion: string) => {
+  const foto = fotos.find((f) => f.data.orden === i + 1);
+  return { descripcion, imagen: foto?.data.foto, alt: foto?.data.alt };
+};
 
 const portada = hueco(0, 'Foto principal: un niño en consulta con la odontopediatra.');
 const detalle = hueco(1, 'Detalle: manos del niño y de la odontopediatra, o el cepillo.');
@@ -76,6 +76,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
 
       <div class="relative md:col-span-6 md:pb-20">
         <EspacioFoto
+          calidad={50}
           {...portada}
           aspecto="aspect-[4/5]"
           sizes="(min-width: 768px) 38vw, 85vw"
@@ -83,7 +84,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
           class="w-[85%] md:w-[78%]"
         />
         <div class="absolute right-0 bottom-0 w-[46%] translate-y-1/3 rounded-[calc(var(--radius-foto)+6px)] bg-verde-100 p-1.5 md:w-[42%] md:translate-y-0">
-          <EspacioFoto {...detalle} aspecto="aspect-square" sizes="(min-width: 768px) 20vw, 45vw" />
+          <EspacioFoto {...detalle} calidad={50} aspecto="aspect-square" sizes="(min-width: 768px) 20vw, 45vw" />
         </div>
       </div>
     </div>
@@ -137,6 +138,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
     <h2 class="max-w-[14ch] text-display">Cómo es la primera visita</h2>
 
     <EspacioFoto
+      calidad={50}
       {...bienvenida}
       aspecto="aspect-[4/3] md:aspect-[21/9]"
       sizes="(min-width: 1248px) 1200px, 100vw"
@@ -189,6 +191,8 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
                       src={persona.data.retrato}
                       alt={`Retrato de ${persona.data.nombre}.`}
                       formats={['avif', 'webp']}
+                      fallbackFormat="jpg"
+                      quality={65}
                       widths={[320, 480, 720]}
                       sizes="(min-width: 768px) 24vw, 45vw"
                       loading="lazy"
@@ -220,6 +224,7 @@ const numero = (i: number) => String(i + 1).padStart(2, '0');
       {
         galeria.map((foto, i) => (
           <EspacioFoto
+            calidad={50}
             {...foto}
             aspecto={['aspect-[4/5] md:aspect-auto md:h-full', 'aspect-[4/5]', 'aspect-[4/5]', 'aspect-[4/5] md:aspect-[16/10]'][i]}
             sizes={i === 0 ? '(min-width: 768px) 45vw, 50vw' : '(min-width: 768px) 30vw, 50vw'}

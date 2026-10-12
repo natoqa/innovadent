@@ -3,8 +3,8 @@ import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Seccion from '../ui/Seccion.astro';
 import { SITIO } from '../../config/site';
-import fotoEquipo from '../../assets/equipo/especialistas-innovadent.jpg';
-import fotoEspecialistas from '../../assets/equipo/especialistas-innovadent-2.jpg';
+import fotoEquipo from '../../assets/equipo/especialistas-innovadent.webp';
+import fotoEspecialistas from '../../assets/equipo/especialistas-innovadent-2.webp';
 
 const anios = SITIO.aniversario - SITIO.fundacion;
 const pacientes = new Intl.NumberFormat(SITIO.idioma).format(SITIO.pacientes);
@@ -80,7 +80,9 @@ const especialidades = (await getCollection('tratamientos')).length;
                 src={foto.imagen}
                 alt={foto.alt}
                 formats={['avif', 'webp']}
-                widths={[480, 800, 1200]}
+                fallbackFormat="jpg"
+                quality={65}
+                widths={[480, 800, 1200, 1600]}
                 width={1200}
                 sizes="(min-width: 768px) 45vw, 100vw"
                 loading="lazy"

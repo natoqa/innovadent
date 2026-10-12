@@ -73,7 +73,7 @@
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
-  --text-hero:    clamp(2.25rem, 5.5vw, 4.5rem);
+  --text-hero:    clamp(2.75rem, 7vw, 5.75rem);
   --text-hero--line-height: 0.92;
   --text-hero--letter-spacing: -0.03em;
 

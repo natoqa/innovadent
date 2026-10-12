@@ -39,18 +39,19 @@ const fotos = (await getCollection('kids')).sort((a, b) => a.data.orden - b.data
       }
     </div>
 
-    <div class="md:col-span-6 md:col-start-7" data-mov-fotos data-mov="profundidad" data-mov-intensidad="40">
+    {/* En escritorio las fotos no suman altura: ocupan exactamente la del texto. */}
+    <div class="md:relative md:col-span-6 md:col-start-7" data-mov-fotos>
       {
         fotos.length > 0 ? (
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-4 md:absolute md:inset-0 md:grid-cols-[3fr_2fr] md:grid-rows-2">
             {fotos.map((foto, i) => (
               <Figura
                 calidad={50}
                 imagen={foto.data.foto}
                 alt={foto.data.alt}
-                sizes={i === 0 ? '(min-width: 768px) 45vw, 100vw' : '(min-width: 768px) 22vw, 50vw'}
-                aspecto={i === 0 ? 'aspect-[4/5]' : 'aspect-[3/4]'}
-                class={i === 0 ? 'col-span-2' : undefined}
+                sizes={i === 0 ? '(min-width: 768px) 28vw, 100vw' : '(min-width: 768px) 19vw, 50vw'}
+                aspecto={i === 0 ? 'aspect-[4/5] md:aspect-auto md:h-full' : 'aspect-[3/4] md:aspect-auto md:h-full'}
+                class={i === 0 ? 'col-span-2 md:col-span-1 md:row-span-2 md:h-full' : 'md:h-full'}
               />
             ))}
           </div>

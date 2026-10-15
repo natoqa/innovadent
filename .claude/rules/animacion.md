@@ -27,7 +27,7 @@ Si una sección necesita algo nuevo, se agrega un tipo al módulo; no se escribe
 
 ## Coreografías propias
 
-Siguen con su código: la entrada del hero, la rueda de áreas clínicas (con la subida de Casos), el comparador antes/después, las cifras que cuentan, la línea de tiempo que se llena y el parallax de `/especialistas`. En escritorio el titular de Casos lo anima la rueda: su encabezado usa `movimiento="solo-movil"`.
+Siguen con su código: la entrada del hero, la rueda de áreas clínicas (con la subida de Casos), el comparador antes/después, las cifras que cuentan, la línea de tiempo que se llena y el parallax de `/especialistas`. El titular de Casos lo anima la rueda, en móvil y escritorio: su encabezado usa `movimiento="externo"`.
 
 La barra de navegación se oculta al bajar y vuelve al subir. Se queda quieta sobre el hero, con un menú abierto, con el foco dentro y sobre las zonas `data-barra-fija` (las secciones fijadas que calculan su margen contando con ella).
 

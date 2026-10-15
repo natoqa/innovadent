@@ -161,8 +161,8 @@ const casos = defineCollection({
         titulo: z.string(),
         tratamiento: reference('tratamientos'),
         especialista: reference('especialistas'),
-        /** Como lo diría la ficha: "14 meses", "3 semanas". */
-        duracion: z.string(),
+        /** Como lo diría la ficha: "14 meses", "3 semanas". Sin dato, la fila no aparece. */
+        duracion: z.string().optional(),
         sesiones: z.string().optional(),
         /** El primero con `destacado` abre la página de casos. */
         destacado: z.boolean().default(false),
@@ -272,6 +272,8 @@ const espacios = defineCollection({
   loader: glob({ base: './src/content/espacios', pattern: sinPlantillas }),
   schema: ({ image }) =>
     z.object({
+      /** Zona de la sede donde se agrupa; ver ZONAS en src/lib/espacios.ts. */
+      zona: z.enum(['consultorios', 'imagen', 'recepcion']),
       orden: z.number().int().positive(),
       nombre: z.string(),
       descripcion: z.string().optional(),

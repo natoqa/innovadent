@@ -1,5 +1,6 @@
 ---
-orden: 4
+zona: imagen
+orden: 10
 nombre: Diagnóstico por imagen
 descripcion: Donde se revisan las radiografías y tomografías antes de explicarte el diagnóstico.
 foto: ./diagnostico-por-imagen.webp

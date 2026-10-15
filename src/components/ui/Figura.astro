@@ -12,8 +12,6 @@ interface Props {
   sizes?: string;
   /** Proporción del recorte, como clase de Tailwind. Sin ella, la de la foto. */
   aspecto?: string;
-  /** Fotos con mucho grano, como las de Kids, admiten menos sin que se note. */
-  calidad?: number;
   class?: string;
 }
 
@@ -26,7 +24,6 @@ const {
   anchos = [480, 800, 1200, 1600],
   sizes,
   aspecto,
-  calidad = 65,
   class: clase,
 } = Astro.props;
 ---
@@ -38,7 +35,7 @@ const {
       alt={alt}
       formats={['avif', 'webp']}
       fallbackFormat="jpg"
-      quality={calidad}
+      quality={80}
       widths={anchos}
       sizes={sizes}
       loading={prioritaria ? 'eager' : 'lazy'}

@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Boton from '../ui/Boton.astro';
 import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
 import { SITIO } from '../../config/site';
 
 interface Props {
@@ -133,6 +134,20 @@ const subrayadoActivo = sobreHero ? 'decoration-verde-200' : 'decoration-verde-7
     </nav>
 
     <Boton href="/#reserva" class="hidden whitespace-nowrap sm:inline-flex">Reservar mi cita</Boton>
+
+    {
+      SITIO.contacto.whatsapp && (
+        <a
+          href={`https://wa.me/${SITIO.contacto.whatsapp}`}
+          target="_blank"
+          rel="noopener"
+          aria-label="Escribir por WhatsApp"
+          class="-mx-3 grid size-12 shrink-0 place-items-center rounded-full transition-colors duration-200 ease-salida hover:bg-current/10"
+        >
+          <Icon nombre="whatsapp" tamano={22} />
+        </a>
+      )
+    }
 
     <button
       id="abrir-menu"

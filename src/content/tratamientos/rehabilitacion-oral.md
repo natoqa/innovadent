@@ -63,8 +63,8 @@ seo:
     Coronas, puentes, carillas y prótesis sobre implantes para recuperar la función
     masticatoria y la estética de la sonrisa.
 
-foto: ../../assets/atencion/rehabilitacion-modelo-dental.webp
-altFoto: El especialista muestra un modelo dental de frente, con la paciente sonriendo en el sillón detrás de él.
+foto: ../../assets/atencion/rehabilitacion-camara-intraoral.webp
+altFoto: La especialista recorre con la cámara intraoral la boca de la paciente, recostada en el sillón con lentes de protección.
 ---
 
 Las carillas y el diseño de sonrisa forman parte de la rehabilitación oral: se

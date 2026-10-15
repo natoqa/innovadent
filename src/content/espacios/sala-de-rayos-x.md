@@ -1,6 +1,7 @@
 ---
-orden: 3
+zona: imagen
+orden: 8
 nombre: Sala de rayos X
 foto: ./sala-de-rayos-x.webp
-alt: El brazo cefalométrico del equipo de rayos X, montado en la pared de la sala
+alt: Una asistente conversa con la paciente, que lleva puesto el chaleco plomado de protección en la sala de rayos X
 ---

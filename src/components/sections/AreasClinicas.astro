@@ -28,7 +28,7 @@ const iconos: Record<string, NombreIcono> = {
   />
 
   <div class="mt-12 md:mt-16" data-areas data-barra-fija>
-    <!-- Lista: móvil, tablet, sin JavaScript y con movimiento reducido. -->
+    <!-- Lista: sin JavaScript y con movimiento reducido. -->
     <div class="modo-lista grid gap-x-16 gap-y-10 md:grid-cols-12">
       <div class="border-t border-borde md:col-span-7">
         {
@@ -62,7 +62,7 @@ const iconos: Record<string, NombreIcono> = {
                     alt={area.data.altFoto}
                     formats={['avif', 'webp']}
                     fallbackFormat="jpg"
-                    quality={65}
+                    quality={80}
                     widths={[480, 720, 960, 1280, 1600]}
                     sizes="(min-width: 768px) 40vw, 100vw"
                     loading="lazy"
@@ -83,16 +83,18 @@ const iconos: Record<string, NombreIcono> = {
       </div>
     </div>
 
-    <!-- Órbita: desde 1024px con movimiento permitido. La sección queda fija y
-         el anillo gira con el scroll, llevando cada especialidad al fiel. -->
-    <div class="orbita">
+    <!-- Órbita: con movimiento permitido. La sección queda fija y el anillo
+         gira con el scroll, llevando cada especialidad al fiel. -->
+    <div class="orbita" style={`--paso: ${paso}deg`}>
       <div class="orbita-textos">
         {
           areas.map((area, i) => (
             <div class="orbita-texto" data-texto={area.id} inert={i > 0}>
               <h3 class="text-titulo">{area.data.nombre}</h3>
-              <p class="mt-5 max-w-[38ch] text-cuerpo-lg text-grafito">{area.data.resumen}</p>
-              <a href={`/tratamientos/${area.id}`} class="accion accion--secundaria mt-8">
+              <p class="mt-3 max-w-[38ch] text-cuerpo text-grafito lg:mt-5 lg:text-cuerpo-lg">
+                {area.data.resumen}
+              </p>
+              <a href={`/tratamientos/${area.id}`} class="accion accion--secundaria mt-6 lg:mt-8">
                 Conocer la especialidad
               </a>
             </div>
@@ -115,7 +117,9 @@ const iconos: Record<string, NombreIcono> = {
         </svg>
 
         <!-- Láminas sin lazy: el círculo las recorta y el navegador las cree
-             invisibles hasta que ya están entrando, así llegaban tarde. -->
+             invisibles hasta que ya están entrando, así llegaban tarde.
+             El sizes pide el doble del círculo en escritorio (~23rem): a la
+             medida justa la foto se veía blanda con la escala de la cortina. -->
         <div class="orbita-circulo">
           {
             areas.map((area) => (
@@ -127,9 +131,9 @@ const iconos: Record<string, NombreIcono> = {
                       alt={area.data.altFoto}
                       formats={['avif', 'webp']}
                       fallbackFormat="jpg"
-                      quality={65}
-                      widths={[400, 600, 800, 1000]}
-                      sizes="(min-width: 64rem) 24rem, 1px"
+                      quality={80}
+                      widths={[480, 720, 960, 1200]}
+                      sizes="(min-width: 64rem) 46rem, 60vw"
                       loading="eager"
                       fetchpriority="low"
                       class="h-full w-full object-cover"
@@ -154,7 +158,7 @@ const iconos: Record<string, NombreIcono> = {
               <button
                 type="button"
                 class="orbita-nodo"
-                style={`--angulo: ${180 + i * paso}deg`}
+                style={`--indice: ${i}`}
                 data-nodo={area.id}
                 aria-label={`Ver ${area.data.nombre}`}
                 aria-current={i === 0 ? 'true' : undefined}
@@ -217,14 +221,37 @@ const iconos: Record<string, NombreIcono> = {
     display: none;
   }
 
+  /* Móvil: el anillo arriba, el fiel a las seis y el texto debajo.
+     Escritorio: texto a la izquierda y el fiel a las nueve. */
   [data-rueda] .orbita {
-    --anillo: min(64svh, 34rem, 40vw);
+    --anillo: min(36svh, 72vw, 22rem);
+    --base: 90deg;
+    --separacion: 3rem;
     display: grid;
-    grid-template-columns: 5fr 7fr;
-    align-items: center;
-    gap: clamp(3rem, 8vw, 8rem);
+    align-content: center;
+    gap: var(--separacion);
     height: 100%;
     will-change: transform, opacity;
+  }
+
+  [data-rueda] .orbita-anillo {
+    order: -1;
+    justify-self: center;
+  }
+
+  @media (min-width: 64rem) {
+    [data-rueda] .orbita {
+      --anillo: min(64svh, 34rem, 40vw);
+      --base: 180deg;
+      --separacion: clamp(3rem, 8vw, 8rem);
+      grid-template-columns: 5fr 7fr;
+      align-items: center;
+    }
+
+    [data-rueda] .orbita-anillo {
+      order: 0;
+      justify-self: start;
+    }
   }
 
   .orbita-textos {
@@ -244,14 +271,24 @@ const iconos: Record<string, NombreIcono> = {
     aspect-ratio: 1;
   }
 
-  /* Une el texto con la especialidad que está en el fiel, a las nueve. */
+  /* Une el texto con la especialidad que está en el fiel. */
   .orbita-fiel {
     position: absolute;
-    top: 50%;
-    right: 100%;
-    width: clamp(3rem, 8vw, 8rem);
-    height: 1px;
+    top: 100%;
+    left: 50%;
+    width: 1px;
+    height: var(--separacion);
     background-color: var(--color-tinta);
+  }
+
+  @media (min-width: 64rem) {
+    .orbita-fiel {
+      top: 50%;
+      right: 100%;
+      left: auto;
+      width: var(--separacion);
+      height: 1px;
+    }
   }
 
   .orbita-trazo {
@@ -299,7 +336,6 @@ const iconos: Record<string, NombreIcono> = {
   .lamina-contenido {
     height: 100%;
     background-color: var(--color-tinta-800);
-    will-change: transform, opacity;
   }
 
   .orbita-grupo {
@@ -321,7 +357,8 @@ const iconos: Record<string, NombreIcono> = {
     margin: -1.5rem 0 0 -1.5rem;
     border-radius: 50%;
     cursor: pointer;
-    transform: rotate(var(--angulo)) translateX(calc(var(--anillo) / 2));
+    transform: rotate(calc(var(--base) + var(--indice) * var(--paso)))
+      translateX(calc(var(--anillo) / 2));
   }
 
   .orbita-punto {
@@ -340,16 +377,25 @@ const iconos: Record<string, NombreIcono> = {
     left: 50%;
     display: grid;
     place-items: center;
-    width: 5.5rem;
-    height: 5.5rem;
-    margin: -2.75rem 0 0 -2.75rem;
+    width: 4rem;
+    height: 4rem;
+    margin: -2rem 0 0 -2rem;
     border: 1px solid var(--color-verde-700);
     border-radius: 50%;
     background-color: var(--color-verde);
     color: var(--color-tinta);
     opacity: 0;
-    scale: 0.16;
+    scale: 0.22;
     will-change: scale, rotate, opacity;
+  }
+
+  @media (min-width: 64rem) {
+    .orbita-insignia {
+      width: 5.5rem;
+      height: 5.5rem;
+      margin: -2.75rem 0 0 -2.75rem;
+      scale: 0.16;
+    }
   }
 </style>
 
@@ -437,210 +483,223 @@ const iconos: Record<string, NombreIcono> = {
       gsap.context(() => {
         const mm = gsap.matchMedia();
 
-        mm.add('(min-width: 64rem) and (prefers-reduced-motion: no-preference)', () => {
-          const altoBarra = () => barra?.offsetHeight ?? 0;
-          const giroPx = () => RECORRIDO * window.innerHeight;
-          const limitar = gsap.utils.clamp(0, 1);
+        mm.add(
+          { escritorio: '(min-width: 64rem)', movimiento: '(prefers-reduced-motion: no-preference)' },
+          (contexto) => {
+            if (!contexto.conditions?.movimiento) return;
 
-          // La sección siguiente se monta sobre la órbita: con el margen
-          // negativo sube mientras la órbita sigue fija, y la cubre justo
-          // cuando se suelta el pin. Sin pantalla vacía entre ambas.
-          const medir = () => {
-            areas.style.setProperty('--alto-barra', `${altoBarra()}px`);
-            cubierta.style.marginTop = `-${areas.offsetHeight}px`;
-          };
+            // El fiel queda a las nueve en escritorio y a las seis en móvil.
+            const escritorio = Boolean(contexto.conditions.escritorio);
+            const base = escritorio ? 180 : 90;
+            const desplazamientoTexto = escritorio ? 3 : 2;
 
-          // El modo órbita cambia la altura: se activa antes de crear los
-          // ScrollTrigger para que midan con la altura final.
-          areas.dataset.rueda = '';
-          cubierta.style.position = 'relative';
-          cubierta.style.zIndex = '1';
-          cubierta.style.paddingTop = 'var(--spacing-seccion-sm)';
-          medir();
-          ScrollTrigger.addEventListener('refreshInit', medir);
+            const altoBarra = () => barra?.offsetHeight ?? 0;
+            const giroPx = () => RECORRIDO * window.innerHeight;
+            const limitar = gsap.utils.clamp(0, 1);
 
-          const pintar = (p: number) => {
-            const giro = -p * paso;
-            grupo.style.rotate = `${giro}deg`;
-            arco.style.strokeDashoffset = String(1 - p / ultimo);
+            // La sección siguiente se monta sobre la órbita: con el margen
+            // negativo sube mientras la órbita sigue fija, y la cubre justo
+            // cuando se suelta el pin. Sin pantalla vacía entre ambas.
+            const medir = () => {
+              areas.style.setProperty('--alto-barra', `${altoBarra()}px`);
+              cubierta.style.marginTop = `-${areas.offsetHeight}px`;
+            };
 
-            insignias.forEach((insignia, i) => {
-              const cercania = limitar(1 - Math.abs(i - p));
-              insignia.style.opacity = String(cercania);
-              // Parte del tamaño del punto (0.875rem de 5.5rem) para que se note crecer.
-              insignia.style.scale = String(0.16 + cercania * 0.84);
-              insignia.style.rotate = `${-(180 + i * paso + giro)}deg`;
-            });
+            // El modo órbita cambia la altura: se activa antes de crear los
+            // ScrollTrigger para que midan con la altura final.
+            areas.dataset.rueda = '';
+            cubierta.style.position = 'relative';
+            cubierta.style.zIndex = '1';
+            cubierta.style.paddingTop = 'var(--spacing-seccion-sm)';
+            medir();
+            ScrollTrigger.addEventListener('refreshInit', medir);
 
-            textos.forEach((texto, i) => {
-              const distancia = i - p;
-              texto.style.transform = `translateY(${distancia * 3}rem)`;
-              texto.style.opacity = String(limitar(1 - Math.abs(distancia) * 1.6));
-            });
+            // La insignia parte del tamaño del punto, y las dos cambian con el ancho.
+            const punto = areas.querySelector<HTMLElement>('.orbita-punto');
+            const minimo = (punto?.offsetWidth ?? 14) / (insignias[0]?.offsetWidth ?? 88);
 
-            contenidos.forEach((contenido, i) => {
-              const entrada = i === 0 ? 1 : limitar(p - (i - 1));
-              const salida = limitar(p - i);
-              const oculta = 1 - entrada;
-              (contenido.parentElement as HTMLElement).style.transform =
-                `translateY(${oculta * 100}%)`;
-              contenido.style.transform =
-                `translateY(${-oculta * 100 - salida * 12}%) scale(${1 + oculta * 0.04})`;
-              contenido.style.opacity = String(1 - salida * 0.4);
-            });
+            const pintar = (p: number) => {
+              const giro = -p * paso;
+              grupo.style.rotate = `${giro}deg`;
+              arco.style.strokeDashoffset = String(1 - p / ultimo);
 
-            activar(Math.round(p));
-          };
+              insignias.forEach((insignia, i) => {
+                const cercania = limitar(1 - Math.abs(i - p));
+                insignia.style.opacity = String(cercania);
+                insignia.style.scale = String(minimo + cercania * (1 - minimo));
+                insignia.style.rotate = `${-(base + i * paso + giro)}deg`;
+              });
 
-          const estado = { p: 0 };
-          pintar(0);
+              textos.forEach((texto, i) => {
+                const distancia = i - p;
+                texto.style.transform = `translateY(${distancia * desplazamientoTexto}rem)`;
+                texto.style.opacity = String(limitar(1 - Math.abs(distancia) * 1.6));
+              });
 
-          // El pin dura el giro, el reposo y la altura de la órbita: ese último
-          // tramo es lo que la sección siguiente tarda en cubrirla.
-          ScrollTrigger.create({
-            trigger: areas,
-            start: () => `top ${altoBarra()}px`,
-            end: () => `+=${giroPx() + areas.offsetHeight}`,
-            pin: true,
-          });
+              contenidos.forEach((contenido, i) => {
+                const entrada = i === 0 ? 1 : limitar(p - (i - 1));
+                const salida = limitar(p - i);
+                const oculta = 1 - entrada;
+                (contenido.parentElement as HTMLElement).style.transform =
+                  `translateY(${oculta * 100}%)`;
+                contenido.style.transform =
+                  `translateY(${-oculta * 100 - salida * 12}%) scale(${1 + oculta * 0.04})`;
+                contenido.style.opacity = String(1 - salida * 0.4);
+              });
 
-          // Durante el giro el snap asienta el anillo sobre una especialidad.
-          // En el reposo vuelve a la última, salvo que el scroll ya haya
-          // recorrido la mayor parte: entonces sigue hacia la sección siguiente.
-          const GIRO = ultimo * TRAMO;
-          const asentar = (progreso: number) => {
-            const t = progreso * RECORRIDO;
-            if (t <= GIRO) return (Math.round(t / TRAMO) * TRAMO) / RECORRIDO;
-            return t < GIRO + REPOSO * 0.7 ? GIRO / RECORRIDO : 1;
-          };
+              activar(Math.round(p));
+            };
 
-          // Lineal a propósito: el giro es el scroll mismo. El reposo es una
-          // pausa vacía al final de la línea de tiempo.
-          const giro = gsap.timeline({
-            scrollTrigger: {
+            const estado = { p: 0 };
+            pintar(0);
+
+            // El pin dura el giro, el reposo y la altura de la órbita: ese último
+            // tramo es lo que la sección siguiente tarda en cubrirla.
+            ScrollTrigger.create({
               trigger: areas,
               start: () => `top ${altoBarra()}px`,
-              end: () => `+=${giroPx()}`,
-              scrub: 0.6,
-              snap: {
-                snapTo: asentar,
-                duration: { min: 0.25, max: 0.6 },
-                delay: 0.08,
-                ease: EASE_GSAP.ambas,
-              },
-              invalidateOnRefresh: true,
-            },
-          });
+              end: () => `+=${giroPx() + areas.offsetHeight}`,
+              pin: true,
+            });
 
-          giro
-            .to(estado, {
-              p: ultimo,
-              duration: GIRO,
-              ease: 'none',
-              onUpdate: () => pintar(estado.p),
-            })
-            .to({}, { duration: REPOSO });
+            // Durante el giro el snap asienta el anillo sobre una especialidad.
+            // En el reposo vuelve a la última, salvo que el scroll ya haya
+            // recorrido la mayor parte: entonces sigue hacia la sección siguiente.
+            const GIRO = ultimo * TRAMO;
+            const asentar = (progreso: number) => {
+              const t = progreso * RECORRIDO;
+              if (t <= GIRO) return (Math.round(t / TRAMO) * TRAMO) / RECORRIDO;
+              return t < GIRO + REPOSO * 0.7 ? GIRO / RECORRIDO : 1;
+            };
 
-          rueda = giro.scrollTrigger;
-
-          /* --- Salida: la sección siguiente sube y luego se fija ----------- */
-
-          // La órbita retrocede mientras la tapan: se aleja y se apaga.
-          gsap.to(orbita, {
-            scale: 0.94,
-            opacity: 0.4,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: cubierta,
-              start: 'top bottom',
-              end: () => `top ${altoBarra()}px`,
-              scrub: 0.6,
-            },
-          });
-
-          // Al llegar arriba, el contenido de la sección siguiente queda fijo
-          // mientras su texto entra. El fondo de la sección sigue en el flujo
-          // y cubre la órbita que ya se soltó.
-          const interior = cubierta.firstElementChild;
-
-          if (interior instanceof HTMLElement) {
-            const LECTURA = 0.9;
-            const lectura = () => LECTURA * window.innerHeight;
-            const margenArriba = () => altoBarra() + parseFloat(getComputedStyle(cubierta).paddingTop);
-
-            // Una sola línea de tiempo, atada al pin: GSAP desplaza los
-            // ScrollTrigger que usan un elemento fijado y empiezan después que
-            // su pin, así que cada tramo va dentro de esta y no en uno propio.
-            // Duración 1 = todo el pin; el último tramo deja el texto quieto
-            // antes de soltar.
-            const entrada = gsap.timeline({
+            // Lineal a propósito: el giro es el scroll mismo. El reposo es una
+            // pausa vacía al final de la línea de tiempo.
+            const giro = gsap.timeline({
               scrollTrigger: {
-                trigger: interior,
-                start: () => `top ${margenArriba()}px`,
-                end: () => `+=${lectura()}`,
-                pin: true,
+                trigger: areas,
+                start: () => `top ${altoBarra()}px`,
+                end: () => `+=${giroPx()}`,
+                scrub: 0.6,
+                snap: {
+                  snapTo: asentar,
+                  duration: { min: 0.25, max: 0.6 },
+                  delay: 0.08,
+                  ease: EASE_GSAP.ambas,
+                },
+                invalidateOnRefresh: true,
+              },
+            });
+
+            giro
+              .to(estado, {
+                p: ultimo,
+                duration: GIRO,
+                ease: 'none',
+                onUpdate: () => pintar(estado.p),
+              })
+              .to({}, { duration: REPOSO });
+
+            rueda = giro.scrollTrigger;
+
+            /* --- Salida: la sección siguiente sube y luego se fija ----------- */
+
+            // La órbita retrocede mientras la tapan: se aleja y se apaga.
+            gsap.to(orbita, {
+              scale: 0.94,
+              opacity: 0.4,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: cubierta,
+                start: 'top bottom',
+                end: () => `top ${altoBarra()}px`,
                 scrub: 0.6,
               },
             });
 
-            entrada.to({}, { duration: 1 }, 0);
+            // Al llegar arriba, el contenido de la sección siguiente queda fijo
+            // mientras su texto entra. El fondo de la sección sigue en el flujo
+            // y cubre la órbita que ya se soltó.
+            const interior = cubierta.firstElementChild;
 
-            if (titular) {
-              SplitText.create(titular, {
-                type: 'lines',
-                mask: 'lines',
-                autoSplit: true,
-                onSplit: (partido) => {
-                  // Con line-height ajustado la máscara cortaría tildes y
-                  // descendentes: el relleno las deja dentro.
-                  gsap.set(partido.masks, { paddingBlock: '0.15em', marginBlock: '-0.15em' });
+            if (interior instanceof HTMLElement) {
+              const LECTURA = 0.9;
+              const lectura = () => LECTURA * window.innerHeight;
+              const margenArriba = () => altoBarra() + parseFloat(getComputedStyle(cubierta).paddingTop);
 
-                  // Se devuelve para que SplitText la retire al volver a partir.
-                  const lineas = gsap.from(partido.lines, {
-                    yPercent: 110,
-                    duration: 0.3,
-                    stagger: 0.1,
-                    ease: EASE_GSAP.suave,
-                  });
-                  entrada.add(lineas, 0);
-                  return lineas;
+              // Una sola línea de tiempo, atada al pin: GSAP desplaza los
+              // ScrollTrigger que usan un elemento fijado y empiezan después que
+              // su pin, así que cada tramo va dentro de esta y no en uno propio.
+              // Duración 1 = todo el pin; el último tramo deja el texto quieto
+              // antes de soltar.
+              const entrada = gsap.timeline({
+                scrollTrigger: {
+                  trigger: interior,
+                  start: () => `top ${margenArriba()}px`,
+                  end: () => `+=${lectura()}`,
+                  pin: true,
+                  scrub: 0.6,
                 },
               });
+
+              entrada.to({}, { duration: 1 }, 0);
+
+              if (titular) {
+                SplitText.create(titular, {
+                  type: 'lines',
+                  mask: 'lines',
+                  autoSplit: true,
+                  onSplit: (partido) => {
+                    // Con line-height ajustado la máscara cortaría tildes y
+                    // descendentes: el relleno las deja dentro.
+                    gsap.set(partido.masks, { paddingBlock: '0.15em', marginBlock: '-0.15em' });
+
+                    // Se devuelve para que SplitText la retire al volver a partir.
+                    const lineas = gsap.from(partido.lines, {
+                      yPercent: 110,
+                      duration: 0.3,
+                      stagger: 0.1,
+                      ease: EASE_GSAP.suave,
+                    });
+                    entrada.add(lineas, 0);
+                    return lineas;
+                  },
+                });
+              }
+
+              if (entradilla) {
+                entrada.from(
+                  entradilla,
+                  { opacity: 0, y: 24, duration: 0.35, ease: EASE_GSAP.suave },
+                  0.3,
+                );
+              }
             }
 
-            if (entradilla) {
-              entrada.from(
-                entradilla,
-                { opacity: 0, y: 24, duration: 0.35, ease: EASE_GSAP.suave },
-                0.3,
-              );
-            }
-          }
-
-          return () => {
-            rueda = undefined;
-            ScrollTrigger.removeEventListener('refreshInit', medir);
-            delete areas.dataset.rueda;
-            areas.style.removeProperty('--alto-barra');
-            for (const propiedad of ['margin-top', 'position', 'z-index', 'padding-top']) {
-              cubierta.style.removeProperty(propiedad);
-            }
-            grupo.style.removeProperty('rotate');
-            arco.style.removeProperty('stroke-dashoffset');
-            for (const insignia of insignias) {
-              insignia.style.removeProperty('opacity');
-              insignia.style.removeProperty('scale');
-              insignia.style.removeProperty('rotate');
-            }
-            for (const el of [...textos, ...contenidos]) {
-              el.style.removeProperty('transform');
-              el.style.removeProperty('opacity');
-            }
-            for (const contenido of contenidos) {
-              (contenido.parentElement as HTMLElement).style.removeProperty('transform');
-            }
-          };
-        });
+            return () => {
+              rueda = undefined;
+              ScrollTrigger.removeEventListener('refreshInit', medir);
+              delete areas.dataset.rueda;
+              areas.style.removeProperty('--alto-barra');
+              for (const propiedad of ['margin-top', 'position', 'z-index', 'padding-top']) {
+                cubierta.style.removeProperty(propiedad);
+              }
+              grupo.style.removeProperty('rotate');
+              arco.style.removeProperty('stroke-dashoffset');
+              for (const insignia of insignias) {
+                insignia.style.removeProperty('opacity');
+                insignia.style.removeProperty('scale');
+                insignia.style.removeProperty('rotate');
+              }
+              for (const el of [...textos, ...contenidos]) {
+                el.style.removeProperty('transform');
+                el.style.removeProperty('opacity');
+              }
+              for (const contenido of contenidos) {
+                (contenido.parentElement as HTMLElement).style.removeProperty('transform');
+              }
+            };
+          },
+        );
       }, areas);
     }
   }

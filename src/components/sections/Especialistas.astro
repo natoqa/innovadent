@@ -14,6 +14,7 @@ const principales = (await getCollection('especialistas'))
 
 // Ancho real de cada columna: 4 en escritorio dentro de max-w-ancho, 2 en móvil.
 const COLUMNA: Regla[] = [
+  ['(min-width: 1632px)', '21.5rem'],
   ['(min-width: 1248px)', '17rem'],
   ['(min-width: 768px)', '(25vw - 2.6rem)'],
   ['', '(50vw - 2rem)'],
@@ -43,7 +44,7 @@ const COLUMNA: Regla[] = [
                   alt={`Retrato de ${persona.data.nombre}.`}
                   formats={['avif', 'webp']}
                   fallbackFormat="jpg"
-                  quality={65}
+                  quality={80}
                   widths={[400, 600, 800, 1200, 1600]}
                   sizes={tamanosRetrato(persona.data.retrato, 3 / 4, COLUMNA)}
                   loading="lazy"

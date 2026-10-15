@@ -109,7 +109,7 @@ export const SITIO = {
   redes: {
     facebook: 'https://www.facebook.com/innovadent' as string | null,
     instagram: 'https://www.instagram.com/innovadentperu/' as string | null,
-    youtube: null as string | null,
+    tiktok: null as string | null,
   },
 
   /**

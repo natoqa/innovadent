@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
 import { SITIO } from '../../config/site';
 
 const tratamientos = (await getCollection('tratamientos')).sort(
@@ -25,12 +26,16 @@ const whatsappTexto = SITIO.contacto.whatsappTexto;
 const nombresRedes: Record<keyof typeof SITIO.redes, string> = {
   facebook: 'Facebook',
   instagram: 'Instagram',
-  youtube: 'YouTube',
+  tiktok: 'TikTok',
 };
 
+// En desarrollo se muestran también las redes sin enlace, para revisar el
+// pie completo; en producción solo existe lo que está en site.ts.
+const vistaPrevia = import.meta.env.DEV;
+
 const redes = (Object.entries(SITIO.redes) as [keyof typeof SITIO.redes, string | null][])
-  .filter((red): red is [keyof typeof SITIO.redes, string] => red[1] !== null)
-  .map(([clave, url]) => ({ nombre: nombresRedes[clave], url }));
+  .filter(([, url]) => url !== null || vistaPrevia)
+  .map(([clave, url]) => ({ clave, nombre: nombresRedes[clave], url: url ?? '#' }));
 ---
 
 <footer class="border-t border-borde bg-franja">
@@ -145,16 +150,17 @@ const redes = (Object.entries(SITIO.redes) as [keyof typeof SITIO.redes, string 
 
         {
           redes.length > 0 && (
-            <ul class="mt-8 flex flex-wrap gap-x-6">
-              {redes.map(({ nombre, url }) => (
+            <ul class="mt-8 -ml-3 flex flex-wrap gap-1">
+              {redes.map(({ clave, nombre, url }) => (
                 <li>
                   <a
                     href={url}
                     target="_blank"
                     rel="noopener"
-                    class="objetivo-tactil text-menor underline-offset-4 hover:underline"
+                    aria-label={nombre}
+                    class="red-pie grid size-12 place-items-center rounded-full text-grafito"
                   >
-                    {nombre}
+                    <Icon nombre={clave} tamano={20} />
                   </a>
                 </li>
               ))}
@@ -180,3 +186,18 @@ const redes = (Object.entries(SITIO.redes) as [keyof typeof SITIO.redes, string 
     </div>
   </div>
 </footer>
+
+<style>
+  .red-pie {
+    transition:
+      color var(--duracion-ui) var(--ease-salida),
+      background-color var(--duracion-ui) var(--ease-salida);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .red-pie:hover {
+      background-color: var(--color-borde);
+      color: var(--color-tinta);
+    }
+  }
+</style>

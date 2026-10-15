@@ -4,7 +4,9 @@
 #
 # La foto va en esta misma carpeta, tomada en la sede. Nada de fotos de stock.
 # descripcion es opcional: una línea sobre qué pasa en ese espacio.
+# zona: consultorios, imagen o recepcion. Agrupa la foto en la página.
 
+zona: recepcion
 orden: 1
 nombre: Sala de espera
 descripcion: Donde se espera antes de la consulta.

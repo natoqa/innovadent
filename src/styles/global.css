@@ -73,7 +73,7 @@
 
   /* Escala fluida. Razón 1.25 en cuerpo, saltos mayores en display.
      Los tamaños de cuerpo nunca bajan de 16px en móvil. */
-  --text-hero:    clamp(2.75rem, 7vw, 5.75rem);
+  --text-hero:    clamp(2.75rem, 6vw, 6rem);
   --text-hero--line-height: 0.92;
   --text-hero--letter-spacing: -0.03em;
 
@@ -122,7 +122,9 @@
   --spacing-seccion-sm: clamp(3rem, 7vh, 5rem);
 
   --container-texto:  38rem;   /* ~68 caracteres, límite de lectura */
-  --container-ancho:  78rem;
+  /* 78rem hasta pantallas de ~1630px; desde ahí crece con la pantalla hasta
+     96rem, que alcanza a 1920px. Las pantallas chicas no cambian. */
+  --container-ancho:  clamp(78rem, 100vw - 24rem, 96rem);
   --container-sangre: 96rem;  /* no llamarlo "full": pisaría la utilidad max-w-full */
 
   /* Radios jerárquicos: la estructura no se redondea, la fotografía sí. */
@@ -158,6 +160,15 @@
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Monitores de más de 1920px (32" en 1440p o 4K): todo lo medido en rem
+     crece en proporción, y la página se ve como a 1920px en vez de quedar
+     chica en el centro. */
+  @media (min-width: 1921px) {
+    html {
+      font-size: calc(100vw / 120);
+    }
   }
 
   h1, h2, h3, h4 {

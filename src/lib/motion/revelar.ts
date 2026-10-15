@@ -12,8 +12,8 @@
  *   data-mov="profundidad"  Desplazamiento vertical ligado al scroll (escritorio).
  *   data-mov-fotos          Toda `.foto` dentro se revela desde abajo.
  *
- * Modificadores: `data-mov-retraso` (segundos) y `data-mov-solo-movil` para
- * lo que en escritorio ya anima otra coreografía, como el titular de Casos.
+ * Modificadores: `data-mov-retraso` (segundos) y `data-mov-externo` para lo
+ * que ya anima otra coreografía, como el titular de Casos.
  *
  * Con movimiento reducido no se ejecuta nada: el contenido queda como llega
  * del servidor. Sin JavaScript, igual.
@@ -35,9 +35,9 @@ const recorte = (elemento: HTMLElement, arriba: string, derecha = '0%') => {
   return `inset(${arriba} ${derecha} 0% 0%${redondeo})`;
 };
 
-function titulos(raiz: ParentNode, escritorio: boolean) {
+function titulos(raiz: ParentNode) {
   for (const titulo of todos(raiz, '[data-mov="titulo"]')) {
-    if (escritorio && titulo.hasAttribute('data-mov-solo-movil')) continue;
+    if (titulo.hasAttribute('data-mov-externo')) continue;
 
     SplitText.create(titulo, {
       type: 'lines',
@@ -59,9 +59,9 @@ function titulos(raiz: ParentNode, escritorio: boolean) {
   }
 }
 
-function textos(raiz: ParentNode, escritorio: boolean) {
+function textos(raiz: ParentNode) {
   for (const texto of todos(raiz, '[data-mov="texto"]')) {
-    if (escritorio && texto.hasAttribute('data-mov-solo-movil')) continue;
+    if (texto.hasAttribute('data-mov-externo')) continue;
 
     gsap.from(texto, {
       opacity: 0,
@@ -215,8 +215,8 @@ export function iniciarMovimiento(raiz: ParentNode = document) {
       const escritorio = Boolean(contexto.conditions?.escritorio);
       if (!movimiento) return;
 
-      titulos(raiz, escritorio);
-      textos(raiz, escritorio);
+      titulos(raiz);
+      textos(raiz);
       fotos(raiz);
       grupos(raiz);
       filas(raiz);
